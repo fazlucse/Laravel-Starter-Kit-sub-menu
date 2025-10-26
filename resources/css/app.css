@@ -70,6 +70,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
     *,
     ::after,
     ::before,
@@ -80,6 +81,7 @@
 }
 
 @layer utilities {
+
     body,
     html {
         --font-sans:
@@ -162,10 +164,48 @@
     --sidebar: hsl(240 5.9% 10%);
 }
 
+.system {
+    --background: hsl(210 40% 18%);
+    /* Body background - more blue, slightly lighter */
+    --foreground: hsl(0 0% 98%);
+    --card: hsl(210 35% 22%);
+    --card-foreground: hsl(0 0% 98%);
+    --popover: hsl(210 35% 22%);
+    --popover-foreground: hsl(0 0% 98%);
+    --primary: hsl(217 92% 60%);
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(210 30% 25%);
+    --secondary-foreground: hsl(0 0% 98%);
+    --muted: hsl(210 25% 32%);
+    --muted-foreground: hsl(210 15% 75%);
+    --accent: hsl(217 92% 60%);
+    --accent-foreground: hsl(0 0% 100%);
+    --destructive: hsl(0 84% 60%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(210 25% 32%);
+    --input: hsl(210 25% 32%);
+    --ring: hsl(217 92% 60%);
+    --chart-1: hsl(217 92% 60%);
+    --chart-2: hsl(210 80% 55%);
+    --chart-3: hsl(200 75% 50%);
+    --chart-4: hsl(240 70% 60%);
+    --chart-5: hsl(260 65% 65%);
+    --sidebar-background: hsl(210 35% 22%);
+    --sidebar-foreground: hsl(0 0% 96%);
+    --sidebar-primary: hsl(217 92% 60%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(210 30% 25%);
+    --sidebar-accent-foreground: hsl(0 0% 98%);
+    --sidebar-border: hsl(210 25% 32%);
+    --sidebar-ring: hsl(217 92% 60%);
+    --sidebar: hsl(210 35% 22%);
+}
+
 @layer base {
     * {
         @apply border-border outline-ring/50;
     }
+
     body {
         @apply bg-background text-foreground;
     }

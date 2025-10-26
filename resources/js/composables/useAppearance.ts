@@ -7,6 +7,19 @@ export function updateTheme(value: Appearance) {
         return;
     }
 
+    // if (value === 'system') {
+    //     const mediaQueryList = window.matchMedia(
+    //         '(prefers-color-scheme: dark)',
+    //     );
+    //     const systemTheme = mediaQueryList.matches ? 'dark' : 'light';
+
+    //     document.documentElement.classList.toggle(
+    //         'dark',
+    //         systemTheme === 'dark',
+    //     );
+    // } else {
+    //     document.documentElement.classList.toggle('dark', value === 'dark');
+    // }
     if (value === 'system') {
         const mediaQueryList = window.matchMedia(
             '(prefers-color-scheme: dark)',
@@ -17,8 +30,10 @@ export function updateTheme(value: Appearance) {
             'dark',
             systemTheme === 'dark',
         );
+        document.documentElement.classList.add('system');
     } else {
         document.documentElement.classList.toggle('dark', value === 'dark');
+        document.documentElement.classList.remove('system');
     }
 }
 

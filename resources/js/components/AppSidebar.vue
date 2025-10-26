@@ -23,6 +23,11 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+     {
+        title: 'Menu',
+        href: dashboard(),
+        icon: LayoutGrid,
+    },
     {
         title: 'Projects',
         href: '#',
