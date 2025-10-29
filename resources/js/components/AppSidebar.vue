@@ -11,21 +11,19 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
 import { type NavItem } from '@/types'; // Import NavItem
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, ChevronDown } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
-
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: '/dashboard',
         icon: LayoutGrid,
     },
      {
         title: 'Menu',
-        href: dashboard(),
+        href: '/menus.index',
         icon: LayoutGrid,
     },
     {
@@ -36,12 +34,12 @@ const mainNavItems: NavItem[] = [
             {
                 title: 'Add ',
                      icon: Folder,
-                href: dashboard() + '/projects/active',
+                href:  '/projects/active',
             },
             {
                 title: 'List',
                      icon: Folder,
-                href: dashboard() + '/projects/archived',
+                href: '/projects/archived',
             },
             // {
             //     title: 'New Project',
@@ -78,7 +76,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
+                        <Link href="/menus.index">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>

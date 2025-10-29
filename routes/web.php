@@ -10,9 +10,13 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        return inertia('Dashboard');
+    })->name('dashboard');
+    Route::get('/menus.index', [MenuController::class, 'index'])->name('menus.index');
+    Route::get('/menus.create', [MenuController::class, 'create'])->name('menus.create');
+    Route::resource('menus', MenuController::class);
 
-Route::resource('menus', MenuController::class);
+});
 require __DIR__.'/settings.php';

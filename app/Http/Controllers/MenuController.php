@@ -1,21 +1,22 @@
+<?php
 namespace App\Http\Controllers;
 
 use App\Models\Menu;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-
+use Tymon\JWTAuth\Facades\JWTAuth;
 class MenuController extends Controller
 {
     public function index()
     {
         $menus = Menu::with('children')->orderBy('order')->get();
-        return Inertia::render('Menu/Index', compact('menus'));
+        return Inertia::render('menu/index');
     }
 
     public function create()
     {
         $parents = Menu::orderBy('name')->get();
-        return Inertia::render('Menu/Create', compact('parents'));
+        return Inertia::render('menu/create', compact('parents'));
     }
 
     public function store(Request $request)
@@ -37,6 +38,9 @@ class MenuController extends Controller
     {
         $parents = Menu::where('id', '!=', $menu->id)->orderBy('name')->get();
         return Inertia::render('Menu/Edit', compact('menu', 'parents'));
+    }
+    public function show( $id){
+
     }
 
     public function update(Request $request, Menu $menu)
