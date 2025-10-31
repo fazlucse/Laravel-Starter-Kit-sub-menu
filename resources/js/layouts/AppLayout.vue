@@ -12,7 +12,10 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
+    <div class="flex h-screen flex-col bg-background">
     <AppLayout :breadcrumbs="breadcrumbs">
         <slot />
     </AppLayout>
+    </div>
+
 </template>
