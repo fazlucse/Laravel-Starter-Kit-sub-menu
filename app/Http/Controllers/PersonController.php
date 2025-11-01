@@ -22,7 +22,8 @@ class PersonController extends Controller
         $people->appends(request()->query());
 
         return inertia('person/index', [
-            'people' => $people
+            'people' => $people,
+            'success' =>'sdfsdf'
         ]);
     }
 
@@ -66,8 +67,9 @@ class PersonController extends Controller
             $validated['status_photo'] = $request->file('status_photo')->store('status', 'public');
         }
 
-        Person::create($validated);
-
+        $person = Person::create($validated);
+        $lastId = $person->id;
+        LogsActions::logCreate($person, 'Person created successfully.');
         return redirect()->route('people.index')
             ->with('success', 'Person created successfully.');
     }
@@ -142,7 +144,6 @@ class PersonController extends Controller
         if ($person->status_photo) {
             Storage::disk('public')->delete($person->status_photo);
         }
-LogsActions::logDelete($person, $request->comments);
         $deleted = $person->delete();
 
     // Step 2: ONLY log if delete succeeded

@@ -8,20 +8,20 @@
   >
     <div class="flex flex-col h-[calc(100vh-5rem)]"> <!-- Adjust 5rem = header height -->
 
-      <ToastAlert
-        v-if="flash.success"
-        type="success"
-        :message="flash.success"
-        :show="!!flash.success"
-        @update:show="clearFlash('success')"
-      />
-      <ToastAlert
-        v-if="flash.error"
-        type="error"
-        :message="flash.error"
-        :show="!!flash.error"
-        @update:show="clearFlash('error')"
-      />
+<ToastAlert
+  v-if="flash.success"
+  type="success"
+  :message="flash.success"
+  :show="!!flash.success"
+  @update:show="clearFlash('success')"
+/>
+<ToastAlert
+  v-if="flash.error"
+  type="error"
+  :message="flash.error"
+  :show="!!flash.error"
+  @update:show="clearFlash('error')"
+/>
       <!-- Header + Controls -->
       <div class="p-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -224,6 +224,8 @@ import { Eye, Edit, Plus } from 'lucide-vue-next'
 import DeleteDialog from '@/Components/DeleteDialog.vue'
 import ToastAlert from '@/Components/custom/ToastAlert.vue'
 
+const flash = ref({ success: '', error: '' })
+
 defineProps<{
   people: {
     data: Array<any>
@@ -231,24 +233,34 @@ defineProps<{
     per_page: number
     links: Array<{ url: string | null; label: string; active: boolean }>
   }
+  flash?: {
+    success?: string
+    error?: string
+  }
 }>()
-const flash = ref({ success: '', error: '' })
 /* ---------- Per Page ---------- */
 const page = usePage()
 const perPage = ref(Number(page.props?.value?.query?.per_page) || 10)
 onMounted(() => {
-  flash.value = {
-    success: page.props.flash?.success || '',
-    error: page.props.flash?.error || ''
-  }
-  autoClearFlash()
-})
+  // Initial flash
+  updateFlash()
 
-// Auto-clear after 5 seconds
+  // Listen for every navigation (including reloads, redirects)
+  router.on('navigate', () => {
+    updateFlash()
+    autoClearFlash()
+  })
+})
 function autoClearFlash() {
   setTimeout(() => {
     flash.value = { success: '', error: '' }
   }, 5000)
+}
+function updateFlash() {
+  flash.value = {
+    success: page.props.flash?.success || '',
+    error: page.props.flash?.error || ''
+  }
 }
 
 function clearFlash(type: 'success' | 'error') {

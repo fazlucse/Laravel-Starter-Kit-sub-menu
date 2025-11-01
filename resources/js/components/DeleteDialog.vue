@@ -47,8 +47,10 @@
             type="submit"
             variant="destructive"
             :disabled="form.processing"
+            class="flex items-center gap-2"
           >
-            {{ form.processing ? 'Deleting...' : 'Delete' }}
+            <LoadingSpinner v-if="form.processing" />
+            <span>{{ form.processing ? 'Deleting...' : 'Delete' }}</span>
           </Button>
         </DialogFooter>
       </form>
@@ -60,6 +62,7 @@
 import { ref, watch } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { Trash2 } from 'lucide-vue-next'
+import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
 import {
   Dialog,
   DialogTrigger,
@@ -75,35 +78,32 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import InputError from '@/components/InputError.vue'
 
-// Props
 const props = defineProps<{
   url: string
   recordName: string
 }>()
 
-// Emits
 const emit = defineEmits<{
   (e: 'deleted'): void
 }>()
 
-// Control dialog open state
 const isOpen = ref(false)
+const commentInput = ref<HTMLInputElement | null>(null)
 
-// Form
+// Fix: Send `comments` in body
 const form = useForm({
   comments: '',
 })
 
-const commentInput = ref<HTMLInputElement | null>(null)
-
-// Submit delete
 function submit() {
-  form.delete(props.url, {
-    data: { comments: form.comments },
+  form.transform((data) => ({
+    ...data,
+    _method: 'DELETE', // Laravel expects this for DELETE via POST
+  })).post(props.url, {
     preserveScroll: true,
     onSuccess: () => {
-      emit('deleted')
-      close() // Close dialog on success
+      close()
+      emit('deleted') // Triggers refresh in parent
     },
     onError: () => {
       commentInput.value?.focus()
@@ -114,17 +114,13 @@ function submit() {
   })
 }
 
-// Close dialog (Cancel or after success)
 function close() {
   isOpen.value = false
   form.reset('comments')
   form.clearErrors()
 }
 
-// Optional: Close on escape (already handled by Dialog, but safe)
 watch(isOpen, (open) => {
-  if (!open) {
-    close()
-  }
+  if (!open) close()
 })
 </script>
