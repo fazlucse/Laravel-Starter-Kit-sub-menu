@@ -4,9 +4,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Person extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'name', 'designation', 'phone', 'email', 'country', 'city',
         'address', 'present_address', 'education', 'section',

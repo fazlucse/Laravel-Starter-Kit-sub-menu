@@ -210,3 +210,38 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* resources/css/app.css */
+@layer utilities {
+
+    /* Thin scrollbar for Webkit (Chrome, Safari, Edge) */
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.5);
+        /* gray-400 */
+        border-radius: 3px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background: rgba(107, 114, 128, 0.7);
+        /* gray-500 */
+    }
+
+    /* Dark mode */
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.5);
+    }
+
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background: rgba(209, 213, 219, 0.7);
+        /* gray-300 */
+    }
+}
