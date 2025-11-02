@@ -13,18 +13,30 @@ use Illuminate\Support\Facades\Storage;
 class PersonController extends Controller
 {
     use LogsActions;
-    public function index()
+    public function index(Request $request)
     {
-        $perPage = request()->integer('per_page', 10); // <-- IMPORTANT
-        $people = Person::paginate($perPage);
+   $query = Person::query();
+  $search = $request->input('search');
+    // SEARCH
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%")
+              ->orWhere('designation', 'like', "%{$search}%")
+              ->orWhere('city', 'like', "%{$search}%");
+        });
+    }
 
-        // Preserve query string (including per_page)
-        $people->appends(request()->query());
+    $people = $query->paginate($request->query('per_page', 15))
+                    ->appends($request->query());
 
-        return inertia('person/index', [
-            'people' => $people,
-            'success' =>'sdfsdf'
-        ]);
+    return inertia('person/index', [
+        'people' => $people,
+        'perPage' => (int) $request->query('per_page', 15),
+        'defaultPerPage' => 15,
+        'search'=>$search
+    ]);
     }
 
     public function create()
@@ -144,14 +156,19 @@ class PersonController extends Controller
         if ($person->status_photo) {
             Storage::disk('public')->delete($person->status_photo);
         }
-        $deleted = $person->delete();
-
-    // Step 2: ONLY log if delete succeeded
-    if ($deleted) {
         LogsActions::logDelete($person, $request->comments);
-        return back()->with('success', 'Person deleted and logged.');
+
+        // Now delete
+        $deleted = $person->delete(); // or forceDelete() if soft-deleted
+
+       if ($deleted) {
+        return redirect()
+            ->route('people.index')
+            ->with('success', 'Person deleted.');
     }
 
-     return back()->with('error', 'Failed to delete person. It may be in use.');
+    return back()->with('success', 'Failed to delete person.');
+
+    //  return back()->with('error', 'Failed to delete person. It may be in use.');
     }
 }

@@ -76,48 +76,55 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import InputError from '@/components/InputError.vue'
-
+import InputError from '@/Components/InputError.vue'
+const isDeleting = ref(false)
 const props = defineProps<{
   url: string
   recordName: string
 }>()
 
 const emit = defineEmits<{
-  (e: 'deleted'): void
+  (e: 'deleted', payload: { success: boolean; message?: string }): void
 }>()
 
 const isOpen = ref(false)
 const commentInput = ref<HTMLInputElement | null>(null)
 
-// Fix: Send `comments` in body
 const form = useForm({
   comments: '',
 })
 
 function submit() {
+  isDeleting.value = true
   form.transform((data) => ({
     ...data,
-    _method: 'DELETE', // Laravel expects this for DELETE via POST
+    _method: 'DELETE',
   })).post(props.url, {
-    preserveScroll: true,
+    // preserveScroll: true,
     onSuccess: () => {
+      emit('deleted', {
+        success: true,
+        message: `deleted successfully.`
+      })
       close()
-      emit('deleted') // Triggers refresh in parent
     },
     onError: () => {
       commentInput.value?.focus()
+      emit('deleted', {
+        success: false,
+        message: 'Failed to delete. Please try again.'
+      })
     },
     onFinish: () => {
-      form.reset('comments')
+      form.reset('comments');
     },
   })
 }
 
 function close() {
   isOpen.value = false
-  form.reset('comments')
-  form.clearErrors()
+  form.reset('comments');
+  form.clearErrors();
 }
 
 watch(isOpen, (open) => {

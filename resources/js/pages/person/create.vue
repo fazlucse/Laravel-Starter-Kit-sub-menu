@@ -3,7 +3,7 @@ import { useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Link } from '@inertiajs/vue3'
 import { ref, watch } from 'vue'
-
+import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
 const props = defineProps<{
   person?: any
 }>()
@@ -314,13 +314,17 @@ function submit() {
             >
               Cancel
             </Link>
+           
+           
+        
             <button
               type="submit"
               :disabled="form.processing"
               class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-md transition flex items-center gap-2"
-            >
-              <span v-if="form.processing" class="animate-spin">Loading</span>
-              {{ isEdit ? 'Update' : 'Create' }}
+            > <LoadingSpinner v-if="form.processing" />
+              <!-- <span v-if="form.processing" class="animate-spin">Loading</span> -->
+              {{ isEdit ? 'Update' : 'Submit' }}
+               
             </button>
           </div>
         </form>
