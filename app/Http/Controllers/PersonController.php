@@ -15,28 +15,30 @@ class PersonController extends Controller
     use LogsActions;
     public function index(Request $request)
     {
-   $query = Person::query();
-  $search = $request->input('search');
-    // SEARCH
-    if ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%")
-              ->orWhere('phone', 'like', "%{$search}%")
-              ->orWhere('designation', 'like', "%{$search}%")
-              ->orWhere('city', 'like', "%{$search}%");
-        });
+    $perPage = (int) $request->query('per_page', 15);
+    $query = Person::query();
+    $search = $request->input('search');
+    $query = Person::query();
+    $filters = $request->only(['name', 'email', 'phone', 'designation', 'city']);
+    foreach ($filters as $field => $value) {
+        if (!empty($value)) {
+            $query->where($field, 'like', "%{$value}%");
+        }
     }
-
-    $people = $query->paginate($request->query('per_page', 15))
+    $people = $query->orderByDesc('id')
+                    ->paginate($perPage)
                     ->appends($request->query());
-
+        session()->flash('success', 'People loaded successfully!');
     return inertia('person/index', [
         'people' => $people,
         'perPage' => (int) $request->query('per_page', 15),
         'defaultPerPage' => 15,
-        'search'=>$search
-    ]);
+        'search'=>$search,
+          'filters' => $filters,
+            'flash' => [
+                'success' => session('success'),
+            ],
+    ])->with('success', 'Person created.');
     }
 
     public function create()
