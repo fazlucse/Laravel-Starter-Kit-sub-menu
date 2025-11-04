@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+  <div class="p-1 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
     <nav class="flex flex-wrap justify-center gap-1" aria-label="Pagination">
       <!-- Previous -->
       <template v-if="links[0]?.url">

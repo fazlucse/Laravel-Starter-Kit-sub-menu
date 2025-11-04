@@ -10,7 +10,7 @@ class MenuController extends Controller
     public function index()
     {
         $menus = Menu::with('children')->orderBy('order')->get();
-        return Inertia::render('menu/index');
+        return Inertia::render('menu/index')->with('success','Lodaing done');
     }
 
     public function create()

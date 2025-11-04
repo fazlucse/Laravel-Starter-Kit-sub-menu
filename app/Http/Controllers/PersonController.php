@@ -28,7 +28,7 @@ class PersonController extends Controller
     $people = $query->orderByDesc('id')
                     ->paginate($perPage)
                     ->appends($request->query());
-        session()->flash('success', 'People loaded successfully!');
+    
     return inertia('person/index', [
         'people' => $people,
         'perPage' => (int) $request->query('per_page', 15),
@@ -84,8 +84,8 @@ class PersonController extends Controller
         $person = Person::create($validated);
         $lastId = $person->id;
         LogsActions::logCreate($person, 'Person created successfully.');
-        return redirect()->route('people.index')
-            ->with('success', 'Person created successfully.');
+         session()->flash('success', 'Person created successfully.');
+     return redirect()->route('people.index');
     }
 
     public function show(Person $person)
@@ -168,8 +168,7 @@ class PersonController extends Controller
             ->route('people.index')
             ->with('success', 'Person deleted.');
     }
-
-    return back()->with('success', 'Failed to delete person.');
+    return back()->with('success', 'Deleted');
 
     //  return back()->with('error', 'Failed to delete person. It may be in use.');
     }

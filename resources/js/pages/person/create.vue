@@ -2,8 +2,10 @@
 import { useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Link } from '@inertiajs/vue3'
-import { ref, watch } from 'vue'
+import { ref, watch,onMounted, onUnmounted } from 'vue'
 import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
+import flatpickr from 'flatpickr'
+
 const props = defineProps<{
   person?: any
 }>()
@@ -29,6 +31,7 @@ const form = useForm({
   nationality: props.person?.nationality || '',
   national_id: props.person?.national_id || '',
   tin: props.person?.tin || '',
+  dob: props.person?.dob || '', // ← NEW: Date of Birth
   avatar: null as File | null,
   status_photo: null as File | null,
 })
@@ -51,7 +54,25 @@ watch(
 
 const avatarInput = ref<HTMLInputElement | null>(null)
 const statusPhotoInput = ref<HTMLInputElement | null>(null)
+const dateInput = ref<HTMLInputElement | null>(null)
+let fp: any = null
+onMounted(() => {
+  if (dateInput.value) {
+    fp = flatpickr(dateInput.value, {
+      dateFormat: 'd-m-Y',
+      defaultDate: form.dob,
+      maxDate: 'today',
+      theme: 'dark', // auto-detects dark mode
+      onChange: (selectedDates: Date[]) => {
+        form.dob = selectedDates[0] ? selectedDates[0].toISOString().split('T')[0] : ''
+      },
+    })
+  }
+})
 
+onUnmounted(() => {
+  fp?.destroy()
+})
 function handleAvatar(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (file) form.avatar = file
@@ -91,14 +112,14 @@ function submit() {
     { title: 'People', href: '/people' },
     { title: isEdit ? 'Edit Person' : 'Create Person' }
   ]">
-    <div class="max-w-5xl mx-auto p-6">
+    <div class="min-w-4xl max-w-7xl  mx-auto p-2">
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-sidebar-border/70">
-        <form @submit.prevent="submit" class="space-y-8">
+        <form @submit.prevent="submit" >
 
           <!-- PERSONAL INFO -->
           <div>
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Personal Information</h2>
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid md:grid-cols-2 gap-2">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Name <span class="text-red-500">*</span>
@@ -144,7 +165,7 @@ function submit() {
 
           <!-- ADDRESS INFO -->
           <div>
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid md:grid-cols-2 gap-2">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
                 <input
@@ -184,7 +205,7 @@ function submit() {
 
           <!-- FAMILY & PERSONAL -->
           <div>
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid md:grid-cols-2 gap-2">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Father's Name</label>
                 <input
@@ -228,7 +249,7 @@ function submit() {
 
           <!-- PROFESSIONAL -->
           <div>
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid md:grid-cols-2 gap-2">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company</label>
                 <input
@@ -259,7 +280,7 @@ function submit() {
 
           <!-- IDs -->
           <div >
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid md:grid-cols-2 gap-2">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">National ID</label>
                 <input
@@ -283,9 +304,21 @@ function submit() {
 
           <!-- PHOTOS -->
           <div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Photos</h2>
-            <div class="grid md:grid-cols-2 gap-6">
-              <div>
+            <div class="grid md:grid-cols-2 gap-2">
+               <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Date of Birth
+                </label>
+                <input
+                  ref="dateInput"
+                  type="text"
+                  placeholder="YYYY-MM-DD"
+                  class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  :class="form.errors.dob ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                />
+                <p v-if="form.errors.dob" class="text-red-500 text-xs mt-1">{{ form.errors.dob }}</p>
+              </div>
+               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Profile Photo</label>
                 <input
                   ref="avatarInput"
@@ -302,7 +335,6 @@ function submit() {
                   class="mt-2 w-24 h-24 rounded-full object-cover border"
                 />
               </div>
-             
             </div>
           </div>
 
@@ -310,7 +342,7 @@ function submit() {
           <div class="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
             <Link
               href="/people"
-              class="px-5 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-700 transition"
+              class="cursor-pointer px-5 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-700 transition"
             >
               Cancel
             </Link>
@@ -320,7 +352,7 @@ function submit() {
             <button
               type="submit"
               :disabled="form.processing"
-              class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-md transition flex items-center gap-2"
+              class=" cursor-pointer px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-md transition flex items-center gap-2"
             > <LoadingSpinner v-if="form.processing" />
               <!-- <span v-if="form.processing" class="animate-spin">Loading</span> -->
               {{ isEdit ? 'Update' : 'Submit' }}

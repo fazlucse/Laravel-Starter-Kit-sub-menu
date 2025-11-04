@@ -38,7 +38,7 @@
 
         <DialogFooter class="gap-2">
           <DialogClose as-child>
-            <Button variant="secondary" type="button" @click="close">
+            <Button class="cursor-pointer" variant="secondary" type="button" @click="close">
               Cancel
             </Button>
           </DialogClose>
@@ -47,7 +47,7 @@
             type="submit"
             variant="destructive"
             :disabled="form.processing"
-            class="flex items-center gap-2"
+            class="flex items-center gap-2 cursor-pointer "
           >
             <LoadingSpinner v-if="form.processing" />
             <span>{{ form.processing ? 'Deleting...' : 'Delete' }}</span>

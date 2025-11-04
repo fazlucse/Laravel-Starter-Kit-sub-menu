@@ -107,7 +107,7 @@
         <div class="flex gap-3 justify-end">
           <button
             @click="reset"
-            class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 cursor-pointer"
+            class="px-4 py-2 text-sm font-medium text-white bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 cursor-pointer"
           >
             Reset
           </button>
