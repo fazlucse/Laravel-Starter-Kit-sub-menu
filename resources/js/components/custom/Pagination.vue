@@ -15,7 +15,7 @@
         :key="link.label"
         :href="link.url || '#'"
         v-html="link.label"
-        preserve-scroll
+       preserve-scroll preserve-state
         :class="[
           'px-3 py-2 text-sm rounded-md border',
           link.active

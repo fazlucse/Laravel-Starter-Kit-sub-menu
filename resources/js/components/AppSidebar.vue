@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types'; // Import NavItem
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, ChevronDown } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, ChevronDown,Users  } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -28,9 +28,9 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
      {
-        title: 'Person',
+        title: 'People',
         href: '/people.index',
-        icon: LayoutGrid,
+        icon: Users,
     },
     {
         title: 'Projects',
