@@ -12,7 +12,7 @@ class Person extends Model
         'name', 'designation', 'phone', 'email', 'country', 'city',
         'address', 'present_address', 'education', 'section',
         'material_status', 'father_name', 'mother_name', 'company',
-        'nationality', 'national_id', 'tin', 'avatar', 'status_photo',
+        'nationality', 'national_id', 'tin', 'avatar', 'dob',
     ];
 
     protected $casts = [

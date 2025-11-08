@@ -38,6 +38,12 @@
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                   S.L
                 </th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                  Actions
+                </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                  ID
+                </th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                   Photo
                 </th>
@@ -56,9 +62,7 @@
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                   City
                 </th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                  Actions
-                </th>
+              
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -70,11 +74,30 @@
                 <td class="px-4 py-3 text-sm">
                   {{ (people.current_page - 1) * people.per_page + i + 1 }}
                 </td>
+                 <td class="px-4 py-3 text-right">
+                  <div class="flex justify-end gap-1">
+                    <Link v-if="canView" :href="`/people/${p.id}`" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition">
+                      <Eye class="w-4 h-4" />
+                    </Link>
+                    <Link v-if="canEdit" :href="`/people/${p.id}/edit`" class="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded transition">
+                      <Edit class="w-4 h-4" />
+                    </Link>
+                    <DeleteDialog
+                      v-if="canDelete"
+                      :url="`/people/${p.id}`"
+                      record-name="Person"
+                      @deleted="handleDelete"
+                    />
+                  </div>
+                </td>
+                  <td class="px-4 py-3 text-sm">
+                  {{ p.id }}
+                </td>
                 <td class="px-4 py-3">
                   <div class="w-10 h-10 rounded-full overflow-hidden border">
                     <img
                       v-if="p.avatar"
-                      :src="`/storage/${p.avatar}`"
+                      :src="`${p.avatar}`"
                       class="w-full h-full object-cover"
                     />
                     <div
@@ -99,22 +122,7 @@
                 <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                   {{ p.city || '—' }}
                 </td>
-                <td class="px-4 py-3 text-right">
-                  <div class="flex justify-end gap-1">
-                    <Link v-if="canView" :href="`/people/${p.id}`" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition">
-                      <Eye class="w-4 h-4" />
-                    </Link>
-                    <Link v-if="canEdit" :href="`/people/${p.id}/edit`" class="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded transition">
-                      <Edit class="w-4 h-4" />
-                    </Link>
-                    <DeleteDialog
-                      v-if="canDelete"
-                      :url="`/people/${p.id}`"
-                      record-name="Person"
-                      @deleted="handleDelete"
-                    />
-                  </div>
-                </td>
+               
               </tr>
             </tbody>
           </table>

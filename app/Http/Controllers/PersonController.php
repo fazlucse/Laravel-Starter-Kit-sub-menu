@@ -9,6 +9,7 @@ use App\Traits\LogsActions;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class PersonController extends Controller
 {
@@ -68,17 +69,21 @@ class PersonController extends Controller
             'national_id' => 'nullable|string|unique:people,national_id',
             'tin' => 'nullable|string|unique:people,tin',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'dob' => 'nullable|date',
         ];
 
         $validated = $request->validate($rules);
 
         // Handle file uploads
         if ($request->hasFile('avatar')) {
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
-        }
-        if ($request->hasFile('status_photo')) {
-            $validated['status_photo'] = $request->file('status_photo')->store('status', 'public');
+           $statusDir = public_path('images/user_photo');
+            if (!File::exists($statusDir)) {
+                File::makeDirectory($statusDir, 0755, true);
+            }
+            $avatarFile = $request->file('avatar');
+            $statusName = time() . '_' . $avatarFile->getClientOriginalName();
+            $avatarFile->move($statusDir, $statusName);
+            $validated['avatar'] = 'images/user_photo/' . $statusName;
         }
 
         $person = Person::create($validated);
@@ -90,64 +95,61 @@ class PersonController extends Controller
 
     public function show(Person $person)
     {
-        return Inertia::render('People/Show', [
+        return Inertia::render('person/show', [
             'person' => $person->makeHidden(['created_at', 'updated_at']),
         ]);
     }
 
     public function edit(Person $person)
     {
-        return Inertia::render('People/Edit', [
+        return Inertia::render('person/create', [
             'person' => $person,
         ]);
     }
 
     public function update(Request $request, Person $person)
     {
-        // Validation rules (skip unique on current record)
         $rules = [
-            'name' => 'required|string|max:255',
-            'designation' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|unique:people,email,' . $person->id,
-            'country' => 'nullable|string|max:100',
-            'city' => 'nullable|string|max:100',
-            'address' => 'nullable|string',
-            'present_address' => 'nullable|string',
-            'education' => 'nullable|string',
-            'section' => 'nullable|string|max:255',
-            'material_status' => 'nullable|in:Single,Married,Divorced,Widowed',
-            'father_name' => 'nullable|string|max:255',
-            'mother_name' => 'nullable|string|max:255',
-            'company' => 'nullable|string|max:255',
-            'nationality' => 'nullable|string|max:100',
-            'national_id' => 'nullable|string|unique:people,national_id,' . $person->id,
-            'tin' => 'nullable|string|unique:people,tin,' . $person->id,
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ];
+        'name' => 'required|string|max:255',
+        'designation' => 'nullable|string|max:255',
+        'phone' => 'required|string|max:20',
+        'email' => 'nullable|email|unique:people,email,' . $person->id,
+        'country' => 'nullable|string|max:100',
+        'city' => 'nullable|string|max:100',
+        'address' => 'nullable|string',
+        'present_address' => 'nullable|string',
+        'education' => 'nullable|string',
+        'section' => 'nullable|string|max:255',
+        'material_status' => 'nullable|in:Single,Married,Divorced,Widowed',
+        'father_name' => 'nullable|string|max:255',
+        'mother_name' => 'nullable|string|max:255',
+        'company' => 'nullable|string|max:255',
+        'nationality' => 'nullable|string|max:100',
+        'national_id' => 'nullable|string|unique:people,national_id,' . $person->id,
+        'tin' => 'nullable|string|unique:people,tin,' . $person->id,
+        'dob' => 'nullable|date',
+        'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ];
 
-        $validated = $request->validate($rules);
+    $validated = $request->validate($rules);
 
-        // Handle file uploads
-        if ($request->hasFile('avatar')) {
-            if ($person->avatar) {
-                Storage::disk('public')->delete($person->avatar);
-            }
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+    // Handle avatar
+    if ($request->hasFile('avatar')) {
+        // Delete old avatar
+        if ($person->avatar && File::exists(public_path($person->avatar))) {
+            File::delete(public_path($person->avatar));
         }
+        $avatarFile = $request->file('avatar');
+        $avatarName = time() . '_' . $avatarFile->getClientOriginalName();
+        $avatarFile->move(public_path('images/user_photo'), $avatarName);
+        $validated['avatar'] = 'images/user_photo/' . $avatarName;
+    } else {
+        $validated['avatar'] = $person->avatar; // keep old avatar
+    }
 
-        if ($request->hasFile('status_photo')) {
-            if ($person->status_photo) {
-                Storage::disk('public')->delete($person->status_photo);
-            }
-            $validated['status_photo'] = $request->file('status_photo')->store('status', 'public');
-        }
+    $person->update($validated);
 
-        $person->update($validated);
-
-        return redirect()->route('people.show', $person)
-            ->with('success', 'Profile updated successfully.');
+    return redirect()->route('people.index')->with('success', 'Profile updated successfully.');
     }
 
     public function destroy(Request $request, Person $person)

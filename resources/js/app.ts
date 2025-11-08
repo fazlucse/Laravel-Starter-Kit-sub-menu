@@ -1,5 +1,5 @@
 import GlobalPageLoader from '@/components/custom/PageLoader.vue'; // <-- add this
-import { createInertiaApp, router } from '@inertiajs/vue3';
+import { createInertiaApp } from '@inertiajs/vue3';
 import 'flatpickr/dist/flatpickr.min.css';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
@@ -44,8 +44,8 @@ createInertiaApp({
 // 3. OPTIONAL: Forward Inertia progress → GlobalPageLoader
 //     (so even *manual* router.visit() calls show the loader)
 // -----------------------------------------------------------------
-router.on('start', () => router.progress.start());
-router.on('finish', () => router.progress.finish());
+// router.on('start', () => router.progress.start());
+// router.on('finish', () => router.progress.finish());
 
 // Initialise theme after first render
 nextTick(initializeTheme);

@@ -7,9 +7,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PersonController;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
+  return redirect()->route('login');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
