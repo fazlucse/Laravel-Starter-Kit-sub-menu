@@ -2,7 +2,7 @@
   <!-- ==== SEARCH ICON (always visible) ==== -->
   <button
     @click="open"
-    class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
+    class="p-2 cursor-pointer rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
     title="Search people"
   >
     <svg
@@ -58,7 +58,7 @@
 
           <button
             @click="close"
-            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
+            class="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

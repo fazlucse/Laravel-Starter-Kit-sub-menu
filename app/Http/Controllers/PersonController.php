@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Person;
 use App\Models\ActionLog;
+use App\Models\InfoMaster;
 use App\Traits\LogsActions;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -44,7 +45,10 @@ class PersonController extends Controller
 
     public function create()
     {
-        return Inertia::render('person/create');
+        return Inertia::render('person/create',[
+        'countries' => InfoMaster::getCountries(),
+        'cities' => InfoMaster::getCities(),
+        ]);
     }
 
     public function store(Request $request)
@@ -70,6 +74,8 @@ class PersonController extends Controller
             'tin' => 'nullable|string|unique:people,tin',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'dob' => 'nullable|date',
+            'religion' => 'nullable|string|max:255',
+            'gender' =>  'nullable|string|max:255'
         ];
 
         $validated = $request->validate($rules);
@@ -104,6 +110,8 @@ class PersonController extends Controller
     {
         return Inertia::render('person/create', [
             'person' => $person,
+            'countries' => InfoMaster::getCountries(),
+            'cities' => InfoMaster::getCities(),
         ]);
     }
 
@@ -129,6 +137,8 @@ class PersonController extends Controller
         'tin' => 'nullable|string|unique:people,tin,' . $person->id,
         'dob' => 'nullable|date',
         'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'religion' => 'nullable|string|max:255',
+        'gender' =>  'nullable|string|max:255'
     ];
 
     $validated = $request->validate($rules);
@@ -154,17 +164,11 @@ class PersonController extends Controller
 
     public function destroy(Request $request, Person $person)
     {
-        if ($person->avatar) {
-            Storage::disk('public')->delete($person->avatar);
-        }
-        if ($person->status_photo) {
-            Storage::disk('public')->delete($person->status_photo);
+         if ($person->avatar && File::exists(public_path($person->avatar))) {
+            File::delete(public_path($person->avatar));
         }
         LogsActions::logDelete($person, $request->comments);
-
-        // Now delete
         $deleted = $person->delete(); // or forceDelete() if soft-deleted
-
        if ($deleted) {
         return redirect()
             ->route('people.index')

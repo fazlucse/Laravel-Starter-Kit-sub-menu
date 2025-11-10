@@ -6,7 +6,7 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import flatpickr from 'flatpickr'
 import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
 
-const props = defineProps<{ person?: any }>()
+const props = defineProps<{ person?: any, countries: any[], cities: any[] }>()
 const isEdit = !!props.person
 
 const form = useForm({
@@ -27,13 +27,13 @@ const form = useForm({
     nationality: props.person?.nationality || '',
     national_id: props.person?.national_id || '',
     tin: props.person?.tin || '',
-    dob: props.person?.dob || '',
+     dob: props.person?.dob || '',
+     gender: props.person?.gender || '',
+     religion: props.person?.religion || '',
     avatar: null as File | null,
-    status_photo: null as File | null,
 })
 
 const avatarPreview = ref(props.person?.avatar ? `/storage/${props.person.avatar}` : null)
-const statusPreview = ref(props.person?.status_photo ? `/storage/${props.person.status_photo}` : null)
 const dateInput = ref<HTMLInputElement | null>(null)
 let fp: any = null
 
@@ -61,7 +61,6 @@ watch(() => props.person, (newPerson) => {
     } else {
         form.reset()
         avatarPreview.value = null
-        statusPreview.value = null
     }
 }, { immediate: true })
 
@@ -88,8 +87,11 @@ function submit() {
     })
 
   if (isEdit) {
-    console.log(formData);
-        form.put(`/people/${props.person.id}`, formData, { forceFormData: true })
+  formData.append('_method', 'PUT') // 👈 Tells Laravel it's an update
+    form.post(`/people/${props.person.id}`, {
+      data: formData,
+      forceFormData: true,
+    });
     } else {
       
         form.post('/people', { data: formData, forceFormData: true })
@@ -146,24 +148,80 @@ function submit() {
                 <input v-model="form.tin"
                   class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
               </div>
+              <div>
+  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    Gender
+  </label>
+  <select v-model="form.gender"
+          class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+    <option value="">Select</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
+
+<div>
+  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    Religion
+  </label>
+  <select v-model="form.religion"
+          class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+    <option value="">Select</option>
+    <option value="Islam">Islam</option>
+    <option value="Hinduism">Hinduism</option>
+    <option value="Christianity">Christianity</option>
+    <option value="Buddhism">Buddhism</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
+
             </div>
           </div>
           <!-- ADDRESS INFO -->
           <div>
             <h2 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">Address Information</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
-                <input v-model="form.country"
-                  class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  :class="form.errors.country ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'" />
-              </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
+              <select v-model="form.country"
+                      class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                      :class="form.errors.country ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'">
+                <option value="">Select Country</option>
+                <option v-for="country in props.countries" :key="country.id" :value="country.name">
+                  {{ country.name }}
+                </option>
+              </select>
+              <p v-if="form.errors.country" class="text-red-500 text-xs mt-1">{{ form.errors.country }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City</label>
+              <select v-model="form.city"
+                      class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                      :class="form.errors.city ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'">
+                <option value="">Select City</option>
+                <option v-for="city in props.cities" :key="city.id" :value="city.name">
+                  {{ city.name }}
+                </option>
+              </select>
+              <p v-if="form.errors.country" class="text-red-500 text-xs mt-1">{{ form.errors.country }}</p>
+            </div>
+
+<!-- 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City</label>
-                <input v-model="form.city"
-                  class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  :class="form.errors.city ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'" />
-              </div>
+                <select v-model="form.city"
+                        class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                        :disabled="!form.country"
+                        :class="form.errors.city ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'">
+                  <option value="">Select City</option>
+                  <option v-for="city in filteredCities" :key="city.id" :value="city.id">
+                    {{ city.name }}
+                  </option>
+                </select>
+                <p v-if="form.errors.city" class="text-red-500 text-xs mt-1">{{ form.errors.city }}</p>
+              </div> -->
+
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Permanent Address</label>
                 <textarea v-model="form.address" rows="2"

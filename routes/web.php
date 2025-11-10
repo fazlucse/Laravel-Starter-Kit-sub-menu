@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('menus', MenuController::class);
     Route::match(['get', 'post'], '/people.index', [PersonController::class, 'index'])->name('people.index');
     Route::get('/people.create', [PersonController::class, 'create'])->name('people.create');
+    Route::post('/people/{person}', [PersonController::class, 'update'])->name('people.update');
     Route::resource('people', PersonController::class);
 });
 require __DIR__.'/settings.php';

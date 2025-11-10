@@ -35,4 +35,22 @@ class InfoMaster extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+        public static function getCountries()
+    {
+        return self::where('type', 'country')->select('id', 'name')->get();
+    }
+
+    public static function getCities()
+    {
+        return self::where('type', 'city')->select('id', 'name', 'parent_id')->get();
+    }
+
+    // Optional: Get cities by country
+    public static function getCitiesByCountry($countryId)
+    {
+        return self::where('type', 'city')
+            ->where('parent_id', $countryId)
+            ->select('id', 'name')
+            ->get();
+    }
 }
