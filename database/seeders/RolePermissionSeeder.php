@@ -18,9 +18,9 @@ class RolePermissionSeeder extends Seeder
         // -------------------------
         $permissions = [
             // Person Module
-            'person.create', 'person.edit', 'person.delete', 'person.view',
+            // 'person.create', 'person.edit', 'person.delete', 'person.view',
             // HR Module
-            // 'hr.view', 'hr.create', 'hr.edit', 'hr.delete', 'hr.manage',
+            'employee.view', 'employee.create', 'employee.edit', 'employee.delete',
             // Payroll Module
             // 'payroll.view', 'payroll.create', 'payroll.edit', 'payroll.delete', 'payroll.manage',
         ];
@@ -35,7 +35,7 @@ class RolePermissionSeeder extends Seeder
         $roles = [
             'Developer' => $permissions, // all permissions
             'Super Admin' => $permissions, // all permissions
-            'Admin' => ['person.create','person.edit','person.delete','person.view'],
+            'Admin' => ['person.create','person.edit','person.delete','person.view', 'employee.view', 'employee.create', 'employee.edit', 'employee.delete',],
             // 'HR Manager' => ['hr.view','hr.edit','hr.manage','person.view'],
             // 'Payroll Manager' => ['payroll.view','payroll.edit','payroll.manage','person.view'],
             'Employee' => ['person.view'],

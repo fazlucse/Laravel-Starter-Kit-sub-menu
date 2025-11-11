@@ -5,6 +5,8 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\EmployeeController;
+
 
 Route::get('/', function () {
   return redirect()->route('login');
@@ -21,5 +23,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/people.create', [PersonController::class, 'create'])->name('people.create');
     Route::post('/people/{person}', [PersonController::class, 'update'])->name('people.update');
     Route::resource('people', PersonController::class);
+
+    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
+    Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
+    Route::get('/employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
+    Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+    Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+    
 });
 require __DIR__.'/settings.php';

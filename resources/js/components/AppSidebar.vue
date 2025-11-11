@@ -33,6 +33,11 @@ const mainNavItems: NavItem[] = [
         icon: Users,
     },
     {
+        title: 'Employee Management',
+        href: '/employees',
+        icon: Users,
+    },
+    {
         title: 'Projects',
         href: '#',
         icon: Folder,
