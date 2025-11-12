@@ -178,4 +178,16 @@ class PersonController extends Controller
 
     //  return back()->with('error', 'Failed to delete person. It may be in use.');
     }
+    public function search(Request $request)
+{
+    $query = $request->input('q', '');
+
+    $designations = Designation::query()
+        ->when($query, fn($q) => $q->where('name', 'like', "%{$query}%"))
+        ->select('id', 'name')
+        ->limit(10)
+        ->get();
+
+    return response()->json(['designations' => $designations]);
+}
 }

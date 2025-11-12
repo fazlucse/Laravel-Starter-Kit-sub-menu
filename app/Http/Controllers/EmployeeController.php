@@ -46,63 +46,48 @@ class EmployeeController extends Controller
     /**
      * Store a new employee
      */
-    public function store(Request $request)
+public function store(StoreEmployeeRequest $request)
     {
-        // Validate input
-        $validated = $request->validate([
-            'person_id' => 'required|integer',
-            'person_name' => 'required|string|max:150',
-            'employee_code' => 'required|string|max:20|unique:employees',
-            'employee_id' => 'required|string|max:20|unique:employees',
-            'company_id' => 'nullable|exists:companies,id',
-            'division_id' => 'nullable|exists:divisions,id',
-            'department_id' => 'required|exists:departments,department_id',
-            'designation_id' => 'required|exists:designations,designation_id',
-            'joining_date' => 'required|date',
-            'employment_type' => 'required|in:Permanent,Contract,Intern,Probation,Freelancer',
-            // You can add other optional fields here if needed
-        ]);
+        $data = $request->validated();
 
-        // Create employee
-        $employee = new Employee();
-        $employee->person_id = $validated['person_id'];
-        $employee->person_name = $validated['person_name'];
-        $employee->employee_code = $validated['employee_code'];
-        $employee->employee_id = $validated['employee_id'];
-        $employee->company_id = $validated['company_id'] ?? null;
-        $employee->company_name = $validated['company_id'] ? Company::find($validated['company_id'])->company_name : null;
-        $employee->division_id = $validated['division_id'] ?? null;
-        $employee->division_name = $validated['division_id'] ? Division::find($validated['division_id'])->division_name : null;
-        $employee->department_id = $validated['department_id'];
-        $employee->department_name = Department::find($validated['department_id'])->department_name;
-        $employee->designation_id = $validated['designation_id'];
-        $employee->designation_name = Designation::find($validated['designation_id'])->designation_name;
-        $employee->joining_date = $validated['joining_date'];
-        $employee->employment_type = $validated['employment_type'];
-        $employee->created_by = Auth::id();
+        // Auto-calculate if not provided
+        $data['gross_salary'] = $data['gross_salary'] ?? (
+            $data['basic_salary'] +
+            ($data['house_rent_allowance'] ?? 0) +
+            ($data['medical_allowance'] ?? 0) +
+            ($data['transport_allowance'] ?? 0) +
+            ($data['other_allowances'] ?? 0)
+        );
 
-        // Optional fields (fill if request has them)
-        $optionalFields = [
-            'confirmation_date', 'probation_end_date', 'effective_date', 'work_location', 'shift',
-            'official_email', 'official_phone', 'office_in_time', 'office_out_time', 'late_time',
-            'employee_status', 'gross_salary', 'basic_salary', 'house_rent_allowance', 'medical_allowance',
-            'transport_allowance', 'other_allowances', 'overtime_rate', 'total_salary', 'currency',
-            'bank_name', 'bank_account_no', 'bank_ifsc_code', 'pan_number', 'tax_status', 'social_security_no',
-            'passport_number', 'is_tax_dedction', 'is_salary_stop', 'emergency_contact_name', 'emergency_contact_phone',
-            'marital_status', 'gender', 'blood_group', 'work_experience', 'skills',
-            'reporting_manager_id', 'reporting_manager_name', 'second_reporting_manager_id', 'second_reporting_manager_name',
-            'deparment_head', 'deparment_head_name', 'last_appraisal_date', 'next_appraisal_date',
-            'last_promotion_date', 'next_promotion_due', 'office_time'
-        ];
+        $data['total_salary'] = $data['total_salary'] ?? ($data['gross_salary'] + ($data['overtime_rate'] ?? 0));
 
-        foreach ($optionalFields as $field) {
-            if ($request->has($field)) {
-                $employee->$field = $request->$field;
-            }
-        }
-
-        $employee->save();
+        Employee::create($data);
 
         return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
+    }
+    public function edit(Employee $employee)
+    {
+        return Inertia::render('Employees/Form', [
+            'employee' => $employee->toArray(),
+            'mode' => 'edit',
+        ]);
+    }
+    public function update(StoreEmployeeRequest $request, Employee $employee)
+    {
+        $data = $request->validated();
+
+        $data['gross_salary'] = $data['gross_salary'] ?? (
+            $data['basic_salary'] +
+            ($data['house_rent_allowance'] ?? 0) +
+            ($data['medical_allowance'] ?? 0) +
+            ($data['transport_allowance'] ?? 0) +
+            ($data['other_allowances'] ?? 0)
+        );
+
+        $data['total_salary'] = $data['total_salary'] ?? ($data['gross_salary'] + ($data['overtime_rate'] ?? 0));
+
+        $employee->update($data);
+
+        return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
     }
 }

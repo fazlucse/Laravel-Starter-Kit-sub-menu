@@ -47,6 +47,7 @@ class HandleInertiaRequests extends Middleware
                     'permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
                 ];
             },
+           'isNavigating' => $request->header('X-Inertia') === 'true',
         ];
     }
 }
