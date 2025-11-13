@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('departments', function (Blueprint $table) {
-            $table->unsignedBigInteger('department_id')->autoIncrement(); // Matches your FK
+            $table->unsignedBigInteger('id')->autoIncrement(); // Matches your FK
             $table->string('department_name', 150);
             $table->unsignedBigInteger('division_id')->nullable();
             $table->unsignedBigInteger('company_id')->nullable();

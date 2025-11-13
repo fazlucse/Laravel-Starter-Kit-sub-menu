@@ -74,6 +74,18 @@ class InfoMasterSeeder extends Seeder
             ['name' => 'London', 'code' => 'LON', 'country' => 'United Kingdom', 'description' => 'Capital of the UK'],
             ['name' => 'Sydney', 'code' => 'SYD', 'country' => 'Australia', 'description' => 'City in Australia'],
         ];
+        $designations = [
+            ['designation_name' => 'Chief Executive Officer (CEO)', 'description' => 'Responsible for overall company direction and leadership.'],
+            ['designation_name' => 'Chief Operating Officer (COO)', 'description' => 'Oversees company operations and logistics.'],
+            ['designation_name' => 'Chief Technology Officer (CTO)', 'description' => 'Leads technology strategy and development.'],
+            ['designation_name' => 'Finance Manager', 'description' => 'Manages financial strategy and reporting.'],
+            ['designation_name' => 'HR Manager', 'description' => 'Oversees human resource management.'],
+            ['designation_name' => 'Operations Manager', 'description' => 'Supervises day-to-day operations.'],
+            ['designation_name' => 'Software Engineer', 'description' => 'Develops software systems and applications.'],
+            ['designation_name' => 'Accountant', 'description' => 'Handles financial accounting and reports.'],
+            ['designation_name' => 'Sales Executive', 'description' => 'Drives company sales and customer relationships.'],
+            ['designation_name' => 'Customer Support Executive', 'description' => 'Provides customer assistance and feedback.'],
+        ];
 
         foreach ($cities as $city) {
             InfoMaster::create([

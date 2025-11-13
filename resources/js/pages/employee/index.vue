@@ -27,25 +27,20 @@
             <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0">
               <tr>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">S.L</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
+                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Person Id</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Person Name</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Employee Code</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Department</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Designation</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Company</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-for="(e, i) in employees.data" :key="e.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td class="px-4 py-3 text-sm">{{ (employees.current_page - 1) * employees.per_page + i + 1 }}</td>
-                <td class="px-4 py-3 text-sm font-medium">{{ e.employee_name }}</td>
-                <td class="px-4 py-3 text-sm">{{ e.employee_code }}</td>
-                <td class="px-4 py-3 text-sm">{{ e.department_name || '—' }}</td>
-                <td class="px-4 py-3 text-sm">{{ e.designation_name || '—' }}</td>
-                <td class="px-4 py-3 text-sm">{{ e.company_name || '—' }}</td>
-                <td class="px-4 py-3 text-sm">{{ e.employee_status }}</td>
-                <td class="px-4 py-3 text-right">
+               <td class="px-4 py-3 text-right">
                   <div class="flex justify-end gap-1">
                     <Link v-if="canEdit" :href="`/employees/${e.id}/edit`" class="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded transition">
                       <Edit class="w-4 h-4" />
@@ -53,6 +48,14 @@
                     <DeleteDialog v-if="canDelete" :url="`/employees/${e.id}`" record-name="Employee" @deleted="handleDelete" />
                   </div>
                 </td>
+                <td class="px-4 py-3 text-sm font-medium">{{ e.person_id }}</td>
+                <td class="px-4 py-3 text-sm font-medium">{{ e.person_name }}</td>
+                <td class="px-4 py-3 text-sm">{{ e.employee_code }}</td>
+                <td class="px-4 py-3 text-sm">{{ e.department_name || '—' }}</td>
+                <td class="px-4 py-3 text-sm">{{ e.designation_name || '—' }}</td>
+                <td class="px-4 py-3 text-sm">{{ e.company_name || '—' }}</td>
+                <td class="px-4 py-3 text-sm">{{ e.employee_status }}</td>
+               
               </tr>
               <tr v-if="!employees.data.length">
                 <td colspan="8" class="text-center py-4 text-gray-500">No employees found.</td>

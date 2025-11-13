@@ -11,8 +11,6 @@ class Department extends Model
 
     protected $table = 'departments';
 
-    protected $primaryKey = 'department_id'; // if your PK is not 'id'
-
     protected $fillable = [
         'department_name',
         'department_code',
@@ -21,6 +19,6 @@ class Department extends Model
     // One department has many employees
     public function employees()
     {
-        return $this->hasMany(Employee::class, 'department_id', 'department_id');
+        return $this->hasMany(Employee::class, 'department_id');
     }
 }

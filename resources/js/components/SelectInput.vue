@@ -12,7 +12,7 @@
         :class="{ 'border-red-500': error }"
         :disabled="loading"
       >
-        <option value="">-- Select {{ label }} --</option>
+        <!-- <option value="">-- Select {{ label }} --</option> -->
         <option v-for="opt in displayOptions" :key="opt.value" :value="opt.value">
           {{ opt.label }}
         </option>

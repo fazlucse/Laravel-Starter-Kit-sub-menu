@@ -26,7 +26,7 @@
               v-for="section in sections"
               :key="section.id"
               @click="activeSection = section.id"
-              class="flex items-center gap-2 px-6 py-4 border-b-2 transition-colors whitespace-nowrap"
+              class="cursor-pointer flex items-center gap-2 px-6 py-4 border-b-2 transition-colors whitespace-nowrap"
               :class="[
                 activeSection === section.id
                   ? 'border-blue-600 text-blue-600 bg-white'
@@ -100,47 +100,52 @@
               <SelectInput
                 v-model="form.company_id"
                 label="Company"
-                :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
+                @update:name="form.company_name = $event"
+                :options="companyOptions"
                 :error="allErrors.company_id"
               />
 
               <SelectInput
                 v-model="form.fin_com_id"
                 label="Financial Company"
-                :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
+                :options="finCompanyOptions"
+                @update:name="form.fin_com_name = $event"
                 :error="allErrors.fin_com_id"
               />
 
               <SelectInput
                 v-model="form.division_id"
                 label="Division"
-                :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
+                :options="divisionOptions"
+                @update:name="form.division_name = $event"
                 :error="allErrors.division_id"
               />
 
               <SelectInput
                 v-model="form.department_id"
                 label="Department"
-                :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
+                :options="departmentOptions"
+                @update:name="form.department_name = $event"
                 :error="allErrors.department_id"
               />
-
-              <Autocomplete
+              <SelectInput
                 v-model="form.designation_id"
-                @update:name="form.designation_name = $event"
                 label="Designation"
-                endpoint="/api/designations/search"
-                required
+                :options="designationOptions"
+                @update:name="form.designation_name = $event"
                 :error="allErrors.designation_id"
               />
 
               <Autocomplete
-                v-model="form.deparment_head"
-                @update:name="form.deparment_head_name = $event"
+                v-model="form.department_head"
+                @update:name="form.department_head_name = $event"
                 label="Department Head"
                 endpoint="/api/persons/search"
-                :error="allErrors.deparment_head"
+                :is_photo="false" 
+                required
+                :error="allErrors.department_head"
               />
+                        
             </div>
           </FormSection>
 
@@ -245,18 +250,23 @@
                   label="Late Time (minutes)"
                   :error="allErrors.late_time"
                 />
-
-                <NumberInput
-                  v-model.number="form.reporting_manager_id"
-                  label="Reporting Manager ID"
-                  :error="allErrors.reporting_manager_id"
-                />
-
-                <NumberInput
-                  v-model.number="form.second_reporting_manager_id"
-                  label="2nd Reporting Manager ID"
-                  :error="allErrors.second_reporting_manager_id"
-                />
+                 <Autocomplete
+                v-model="form.reporting_manager_id"
+                @update:name="form.reporting_manager_name = $event"
+                label="First Reporting Manager"
+                endpoint="/api/persons/search"
+                :is_photo="false" 
+                :error="allErrors.reporting_manager_id"
+              />
+               
+                <Autocomplete
+                v-model="form.second_reporting_manager_id"
+                @update:name="form.second_reporting_manager_name = $event"
+                label="2nd Reporting Manager"
+                endpoint="/api/persons/search"
+                :is_photo="false" 
+                :error="allErrors.second_reporting_manager_id"
+              />
               </div>
 
               <!-- Emergency -->
@@ -293,13 +303,13 @@
           <FormSection v-if="activeSection === 'salary'" title="Salary Information" icon="dollar-sign">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <SelectInput v-model="form.currency" label="Currency" :options="['USD', 'EUR', 'GBP', 'BDT', 'INR']" />
+              <NumberInput :model-value="grossSalary" label="Gross Salary" disabled />
               <NumberInput v-model.number="form.basic_salary" label="Basic Salary" step="0.01" />
               <NumberInput v-model.number="form.house_rent_allowance" label="House Rent Allowance" step="0.01" />
               <NumberInput v-model.number="form.medical_allowance" label="Medical Allowance" step="0.01" />
               <NumberInput v-model.number="form.transport_allowance" label="Transport Allowance" step="0.01" />
               <NumberInput v-model.number="form.other_allowances" label="Other Allowances" step="0.01" />
               <NumberInput v-model.number="form.overtime_rate" label="Overtime Rate" step="0.01" />
-              <NumberInput :model-value="grossSalary" label="Gross Salary" disabled />
               <NumberInput v-model.number="form.total_salary" label="Total Salary" disabled />
               <SelectInput v-model="form.is_tax_dedction" label="Tax Deduction" :options="[{ label: 'No', value: '0' }, { label: 'Yes', value: '1' }]" />
               <SelectInput v-model="form.is_salary_stop" label="Salary Stop" :options="[{ label: 'No', value: '0' }, { label: 'Yes', value: '1' }]" />
@@ -325,7 +335,7 @@
               type="button"
               @click="goToPrevious"
               :disabled="activeSection === 'personal'"
-              class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              class="cursor-pointer px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
@@ -334,7 +344,7 @@
               v-if="activeSection !== 'banking'"
               type="button"
               @click="goToNext"
-              class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+              class="cursor-pointer px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
             >
               Next
             </button>
@@ -343,9 +353,9 @@
               v-else
               type="submit"
               :disabled="form.processing"
-              class="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+              class=" cursor-pointer px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              <span v-if="form.processing" class="animate-spin">Loading...</span>
+              <LoadingSpinner v-if="form.processing" />
               {{ mode === 'create' ? 'Submit' : 'Update' }}
             </button>
           </div>
@@ -367,13 +377,18 @@ import TextareaInput from '@/Components/TextareaInput.vue'
 import PersonAutocomplete from '@/Components/PersonAutocomplete.vue'
 import FlatpickrInput from '@/components/FlatpickrInput.vue'
 import Autocomplete from '@/components/Autocomplete.vue'
-
+import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
 import { User, Building2, Briefcase, DollarSign, CreditCard, Phone, Award } from 'lucide-vue-next'
 
 const props = defineProps({
   employee: Object,
   mode: { type: String, required: true },
   errors: Object,
+  companies:    { type: Array, default: () => [] },
+  divisions:    { type: Array, default: () => [] },
+  departments:  { type: Array, default: () => [] },
+  designations: { type: Array, default: () => [] },
+  finCompany: { type: Array, defalut: () =>[]}
 })
 
 // Local client-side errors
@@ -393,9 +408,20 @@ const sections = [
   { id: 'salary',     label: 'Salary',          icon: DollarSign },
   { id: 'banking',    label: 'Banking & Tax',   icon: CreditCard },
 ]
+const toSelectOptions = (items: any[], valueKey: string, labelKey: string) => {
+  return [{ value: '', label: '— Select —' }, ...items.map(i => ({
+    value: i[valueKey],
+    label: i[labelKey],
+  }))]
+}
+const companyOptions    = computed(() => toSelectOptions(props.companies,    'id', 'company_name'))
+const divisionOptions   = computed(() => toSelectOptions(props.divisions,   'id', 'division_name'))
+const departmentOptions = computed(() => toSelectOptions(props.departments, 'id', 'department_name'))
+const designationOptions= computed(() => toSelectOptions(props.designations,'id', 'name'))
+const finCompanyOptions= computed(() => toSelectOptions(props.finCompany,'id', 'company_name'))
 
 const activeSection = ref('personal')
-
+console.log(companyOptions);
 const goToPrevious = () => {
   const i = sections.findIndex(s => s.id === activeSection.value)
   if (i > 0) activeSection.value = sections[i - 1].id
@@ -428,8 +454,8 @@ const form = useForm({
   department_name: '',
   designation_id: null,
   designation_name: '',
-  deparment_head: null,
-  deparment_head_name: '',
+  department_head: null,
+  department_head_name: '',
   employee_id: '',
   employee_code: '',
   joining_date: '',
@@ -512,6 +538,7 @@ const validationRules = {
   company: [
     { field: 'department_id', rule: v => !!v && v > 0 },
     { field: 'designation_id', rule: v => !!v && v > 0 },
+    { field: 'department_head', rule: v => !!v && v > 0 },
   ],
   employment: [
     { field: 'employee_id', rule: v => !!v && v.trim().length > 0 },
@@ -533,42 +560,44 @@ function validateTab(tabId: string) {
 }
 
 function submit() {
+  // === 1. Reset client errors ===
   clientErrors.value = {}
-  let hasError = false
-  let firstErrorTab = null
 
-  sections.forEach(section => {
-    const tabErrors = validateTab(section.id)
-    if (Object.keys(tabErrors).length > 0) {
-      Object.assign(clientErrors.value, tabErrors)
-      if (!firstErrorTab) firstErrorTab = section.id
-      hasError = true
-    }
-  })
+  // === 2. Validate only the CURRENT tab ===
+  const currentTabErrors = validateTab(activeSection.value)
 
-  if (hasError) {
-    activeSection.value = firstErrorTab
-    nextTick(() => document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }))
+  if (Object.keys(currentTabErrors).length > 0) {
+    clientErrors.value = currentTabErrors
+    nextTick(() => {
+      const firstField = Object.keys(currentTabErrors)[0]
+      const el = document.querySelector(`[name="${firstField}"]`)
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
     return
   }
 
+  // === 3. Submit ===
   const method = props.mode === 'create' ? 'post' : 'put'
-  const url = props.mode === 'create' ? '/employees' : `/employees/${props.employee.id}`
+  const url = props.mode === 'create' ? '/employees.store' : `/employees/${props.employee.id}`
 
   form[method](url, {
     onSuccess: () => {
       if (props.mode === 'create') form.reset()
     },
-    onError: (err) => {
-      clientErrors.value = err
-      const firstField = Object.keys(err)[0]
+    onError: () => {
+      // form.errors is auto-filled
+      const firstServerError = Object.keys(form.errors)[0]
       const tab = Object.entries(validationRules).find(([, rules]) =>
-        rules.some(r => r.field === firstField)
+        rules.some(r => r.field === firstServerError)
       )
+
       if (tab) {
         activeSection.value = tab[0]
         nextTick(() => {
-          document.querySelector(`[name="${firstField}"]`)?.scrollIntoView({ behavior: 'smooth' })
+          document.querySelector(`[name="${firstServerError}"]`)?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          })
         })
       }
     }

@@ -1,0 +1,142 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+class CompanySeeder extends Seeder
+{
+    public function run(): void
+    {
+        $now = Carbon::now();
+        // DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // DB::table('companies')->truncate();
+        DB::table('companies')->insert([
+            // Regular companies
+            [
+                'company_name' => 'Acme Corporation',
+                'company_code' => 'ACME',
+                'type' => 'company',
+                'registration_no' => 'REG-001',
+                'tax_identification_no' => 'TIN-001',
+                'email' => 'info@acme.com',
+                'phone' => '+1234567890',
+                'website' => 'https://www.acme.com',
+                'address_line1' => '123 Main Street',
+                'address_line2' => 'Suite 100',
+                'city' => 'Metropolis',
+                'state' => 'Metro State',
+                'country' => 'Freedonia',
+                'postal_code' => '12345',
+                'industry_type' => 'Manufacturing',
+                'ownership_type' => 'Private',
+                'logo_path' => null,
+                'status' => 'Active',
+                'created_by' => 1,
+                'updated_by' => 1,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'company_name' => 'Globex Corporation',
+                'company_code' => 'GLOBEX',
+                'type' => 'company',
+                'registration_no' => 'REG-002',
+                'tax_identification_no' => 'TIN-002',
+                'email' => 'contact@globex.com',
+                'phone' => '+1987654321',
+                'website' => 'https://www.globex.com',
+                'address_line1' => '456 Market Street',
+                'address_line2' => null,
+                'city' => 'Gotham',
+                'state' => 'Gotham State',
+                'country' => 'Freedonia',
+                'postal_code' => '54321',
+                'industry_type' => 'Technology',
+                'ownership_type' => 'Public',
+                'logo_path' => null,
+                'status' => 'Active',
+                'created_by' => 1,
+                'updated_by' => 1,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'company_name' => 'Initech',
+                'company_code' => 'INITECH',
+                'type' => 'company',
+                'registration_no' => 'REG-003',
+                'tax_identification_no' => 'TIN-003',
+                'email' => 'hello@initech.com',
+                'phone' => '+1122334455',
+                'website' => 'https://www.initech.com',
+                'address_line1' => '789 Tech Road',
+                'address_line2' => null,
+                'city' => 'Silicon Valley',
+                'state' => 'California',
+                'country' => 'USA',
+                'postal_code' => '94043',
+                'industry_type' => 'Software',
+                'ownership_type' => 'Private',
+                'logo_path' => null,
+                'status' => 'Active',
+                'created_by' => 1,
+                'updated_by' => 1,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Financial companies
+            [
+                'company_name' => 'First National Bank',
+                'company_code' => 'FNB',
+                'type' => 'fin_company',
+                'registration_no' => null,
+                'tax_identification_no' => null,
+                'email' => null,
+                'phone' => null,
+                'website' => null,
+                'address_line1' => null,
+                'address_line2' => null,
+                'city' => null,
+                'state' => null,
+                'country' => null,
+                'postal_code' => null,
+                'industry_type' => null,
+                'ownership_type' => null,
+                'logo_path' => null,
+                'status' => 'Active',
+                'created_by' => 1,
+                'updated_by' => 1,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'company_name' => 'Global Finance Corp.',
+                'company_code' => 'GFC',
+                'type' => 'fin_company',
+                'registration_no' => null,
+                'tax_identification_no' => null,
+                'email' => null,
+                'phone' => null,
+                'website' => null,
+                'address_line1' => null,
+                'address_line2' => null,
+                'city' => null,
+                'state' => null,
+                'country' => null,
+                'postal_code' => null,
+                'industry_type' => null,
+                'ownership_type' => null,
+                'logo_path' => null,
+                'status' => 'Active',
+                'created_by' => 1,
+                'updated_by' => 1,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ]);
+    }
+}

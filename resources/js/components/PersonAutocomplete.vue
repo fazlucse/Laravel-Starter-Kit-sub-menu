@@ -227,29 +227,29 @@ const loadSingle = async (id: number | string) => {
 /* --------------------------------------------------------------- */
 /*  WATCH modelValue – NEVER auto-clear on re-render               */
 /* --------------------------------------------------------------- */
-// watch(
-//   () => props.modelValue,
-//   (id) => {
-//     const idNum = id ? Number(id) : null;
+watch(
+  () => props.modelValue,
+  (id) => {
+    const idNum = id ? Number(id) : null;
 
-//     // 1. User clicked X → loadedId = null → allow clear
-//     if (idNum === null && loadedId.value === null) {
-//       selectedName.value = "";
-//       search.value = "";
-//       results.value = [];
-//       return;
-//     }
+    // 1. User clicked X → loadedId = null → allow clear
+    if (idNum === null && loadedId.value === null) {
+      selectedName.value = "";
+      search.value = "";
+      results.value = [];
+      return;
+    }
 
-//     // 2. Same ID → do nothing (prevents flicker on tab switch)
-//     if (idNum === loadedId.value) return;
+    // 2. Same ID → do nothing (prevents flicker on tab switch)
+    if (idNum === loadedId.value) return;
 
-//     // 3. New ID → load it
-//     if (idNum) {
-//       loadSingle(idNum);
-//     }
-//   },
-//   { immediate: true }
-// );
+    // 3. New ID → load it
+    if (idNum) {
+      loadSingle(idNum);
+    }
+  },
+  { immediate: true }
+);
 
 onBeforeUnmount(() => cancelPrevious());
 </script>
