@@ -182,12 +182,12 @@ class PersonController extends Controller
 {
     $query = $request->input('q', '');
 
-    $designations = Designation::query()
+    $persons = Person::query()
         ->when($query, fn($q) => $q->where('name', 'like', "%{$query}%"))
-        ->select('id', 'name')
+        ->select('id', 'name','email','phone')
         ->limit(10)
         ->get();
 
-    return response()->json(['designations' => $designations]);
+    return response()->json(['person' => $persons]);
 }
 }

@@ -42,45 +42,44 @@
         <!-- Form -->
         <form @submit.prevent="submit" class="bg-white shadow-lg rounded-b-2xl p-8 space-y-10">
 
-          <!-- Personal -->
-          <FormSection v-if="activeSection === 'personal'" title="Personal Information" icon="user">
+          <!-- PERSONAL (v-show → keeps autocomplete alive) -->
+          <FormSection v-show="activeSection === 'personal'" title="Personal Information" icon="user">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Person Autocomplete (Name + Photo) -->
-             <PersonAutocomplete
-              v-model="form.designation_id"
-              @update:name="form.designation_name = $event"
-              label="Designation"
-              endpoint="/api/designations/search"
-              required
-              :error="errors.designation_id || errors.designation_name"
-            />
+              <!-- Person Autocomplete -->
+              <PersonAutocomplete
+                v-model="form.person_id"
+                @update:name="form.person_name = $event"
+                label="Person"
+                endpoint="/api/persons/search"
+                required
+                :error="allErrors.person_id"
+              />
 
               <SelectInput
                 v-model="form.gender"
                 label="Gender"
                 :options="['', 'Male', 'Female', 'Other']"
-                :error="errors.gender"
+                :error="allErrors.gender"
               />
 
               <SelectInput
                 v-model="form.marital_status"
                 label="Marital Status"
                 :options="['', 'Single', 'Married', 'Divorced', 'Widowed']"
-                :error="errors.marital_status"
+                :error="allErrors.marital_status"
               />
 
-              <!-- Blood Group Dropdown -->
-                          <SelectInput
-                  v-model="form.blood_group"
-                  label="Blood Group"
-                  :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
-                  :error="errors.blood_group"
-                />
+              <SelectInput
+                v-model="form.blood_group"
+                label="Blood Group"
+                :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
+                :error="allErrors.blood_group"
+              />
 
               <NumberInput
                 v-model.number="form.work_experience"
                 label="Work Experience (Years)"
-                :error="errors.work_experience"
+                :error="allErrors.work_experience"
               />
 
               <div class="md:col-span-2">
@@ -89,72 +88,63 @@
                   label="Skills"
                   rows="3"
                   placeholder="List skills separated by commas"
-                  :error="errors.skills"
+                  :error="allErrors.skills"
                 />
               </div>
             </div>
           </FormSection>
 
-          <!-- Company -->
-          <FormSection v-if="activeSection === 'company'" title="Company Information" icon="building">
+          <!-- COMPANY (v-show → keeps Autocomplete alive) -->
+          <FormSection v-show="activeSection === 'company'" title="Company Information" icon="building">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Company Dropdown -->
-              <!-- <CompanySelect
+              <SelectInput
                 v-model="form.company_id"
-                @update:name="form.company_name = $event"
-                :error="errors.company_id"
-              /> -->
-               <SelectInput
-                   v-model="form.company_id"
-                  label="Company "
-                  :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
-                  :error="errors.company_id"
-                />
+                label="Company"
+                :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
+                :error="allErrors.company_id"
+              />
 
-              <!-- Financial Company -->
               <SelectInput
                 v-model="form.fin_com_id"
                 label="Financial Company"
-                 :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
-                :error="errors.fin_com_id"
+                :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
+                :error="allErrors.fin_com_id"
               />
 
-               <SelectInput
-                   v-model="form.division_id"
-                  label="division "
-                  :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
-                  :error="errors.division_id"
-                />
+              <SelectInput
+                v-model="form.division_id"
+                label="Division"
+                :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
+                :error="allErrors.division_id"
+              />
 
-              <!-- Department -->
-               <SelectInput
-                   v-model="form.department_id"
-                  label="department "
-                  :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
-                  :error="errors.department_id"
-                />
-              <!-- Designation -->
-             <Autocomplete
-                  v-model="form.designation_id"
-                  @update:name="form.designation_name = $event"
-                  label="Designation"
-                  endpoint="/api/designations/search"
-                  required
-                  :error="errors.designation_id || errors.designation_name"
-                />
+              <SelectInput
+                v-model="form.department_id"
+                label="Department"
+                :options="['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']"
+                :error="allErrors.department_id"
+              />
 
-              <!-- Department Head -->
-             <Autocomplete
+              <Autocomplete
+                v-model="form.designation_id"
+                @update:name="form.designation_name = $event"
+                label="Designation"
+                endpoint="/api/designations/search"
+                required
+                :error="allErrors.designation_id"
+              />
+
+              <Autocomplete
                 v-model="form.deparment_head"
                 @update:name="form.deparment_head_name = $event"
                 label="Department Head"
                 endpoint="/api/persons/search"
-                :error="errors.deparment_head"
+                :error="allErrors.deparment_head"
               />
             </div>
           </FormSection>
 
-          <!-- Employment -->
+          <!-- EMPLOYMENT (v-if → safe to destroy) -->
           <FormSection v-if="activeSection === 'employment'" title="Employment Details" icon="briefcase">
             <div class="space-y-8">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -163,33 +153,32 @@
                   label="Employee ID"
                   required
                   maxlength="20"
-                  :error="errors.employee_id"
+                  :error="allErrors.employee_id"
                 />
 
-                <!-- Flatpickr Date -->
                 <FlatpickrInput
                   v-model="form.joining_date"
                   label="Joining Date"
                   required
-                  :error="errors.joining_date"
+                  :error="allErrors.joining_date"
                 />
 
                 <FlatpickrInput
                   v-model="form.confirmation_date"
                   label="Confirmation Date"
-                  :error="errors.confirmation_date"
+                  :error="allErrors.confirmation_date"
                 />
 
                 <FlatpickrInput
                   v-model="form.probation_end_date"
                   label="Probation End Date"
-                  :error="errors.probation_end_date"
+                  :error="allErrors.probation_end_date"
                 />
 
                 <FlatpickrInput
                   v-model="form.effective_date"
                   label="Effective Date"
-                  :error="errors.effective_date"
+                  :error="allErrors.effective_date"
                 />
 
                 <SelectInput
@@ -197,21 +186,21 @@
                   label="Employment Type"
                   :options="employmentTypes"
                   required
-                  :error="errors.employment_type"
+                  :error="allErrors.employment_type"
                 />
 
                 <SelectInput
                   v-model="form.employee_status"
                   label="Employee Status"
                   :options="statusOptions"
-                  :error="errors.employee_status"
+                  :error="allErrors.employee_status"
                 />
 
                 <TextInput
                   v-model="form.work_location"
                   label="Work Location"
                   maxlength="100"
-                  :error="errors.work_location"
+                  :error="allErrors.work_location"
                 />
 
                 <TextInput
@@ -219,7 +208,7 @@
                   label="Shift"
                   placeholder="e.g., Day, Night"
                   maxlength="50"
-                  :error="errors.shift"
+                  :error="allErrors.shift"
                 />
 
                 <TextInput
@@ -227,47 +216,46 @@
                   label="Official Email"
                   type="email"
                   maxlength="100"
-                  :error="errors.official_email"
+                  :error="allErrors.official_email"
                 />
 
                 <TextInput
                   v-model="form.official_phone"
                   label="Official Phone"
                   maxlength="20"
-                  :error="errors.official_phone"
+                  :error="allErrors.official_phone"
                 />
 
-                <!-- Flatpickr Time -->
                 <FlatpickrInput
                   v-model="form.office_in_time"
                   label="Office In Time"
                   mode="time"
-                  :error="errors.office_in_time"
+                  :error="allErrors.office_in_time"
                 />
 
                 <FlatpickrInput
                   v-model="form.office_out_time"
                   label="Office Out Time"
                   mode="time"
-                  :error="errors.office_out_time"
+                  :error="allErrors.office_out_time"
                 />
 
                 <NumberInput
                   v-model.number="form.late_time"
                   label="Late Time (minutes)"
-                  :error="errors.late_time"
+                  :error="allErrors.late_time"
                 />
 
                 <NumberInput
                   v-model.number="form.reporting_manager_id"
                   label="Reporting Manager ID"
-                  :error="errors.reporting_manager_id"
+                  :error="allErrors.reporting_manager_id"
                 />
 
                 <NumberInput
                   v-model.number="form.second_reporting_manager_id"
                   label="2nd Reporting Manager ID"
-                  :error="errors.second_reporting_manager_id"
+                  :error="allErrors.second_reporting_manager_id"
                 />
               </div>
 
@@ -277,8 +265,8 @@
                   <Phone class="w-5 h-5 text-blue-600" /> Emergency Contact
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <TextInput v-model="form.emergency_contact_name" label="Name" maxlength="100" :error="errors.emergency_contact_name" />
-                  <TextInput v-model="form.emergency_contact_phone" label="Phone" maxlength="20" :error="errors.emergency_contact_phone" />
+                  <TextInput v-model="form.emergency_contact_name" label="Name" maxlength="100" :error="allErrors.emergency_contact_name" />
+                  <TextInput v-model="form.emergency_contact_phone" label="Phone" maxlength="20" :error="allErrors.emergency_contact_phone" />
                 </div>
               </div>
 
@@ -288,33 +276,75 @@
                   <Award class="w-5 h-5 text-blue-600" /> Performance & Promotions
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FlatpickrInput v-model="form.last_appraisal_date" label="Last Appraisal" :error="errors.last_appraisal_date" />
-                  <FlatpickrInput v-model="form.next_appraisal_date" label="Next Appraisal" :error="errors.next_appraisal_date" />
-                  <FlatpickrInput v-model="form.last_promotion_date" label="Last Promotion" :error="errors.last_promotion_date" />
-                  <FlatpickrInput v-model="form.next_promotion_due" label="Next Promotion Due" :error="errors.next_promotion_due" />
+                  <FlatpickrInput v-model="form.last_appraisal_date" label="Last Appraisal" :error="allErrors.last_appraisal_date" />
+                  <FlatpickrInput v-model="form.next_appraisal_date" label="Next Appraisal" :error="allErrors.next_appraisal_date" />
+                  <FlatpickrInput v-model="form.last_promotion_date" label="Last Promotion" :error="allErrors.last_promotion_date" />
+                  <FlatpickrInput v-model="form.next_promotion_due" label="Next Promotion Due" :error="allErrors.next_promotion_due" />
                 </div>
               </div>
 
               <div class="border-t pt-6">
-                <TextareaInput v-model="form.office_time" label="Office Time Notes" rows="3" :error="errors.office_time" />
+                <TextareaInput v-model="form.office_time" label="Office Time Notes" rows="3" :error="allErrors.office_time" />
               </div>
             </div>
           </FormSection>
 
-          <!-- Salary & Banking (unchanged) -->
-          <!-- ... [keep as-is] ... -->
+          <!-- SALARY (v-if) -->
+          <FormSection v-if="activeSection === 'salary'" title="Salary Information" icon="dollar-sign">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <SelectInput v-model="form.currency" label="Currency" :options="['USD', 'EUR', 'GBP', 'BDT', 'INR']" />
+              <NumberInput v-model.number="form.basic_salary" label="Basic Salary" step="0.01" />
+              <NumberInput v-model.number="form.house_rent_allowance" label="House Rent Allowance" step="0.01" />
+              <NumberInput v-model.number="form.medical_allowance" label="Medical Allowance" step="0.01" />
+              <NumberInput v-model.number="form.transport_allowance" label="Transport Allowance" step="0.01" />
+              <NumberInput v-model.number="form.other_allowances" label="Other Allowances" step="0.01" />
+              <NumberInput v-model.number="form.overtime_rate" label="Overtime Rate" step="0.01" />
+              <NumberInput :model-value="grossSalary" label="Gross Salary" disabled />
+              <NumberInput v-model.number="form.total_salary" label="Total Salary" disabled />
+              <SelectInput v-model="form.is_tax_dedction" label="Tax Deduction" :options="[{ label: 'No', value: '0' }, { label: 'Yes', value: '1' }]" />
+              <SelectInput v-model="form.is_salary_stop" label="Salary Stop" :options="[{ label: 'No', value: '0' }, { label: 'Yes', value: '1' }]" />
+            </div>
+          </FormSection>
+
+          <!-- BANKING (v-if) -->
+          <FormSection v-if="activeSection === 'banking'" title="Banking & Tax" icon="credit-card">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TextInput v-model="form.bank_name" label="Bank Name" maxlength="255" />
+              <TextInput v-model="form.bank_account_no" label="Bank Account Number" maxlength="50" />
+              <TextInput v-model="form.bank_ifsc_code" label="Bank IFSC Code" maxlength="20" />
+              <TextInput v-model="form.pan_number" label="PAN Number" maxlength="20" />
+              <SelectInput v-model="form.tax_status" label="Tax Status" :options="['', 'Resident', 'Non-Resident']" />
+              <TextInput v-model="form.social_security_no" label="Social Security No" maxlength="50" />
+              <TextInput v-model="form.passport_number" label="Passport Number" maxlength="20" />
+            </div>
+          </FormSection>
 
           <!-- Navigation -->
           <div class="flex justify-between items-center pt-8 border-t border-gray-200">
-            <button type="button" @click="goToPrevious" :disabled="activeSection === 'personal'" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            <button
+              type="button"
+              @click="goToPrevious"
+              :disabled="activeSection === 'personal'"
+              class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               Previous
             </button>
 
-            <button v-if="activeSection !== 'banking'" type="button" @click="goToNext" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
+            <button
+              v-if="activeSection !== 'banking'"
+              type="button"
+              @click="goToNext"
+              class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+            >
               Next
             </button>
 
-            <button v-else type="submit" :disabled="form.processing" class="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+            <button
+              v-else
+              type="submit"
+              :disabled="form.processing"
+              class="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+            >
               <span v-if="form.processing" class="animate-spin">Loading...</span>
               {{ mode === 'create' ? 'Submit' : 'Update' }}
             </button>
@@ -325,15 +355,13 @@
   </AppLayout>
 </template>
 
-<script setup>
-import { reactive, computed, ref, watch, nextTick } from 'vue'
+<script setup lang="ts">
+import { ref, computed, watch, nextTick } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import FormSection from '@/Components/FormSection.vue'
 import TextInput from '@/Components/TextInput.vue'
 import NumberInput from '@/Components/NumberInput.vue'
-import DateInput from '@/Components/DateInput.vue'
-import TimeInput from '@/Components/TimeInput.vue'
 import SelectInput from '@/Components/SelectInput.vue'
 import TextareaInput from '@/Components/TextareaInput.vue'
 import PersonAutocomplete from '@/Components/PersonAutocomplete.vue'
@@ -345,9 +373,19 @@ import { User, Building2, Briefcase, DollarSign, CreditCard, Phone, Award } from
 const props = defineProps({
   employee: Object,
   mode: { type: String, required: true },
+  errors: Object,
 })
 
-// === TABS ===
+// Local client-side errors
+const clientErrors = ref({})
+
+// Merge server + client errors
+const allErrors = computed(() => ({
+  ...props.errors,
+  ...clientErrors.value,
+}))
+
+// Tabs
 const sections = [
   { id: 'personal',   label: 'Personal Info',   icon: User },
   { id: 'company',    label: 'Company Info',    icon: Building2 },
@@ -368,83 +406,80 @@ const goToNext = () => {
   if (i < sections.length - 1) activeSection.value = sections[i + 1].id
 }
 
-// === OPTIONS ===
 const employmentTypes = ['Permanent', 'Contract', 'Intern', 'Probation', 'Freelancer']
 const statusOptions = ['Active', 'Inactive', 'Terminated', 'Resigned', 'Retired', 'On Leave']
 
-// === FORM ===
-const form = useForm(
-  reactive({
-    person_id: '',
-    person_name: '',
-    company_id: null,
-    company_name: '',
-    fin_com_name: '',
-    fin_com_id: null,
-    division_id: null,
-    division_name: '',
-    department_id: null,
-    department_name: '',
-    designation_id: null,
-    designation_name: '',
-    employee_code: '',
-    employee_id: '',
-    joining_date: '',
-    confirmation_date: null,
-    probation_end_date: null,
-    effective_date: null,
-    employment_type: 'Permanent',
-    work_location: '',
-    shift: '',
-    official_email: '',
-    official_phone: '',
-    office_in_time: null,
-    office_out_time: null,
-    late_time: 0,
-    employee_status: 'Active',
-    gross_salary: 0,
-    basic_salary: 0,
-    house_rent_allowance: 0,
-    medical_allowance: 0,
-    transport_allowance: 0,
-    other_allowances: 0,
-    overtime_rate: 0,
-    total_salary: 0,
-    currency: 'USD',
-    bank_name: '',
-    bank_account_no: '',
-    bank_ifsc_code: '',
-    pan_number: '',
-    tax_status: '',
-    social_security_no: '',
-    passport_number: '',
-    is_tax_dedction: '0',
-    is_salary_stop: '0',
-    emergency_contact_name: '',
-    emergency_contact_phone: '',
-    marital_status: '',
-    gender: '',
-    blood_group: '',
-    work_experience: null,
-    skills: '',
-    reporting_manager_id: null,
-    reporting_manager_name: '',
-    second_reporting_manager_id: null,
-    second_reporting_manager_name: '',
-    deparment_head: null,
-    deparment_head_name: '',
-    last_appraisal_date: null,
-    next_appraisal_date: null,
-    last_promotion_date: null,
-    next_promotion_due: null,
-    office_time: '',
-  })
-)
+// Form
+const form = useForm({
+  person_id: null,
+  person_name: '',
+  gender: '',
+  marital_status: '',
+  blood_group: '',
+  work_experience: null,
+  skills: '',
+  company_id: null,
+  company_name: '',
+  fin_com_id: null,
+  fin_com_name: '',
+  division_id: null,
+  division_name: '',
+  department_id: null,
+  department_name: '',
+  designation_id: null,
+  designation_name: '',
+  deparment_head: null,
+  deparment_head_name: '',
+  employee_id: '',
+  employee_code: '',
+  joining_date: '',
+  confirmation_date: null,
+  probation_end_date: null,
+  effective_date: null,
+  employment_type: 'Permanent',
+  employee_status: 'Active',
+  work_location: '',
+  shift: '',
+  official_email: '',
+  official_phone: '',
+  office_in_time: null,
+  office_out_time: null,
+  late_time: 0,
+  reporting_manager_id: null,
+  reporting_manager_name: '',
+  second_reporting_manager_id: null,
+  second_reporting_manager_name: '',
+  emergency_contact_name: '',
+  emergency_contact_phone: '',
+  last_appraisal_date: null,
+  next_appraisal_date: null,
+  last_promotion_date: null,
+  next_promotion_due: null,
+  office_time: '',
+  currency: 'USD',
+  basic_salary: 0,
+  house_rent_allowance: 0,
+  medical_allowance: 0,
+  transport_allowance: 0,
+  other_allowances: 0,
+  overtime_rate: 0,
+  gross_salary: 0,
+  total_salary: 0,
+  is_tax_dedction: '0',
+  is_salary_stop: '0',
+  bank_name: '',
+  bank_account_no: '',
+  bank_ifsc_code: '',
+  pan_number: '',
+  tax_status: '',
+  social_security_no: '',
+  passport_number: '',
+})
 
 // Fill on edit
 if (props.employee) form.fill(props.employee)
 
-// === AUTO CALCULATE ===
+// Salary calculation
 const grossSalary = computed(() => {
   return (
     Number(form.basic_salary || 0) +
@@ -471,51 +506,41 @@ watch(
   { immediate: true }
 )
 
-// === VALIDATION ===
-const errors = ref({})
-
+// Validation
 const validationRules = {
-  personal: [
-    { field: 'person_id', rule: v => !!v && v > 0 },
-    { field: 'person_name', rule: v => !!v && v.trim().length > 0 },
-  ],
+  personal: [{ field: 'person_id', rule: v => !!v && v > 0 }],
   company: [
     { field: 'department_id', rule: v => !!v && v > 0 },
-    { field: 'department_name', rule: v => !!v && v.trim().length > 0 },
     { field: 'designation_id', rule: v => !!v && v > 0 },
-    { field: 'designation_name', rule: v => !!v && v.trim().length > 0 },
   ],
   employment: [
-    { field: 'employee_code', rule: v => !!v && v.trim().length > 0 },
     { field: 'employee_id', rule: v => !!v && v.trim().length > 0 },
     { field: 'joining_date', rule: v => !!v },
     { field: 'employment_type', rule: v => !!v },
   ],
-  salary: [
-    { field: 'basic_salary', rule: v => v >= 0 },
-  ],
+  salary: [{ field: 'basic_salary', rule: v => v >= 0 }],
 }
 
-function validateTab(tabId) {
+function validateTab(tabId: string) {
   const rules = validationRules[tabId] || []
-  const tabErrors = {}
+  const errors: Record<string, string> = {}
   rules.forEach(({ field, rule }) => {
     if (!rule(form[field])) {
-      tabErrors[field] = 'This field is required.'
+      errors[field] = 'This field is required.'
     }
   })
-  return tabErrors
+  return errors
 }
 
 function submit() {
-  errors.value = {}
+  clientErrors.value = {}
   let hasError = false
   let firstErrorTab = null
 
   sections.forEach(section => {
     const tabErrors = validateTab(section.id)
     if (Object.keys(tabErrors).length > 0) {
-      errors.value = { ...errors.value, ...tabErrors }
+      Object.assign(clientErrors.value, tabErrors)
       if (!firstErrorTab) firstErrorTab = section.id
       hasError = true
     }
@@ -523,9 +548,7 @@ function submit() {
 
   if (hasError) {
     activeSection.value = firstErrorTab
-    nextTick(() => {
-      document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' })
-    })
+    nextTick(() => document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' }))
     return
   }
 
@@ -537,7 +560,7 @@ function submit() {
       if (props.mode === 'create') form.reset()
     },
     onError: (err) => {
-      errors.value = err
+      clientErrors.value = err
       const firstField = Object.keys(err)[0]
       const tab = Object.entries(validationRules).find(([, rules]) =>
         rules.some(r => r.field === firstField)

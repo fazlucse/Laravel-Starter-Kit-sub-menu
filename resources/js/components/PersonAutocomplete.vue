@@ -2,7 +2,7 @@
 <template>
   <div class="relative">
     <!-- Label -->
-    <label class="block text-sm font-semibold text-gray-700 mb-2">
+    <label class="block text-sm font-semibold text-gray-700 mb-1">
       {{ label }} <span v-if="required" class="text-red-500">*</span>
     </label>
 
@@ -10,17 +10,36 @@
     <div class="relative">
       <input
         type="text"
-        v-model="search"
+        :value="displayValue"
         @input="onInput"
-        @focus="showDropdown = true"
+        @focus="onFocus"
         @blur="delayHide"
         :placeholder="`Search ${label.toLowerCase()}...`"
-        class="w-full px-4 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        :class="{ 'border-red-500': error }"
+        :readonly="isLocked"
+        class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        :class="{ 
+          'border-red-500': error,
+          'cursor-not-allowed': isLocked,
+          'text-gray-900': selectedName,
+          'text-gray-500': !selectedName && !search
+        }"
         autocomplete="off"
       />
 
-      <!-- Local Search Spinner -->
+      <!-- Clear Button (X) -->
+      <button
+        v-if="selectedName"
+        @click="clearSelection"
+        class="cursor-pointer absolute inset-y-0 right-8 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+        type="button"
+        title="Clear selection"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Spinner -->
       <div v-if="loading" class="absolute inset-y-0 right-0 flex items-center pr-3">
         <svg class="animate-spin h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -29,7 +48,7 @@
       </div>
     </div>
 
-    <!-- Dropdown -->
+    <!-- Dropdown: Multi-line (Name + Email) -->
     <div
       v-if="showDropdown && results.length"
       class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto"
@@ -42,7 +61,9 @@
       >
         <img v-if="item.photo" :src="item.photo" class="w-8 h-8 rounded-full object-cover" />
         <div class="min-w-0 flex-1">
+          <!-- Name: Bold -->
           <div class="font-medium text-gray-900 truncate">{{ item.name }}</div>
+          <!-- Email: Small, gray -->
           <div v-if="item.email" class="text-xs text-gray-500 truncate">{{ item.email }}</div>
         </div>
       </button>
@@ -62,116 +83,173 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { router } from '@inertiajs/vue3'
-import debounce from 'lodash/debounce'
+import { ref, watch, onBeforeUnmount, computed } from "vue";
+import debounce from "lodash/debounce";
+import api from "@/api";
 
 interface Person {
-  id: number
-  name: string
-  email?: string
-  photo?: string
+  id: number;
+  name: string;
+  email?: string;
+  photo?: string;
 }
 
 const props = defineProps<{
-  modelValue: number | string | null
-  label: string
-  endpoint: string
-  required?: boolean
-  error?: string
-}>()
+  modelValue: number | string | null;
+  label: string;
+  endpoint: string;
+  required?: boolean;
+  error?: string;
+}>();
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', id: number): void
-  (e: 'update:name', name: string): void
-}>()
+  (e: "update:modelValue", id: number | null): void;
+  (e: "update:name", name: string): void;
+}>();
 
-const search = ref('')
-const results = ref<Person[]>([])
-const showDropdown = ref(false)
-const loading = ref(false)
-const selectedName = ref('')
+const search       = ref("");
+const results      = ref<Person[]>([]);
+const showDropdown = ref(false);
+const loading      = ref(false);
+const selectedName = ref("");
+const loadedId     = ref<number | null>(null);   // <-- Track real selection
 
-// Debounced search
-const searchApi = debounce((query: string) => {
-  if (!query.trim()) {
-    results.value = []
-    return
+let abortController: AbortController | null = null;
+
+const cancelPrevious = () => {
+  abortController?.abort();
+  abortController = null;
+};
+
+/* --------------------------------------------------------------- */
+/*  DISPLAY & LOCK                                                 */
+/* --------------------------------------------------------------- */
+const displayValue = computed(() => selectedName.value || search.value || "");
+const isLocked     = computed(() => !!selectedName.value);
+
+/* --------------------------------------------------------------- */
+/*  SEARCH API                                                     */
+/* --------------------------------------------------------------- */
+const searchApi = debounce(async (query: string) => {
+  if (!query.trim()) { results.value = []; return; }
+
+  cancelPrevious();
+  loading.value = true;
+  abortController = new AbortController();
+
+  try {
+    const { data } = await api.get(props.endpoint, {
+      params: { q: query },
+      signal: abortController.signal,
+    });
+    results.value = Array.isArray(data) ? data : data[Object.keys(data)[0]] || [];
+  } catch (err: any) {
+    if (err.name !== "CanceledError") console.error(err);
+    results.value = [];
+  } finally {
+    loading.value = false;
+    abortController = null;
   }
+}, 300);
 
-  loading.value = true
-
-  router.get(
-    props.endpoint,
-    { q: query },
-    {
-      preserveState: true,
-      preserveScroll: true,
-      onSuccess: (response) => {
-        const data = response.data
-        results.value = Array.isArray(data) ? data : data[Object.keys(data)[0]] || []
-      },
-      onError: () => {
-        results.value = []
-      },
-      onFinish: () => loading.value = false
-    }
-  )
-}, 300)
-
-function onInput() {
-  selectedName.value = ''
-  searchApi(search.value)
+/* --------------------------------------------------------------- */
+/*  INPUT / FOCUS / BLUR                                           */
+/* --------------------------------------------------------------- */
+function onInput(e: Event) {
+  if (isLocked.value) {
+    e.preventDefault();   // ← Block typing after select
+    return;
+  }
+  const val = (e.target as HTMLInputElement).value;
+  search.value = val;
+  searchApi(val);
 }
 
-function selectItem(item: Person) {
-  emit('update:modelValue', item.id)
-  emit('update:name', item.name)
-  selectedName.value = item.name
-  search.value = item.name
-  showDropdown.value = false
+function onFocus() {
+  if (!isLocked.value) showDropdown.value = true;
 }
 
 function delayHide() {
-  setTimeout(() => showDropdown.value = false, 200)
+  setTimeout(() => { showDropdown.value = false; }, 200);
 }
 
-// Auto-fill on edit
-watch(
-  () => props.modelValue,
-  (id) => {
-    if (!id) {
-      selectedName.value = ''
-      search.value = ''
-      return
-    }
+/* --------------------------------------------------------------- */
+/*  SELECT & CLEAR (only X clears)                                 */
+/* --------------------------------------------------------------- */
+function selectItem(item: Person) {
+  emit("update:modelValue", item.id);
+  emit("update:name", item.name);
+  selectedName.value = item.name;
+  search.value = "";
+  showDropdown.value = false;
+  loadedId.value = item.id;   // ← Mark as selected
+}
 
-    const cached = results.value.find(r => r.id === id)
-    if (cached) {
-      selectedName.value = cached.name
-      search.value = cached.name
-      return
-    }
+function clearSelection() {
+  emit("update:modelValue", null);
+  emit("update:name", "");
+  selectedName.value = "";
+  search.value = "";
+  results.value = [];
+  showDropdown.value = false;
+  loadedId.value = null;      // ← Only here we allow clearing
+}
 
-    loading.value = true
-    router.get(
-      `${props.endpoint}/${id}`,
-      {},
-      {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: (res) => {
-          const item = res.data
-          if (item?.id === id) {
-            selectedName.value = item.name
-            search.value = item.name
-            results.value = [item]
-          }
-        },
-        onFinish: () => loading.value = false
-      }
-    )
-  },
-  { immediate: true }
-)
+/* --------------------------------------------------------------- */
+/*  LOAD SINGLE (edit mode)                                        */
+/* --------------------------------------------------------------- */
+const loadSingle = async (id: number | string) => {
+  if (!id) return;
+
+  const cached = results.value.find(r => r.id === Number(id));
+  if (cached) {
+    selectedName.value = cached.name;
+    loadedId.value = Number(id);
+    return;
+  }
+
+  loading.value = true;
+  const ctrl = new AbortController();
+  try {
+    const { data } = await api.get(`${props.endpoint}/${id}`, { signal: ctrl.signal });
+    if (data?.id === Number(id)) {
+      selectedName.value = data.name;
+      results.value = [data];
+      loadedId.value = Number(id);
+    }
+  } catch (err: any) {
+    if (err.name !== "CanceledError") console.error(err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+/* --------------------------------------------------------------- */
+/*  WATCH modelValue – NEVER auto-clear on re-render               */
+/* --------------------------------------------------------------- */
+// watch(
+//   () => props.modelValue,
+//   (id) => {
+//     const idNum = id ? Number(id) : null;
+
+//     // 1. User clicked X → loadedId = null → allow clear
+//     if (idNum === null && loadedId.value === null) {
+//       selectedName.value = "";
+//       search.value = "";
+//       results.value = [];
+//       return;
+//     }
+
+//     // 2. Same ID → do nothing (prevents flicker on tab switch)
+//     if (idNum === loadedId.value) return;
+
+//     // 3. New ID → load it
+//     if (idNum) {
+//       loadSingle(idNum);
+//     }
+//   },
+//   { immediate: true }
+// );
+
+onBeforeUnmount(() => cancelPrevious());
 </script>
