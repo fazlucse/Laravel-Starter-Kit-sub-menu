@@ -503,8 +503,28 @@ const form = useForm({
 })
 
 // Fill on edit
-if (props.employee) form.fill(props.employee)
+// if (props.employee) form.fill(props.employee)
+if (props.employee) {
+  Object.assign(form, {
+    ...props.employee,
+    person_id:  props.employee.person_id,
+    person_name:  props.employee.person_name,
+    department_head: props.employee.departmentHead?.id || null,
+    department_head_name: props.employee.departmentHead?.name || '',
+    reporting_manager_id: props.employee.reportingManager?.id || null,
+    reporting_manager_name: props.employee.reportingManager?.name || '',
+    second_reporting_manager_id: props.employee.secondReportingManager?.id || null,
+    second_reporting_manager_name: props.employee.secondReportingManager?.name || '',
+  })
+  const findName = (list: any[], id: any, key: string) =>
+    list.find(i => i.id == id)?.[key] || ''
 
+  form.company_name = findName(props.companies, props.employee.company_id, 'company_name')
+  form.fin_com_name = findName(props.finCompany, props.employee.fin_com_id, 'company_name')
+  form.division_name = findName(props.divisions, props.employee.division_id, 'division_name')
+  form.department_name = findName(props.departments, props.employee.department_id, 'department_name')
+  form.designation_name = findName(props.designations, props.employee.designation_id, 'name')
+}
 // Salary calculation
 const grossSalary = computed(() => {
   return (
