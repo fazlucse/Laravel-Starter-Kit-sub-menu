@@ -18,7 +18,7 @@ class RolePermissionSeeder extends Seeder
         // -------------------------
         $permissions = [
             // Person Module
-            // 'person.create', 'person.edit', 'person.delete', 'person.view',
+            'person.create', 'person.edit', 'person.delete', 'person.view',
             // HR Module
             'employee.view', 'employee.create', 'employee.edit', 'employee.delete',
             // Payroll Module

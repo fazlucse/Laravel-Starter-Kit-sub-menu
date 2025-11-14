@@ -85,8 +85,8 @@ return new class extends Migration
             // Reporting Manager
             $table->unsignedBigInteger('second_reporting_manager_id')->nullable();
             $table->string('second_reporting_manager_name', 150)->nullable();
-            $table->unsignedBigInteger('deparment_head')->nullable();
-            $table->string('deparment_head_name', 150)->nullable();
+            $table->unsignedBigInteger('department_head')->nullable();
+            $table->string('department_head_name', 150)->nullable();
 
             // Performance & Promotions
             $table->date('last_appraisal_date')->nullable();

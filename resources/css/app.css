@@ -222,6 +222,7 @@
 
     .scrollbar-thin::-webkit-scrollbar-track {
         background: transparent;
+        /* default light mode */
     }
 
     .scrollbar-thin::-webkit-scrollbar-thumb {
@@ -236,12 +237,23 @@
     }
 
     /* Dark mode */
+    .dark .scrollbar-thin::-webkit-scrollbar-track {
+        background: #111827;
+        /* Tailwind dark-900 */
+    }
+
     .dark .scrollbar-thin::-webkit-scrollbar-thumb {
         background: rgba(156, 163, 175, 0.5);
+        /* gray-400 */
     }
 
     .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
         background: rgba(209, 213, 219, 0.7);
         /* gray-300 */
+    }
+
+    .dark .scrollbar-thin::-webkit-scrollbar-track {
+        background: #1f2937;
+        /* dark-800 for better contrast with thumb */
     }
 }

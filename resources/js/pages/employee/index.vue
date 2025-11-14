@@ -30,7 +30,7 @@
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Person Id</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Person Name</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Employee Code</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Employee Id</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Department</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Designation</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Company</th>
@@ -50,7 +50,7 @@
                 </td>
                 <td class="px-4 py-3 text-sm font-medium">{{ e.person_id }}</td>
                 <td class="px-4 py-3 text-sm font-medium">{{ e.person_name }}</td>
-                <td class="px-4 py-3 text-sm">{{ e.employee_code }}</td>
+                <td class="px-4 py-3 text-sm">{{ e.employee_id }}</td>
                 <td class="px-4 py-3 text-sm">{{ e.department_name || '—' }}</td>
                 <td class="px-4 py-3 text-sm">{{ e.designation_name || '—' }}</td>
                 <td class="px-4 py-3 text-sm">{{ e.company_name || '—' }}</td>
@@ -64,8 +64,9 @@
           </table>
         </div>
 
-        <Pagination :links="employees.links" />
+       
       </div>
+       <Pagination :links="employees.links" />
     </div>
   </AppLayout>
 </template>
