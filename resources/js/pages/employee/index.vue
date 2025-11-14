@@ -42,7 +42,10 @@
                 <td class="px-4 py-3 text-sm">{{ (employees.current_page - 1) * employees.per_page + i + 1 }}</td>
                <td class="px-4 py-3 text-right">
                   <div class="flex justify-end gap-1">
-                    <Link v-if="canEdit" :href="`/employees/${e.id}/edit`" class="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded transition">
+                    <Link :href="`/employees/${e.id}`" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:bg-blue-900 rounded transition">
+                      <Eye class="w-4 h-4" />
+                    </Link>
+                    <Link v-if="canEdit" :href="`/employees/${e.id}/edit`" class="p-1.5 text-yellow-600 hover:bg-yellow-50 dark:bg-yellow-900 rounded transition">
                       <Edit class="w-4 h-4" />
                     </Link>
                     <DeleteDialog v-if="canDelete" :url="`/employees/${e.id}`" record-name="Employee" @deleted="handleDelete" />
@@ -78,7 +81,7 @@ import PerPageSelect from '@/Components/custom/PerPageSelect.vue'
 import Pagination from '@/Components/custom/Pagination.vue'
 import DeleteDialog from '@/Components/custom/DeleteDialog.vue'
 import { Link, usePage } from '@inertiajs/vue3'
-import { Plus, Edit } from 'lucide-vue-next'
+import { Plus, Edit,Eye } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { usePagination } from '@/composables/usePagination'
 
@@ -90,7 +93,7 @@ const { authUser } = usePage().props
 const canCreate = computed(() => authUser?.permissions.includes('employee.create') ?? false)
 const canEdit = computed(() => authUser?.permissions.includes('employee.edit') ?? false)
 const canDelete = computed(() => authUser?.permissions.includes('employee.delete') ?? false)
-
+const canView = computed(() => authUser?.permissions.includes('employee.view') ?? false)
 const search = ref('')
 
 const handleDelete = ({ success }: { success: boolean }) => {
