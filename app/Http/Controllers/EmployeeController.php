@@ -163,5 +163,17 @@ public function update(StoreEmployeeRequest $request, Employee $employee)
         ->route('employees.index')
         ->with('success', 'Employee updated successfully.');
 }
+public function show(Employee $employee)
+{
+    $data = $employee->toArray();
 
+    // Force skills to be array
+    $data['skills'] = is_string($data['skills'] ?? null)
+        ? array_filter(array_map('trim', explode(',', $data['skills'])))
+        : ($data['skills'] ?? []);
+
+    return inertia('employee/show', [
+        'employee' => $data
+    ]);
+}
 }

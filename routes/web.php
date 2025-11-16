@@ -30,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
     Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+    Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
+
     // Route::get('/employees/persons/search', [PersonController::class, 'search']);
 // Route::get('/companies', [CompanyController::class, 'index']);
 // Route::get('/divisions', [DivisionController::class, 'index']);
