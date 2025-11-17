@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('nationality')->nullable();
             $table->string('national_id')->unique()->nullable();
             $table->string('tin')->unique()->nullable();
-            $table->string('avatar')->nullable();
+            $table->string('photo')->nullable();
             $table->string('gender')->nullable();
             $table->string('religion')->nullable();
             $table->timestamps();

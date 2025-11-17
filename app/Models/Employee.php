@@ -19,6 +19,7 @@ class Employee extends Model
         'company_id',
         'company_name',
         'fin_com_id',
+        'fin_com_name',
         'division_id',
         'division_name',
         'department_id',

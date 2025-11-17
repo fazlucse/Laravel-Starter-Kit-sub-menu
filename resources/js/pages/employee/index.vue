@@ -9,7 +9,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Employees</h1>
           <div class="flex items-center gap-3 w-full sm:w-auto">
-            <SearchPopup v-model="search" action="/employees.index" :preserve="{ per_page: perPage }" />
+            <EmployeeSearch v-model="search" action="/employees.index" :preserve="{ per_page: perPage }" />
             <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
             <Link v-if="canCreate" href="/employees/create"
                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
@@ -28,6 +28,7 @@
               <tr>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">S.L</th>
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Photo</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Person Id</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Person Name</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Employee Id</th>
@@ -50,6 +51,9 @@
                     </Link>
                     <DeleteDialog v-if="canDelete" :url="`/employees/${e.id}`" record-name="Employee" @deleted="handleDelete" />
                   </div>
+                </td>
+                                <td class="px-4 py-3">
+                 <Avatar :src="e.person?.photo" :name="e.person?.name" class="w-12 h-12" />
                 </td>
                 <td class="px-4 py-3 text-sm font-medium">{{ e.person_id }}</td>
                 <td class="px-4 py-3 text-sm font-medium">{{ e.person_name }}</td>
@@ -76,14 +80,15 @@
 
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import SearchPopup from '@/Components/custom/SearchPopup.vue'
 import PerPageSelect from '@/Components/custom/PerPageSelect.vue'
 import Pagination from '@/Components/custom/Pagination.vue'
 import DeleteDialog from '@/Components/custom/DeleteDialog.vue'
+import Avatar from '@/components/custom/Avatar.vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { Plus, Edit,Eye } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { usePagination } from '@/composables/usePagination'
+import EmployeeSearch from './employeeSearch.vue'
 
 const employees = defineModel('employees', { required: true }) as any
 const perPageProp = defineModel('perPage', { required: true }) as any

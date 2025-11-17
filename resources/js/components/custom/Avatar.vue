@@ -1,4 +1,3 @@
-<!-- resources/js/Components/shared/Avatar.vue -->
 <template>
   <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-300 dark:border-gray-600">
     <img v-if="src" :src="src" :alt="name" class="w-full h-full object-cover" />
@@ -12,22 +11,27 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  src?: string
+import { computed } from 'vue'
+
+const props = defineProps<{
+  src?: string | null
   name: string
 }>()
 
 const initials = computed(() => {
+  if (!props.name) return '??'
   return props.name
-    .split(' ')
+    .trim()
+    .split(/\s+/)
     .map(n => n[0])
+    .filter(Boolean)
     .slice(0, 2)
     .join('')
     .toUpperCase() || '??'
 })
 
 const colors = ['bg-red-500', 'bg-yellow-500', 'bg-green-500', 'bg-blue-500', 'bg-indigo-500', 'bg-purple-500', 'bg-pink-500']
-const bgColor = colors[Math.abs(hash(props.name) % colors.length)]
+const bgColor = computed(() => colors[Math.abs(hash(props.name) % colors.length)])
 
 function hash(str: string) {
   let h = 0

@@ -124,30 +124,36 @@ function submit() {
                 <input v-model="form.designation"
                   class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   :class="form.errors.designation ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'" />
-              </div>
+              
+                </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                 <input v-model="form.email" type="email"
                   class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   :class="form.errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'" />
-              </div>
+                  <p v-if="form.errors.email" class="text-red-500 text-xs mt-1">{{ form.errors.email }}</p>
+
+                </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone <span class="text-red-500">*</span></label>
                 <input v-model="form.phone" 
                   class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   :class="form.errors.phone ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'" />
-                               <p v-if="form.errors.phone" class="text-red-500 text-xs mt-1">{{ form.errors.phone }}</p>
+                 <p v-if="form.errors.phone" class="text-red-500 text-xs mt-1">{{ form.errors.phone }}</p>
               </div>
                <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">National ID</label>
                 <input v-model="form.national_id"
                   class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
-              </div>
+                   <p v-if="form.errors.national_id" class="text-red-500 text-xs mt-1">{{ form.errors.national_id }}</p>
+                </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">TIN</label>
                 <input v-model="form.tin"
                   class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
-              </div>
+                 <p v-if="form.errors.tin" class="text-red-500 text-xs mt-1">{{ form.errors.tin }}</p>
+
+                </div>
               <div>
   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
     Gender

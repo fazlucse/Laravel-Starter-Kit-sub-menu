@@ -89,7 +89,7 @@ class PersonController extends Controller
             $avatarFile = $request->file('avatar');
             $statusName = time() . '_' . $avatarFile->getClientOriginalName();
             $avatarFile->move($statusDir, $statusName);
-            $validated['avatar'] = 'images/user_photo/' . $statusName;
+            $validated['photo'] = 'images/user_photo/' . $statusName;
         }
 
         $person = Person::create($validated);
@@ -146,15 +146,15 @@ class PersonController extends Controller
     // Handle avatar
     if ($request->hasFile('avatar')) {
         // Delete old avatar
-        if ($person->avatar && File::exists(public_path($person->avatar))) {
-            File::delete(public_path($person->avatar));
+        if ($person->photo && File::exists(public_path($person->photo))) {
+            File::delete(public_path($person->photo));
         }
         $avatarFile = $request->file('avatar');
         $avatarName = time() . '_' . $avatarFile->getClientOriginalName();
         $avatarFile->move(public_path('images/user_photo'), $avatarName);
-        $validated['avatar'] = 'images/user_photo/' . $avatarName;
+        $validated['photo'] = 'images/user_photo/' . $avatarName;
     } else {
-        $validated['avatar'] = $person->avatar; // keep old avatar
+        $validated['photo'] = $person->avatar; // keep old avatar
     }
 
     $person->update($validated);
@@ -164,8 +164,8 @@ class PersonController extends Controller
 
     public function destroy(Request $request, Person $person)
     {
-         if ($person->avatar && File::exists(public_path($person->avatar))) {
-            File::delete(public_path($person->avatar));
+         if ($person->photo && File::exists(public_path($person->photo))) {
+            File::delete(public_path($person->photo));
         }
         LogsActions::logDelete($person, $request->comments);
         $deleted = $person->delete(); // or forceDelete() if soft-deleted

@@ -62,8 +62,8 @@ const breadcrumbs = [
         <!-- Avatar -->
         <div class="flex-shrink-0">
           <img
-            v-if="form.avatar"
-            :src="`/${form.avatar}`"
+            v-if="form.photo"
+            :src="`/${form.photo}`"
             class="w-32 h-32 rounded-full object-cover border border-gray-300 dark:border-gray-600"
             alt="Avatar"
           />

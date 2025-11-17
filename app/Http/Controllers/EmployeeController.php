@@ -22,11 +22,11 @@ class EmployeeController extends Controller
         $search = $request->input('search');
 
         $query = Employee::query()
-            ->with(['person:id,name']); 
+            ->with(['person:id,name,photo']); 
             // load relationships as needed
 
         // Filters
-        $filters = $request->only(['person_name', 'person_id', 'department_id', 'designation_id']);
+        $filters = $request->only(['person_name', 'employee_id', 'department_id', 'designation_name']);
 
         foreach ($filters as $field => $value) {
             if (!empty($value)) {
@@ -165,13 +165,14 @@ public function update(StoreEmployeeRequest $request, Employee $employee)
 }
 public function show(Employee $employee)
 {
+  $employee->load(['person:id,name,photo,email,phone,dob,gender,national_id']);
     $data = $employee->toArray();
-
-    // Force skills to be array
-    $data['skills'] = is_string($data['skills'] ?? null)
+    $data['skills'] = $data['skills']
         ? array_filter(array_map('trim', explode(',', $data['skills'])))
-        : ($data['skills'] ?? []);
-
+        : [];
+    if (!empty($data['person']['photo'])) {
+        $data['person']['photo'] = asset($data['person']['photo']);
+    }
     return inertia('employee/show', [
         'employee' => $data
     ]);

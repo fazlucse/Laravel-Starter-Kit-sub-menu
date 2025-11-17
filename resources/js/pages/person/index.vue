@@ -96,8 +96,8 @@
                 <td class="px-4 py-3">
                   <div class="w-10 h-10 rounded-full overflow-hidden border">
                     <img
-                      v-if="p.avatar"
-                      :src="`${p.avatar}`"
+                      v-if="p.photo"
+                      :src="`${p.photo}`"
                       class="w-full h-full object-cover"
                     />
                     <div

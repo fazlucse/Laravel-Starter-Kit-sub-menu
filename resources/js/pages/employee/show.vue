@@ -55,7 +55,7 @@
 
 
             <span class="bg-white/20 text-xs font-medium px-3 py-1 rounded-full backdrop-blur-sm">
-              ID: #{{ employee.code }}
+              ID: {{ employee.employee_id }}
             </span>
           </div>
 
@@ -64,11 +64,29 @@
             <!-- ==== PROFILE ==== -->
             <div class="flex flex-col sm:flex-row items-center gap-6">
               <div class="flex-shrink-0">
-                <img
-                  :src="employee.photo || 'https://via.placeholder.com/120'"
-                  alt="Employee Photo"
-                  class="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-lg"
-                />
+               <div class="flex-shrink-0 relative group">
+                  <img
+                    v-if="employee.person?.photo"
+                    :src="`${employee.person.photo}`"
+                    alt="Employee Photo"
+                    class="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-lg ring-4 ring-gray-200 dark:ring-gray-700"
+                  />
+
+                  <!-- Initials Circle when no photo -->
+                  <div
+                    v-else
+                    class="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 
+                          flex items-center justify-center text-white font-bold text-2xl sm:text-3xl shadow-lg 
+                          border-4 border-white ring-4 ring-gray-200 dark:ring-gray-700"
+                  >
+                    {{ getInitials(employee.person_name) }}
+                  </div>
+
+                  <!-- Optional: Hover to show "No Photo" tooltip -->
+                  <div v-if="!employee.person?.photo" class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span class="text-white text-xs font-medium">No Photo</span>
+                  </div>
+                </div>
               </div>
               <div class="text-center sm:text-left flex-1">
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ employee.person_name }}</h3>
@@ -97,18 +115,18 @@
             </InfoSection>
 
             <InfoSection title="Company & Hierarchy">
-              <InfoItem label="Company" :value="`${employee.company} (ID: ${employee.company_id})`" />
-              <InfoItem label="Financial Company" :value="`${employee.financial_company} (ID: ${employee.financial_company_id})`" />
-              <InfoItem label="Division" :value="employee.division" />
-              <InfoItem label="Department" :value="employee.department" />
-              <InfoItem label="Designation" :value="employee.designation" />
-              <InfoItem label="Employee Code" :value="employee.code" />
+              <InfoItem label="Company" :value="`${employee.company_name} (ID: ${employee.company_id})`" />
+              <InfoItem label="Financial Company" :value="`${employee.fin_com_name} (ID: ${employee.fin_com_id})`" />
+              <InfoItem label="Division" :value="employee.division_name" />
+              <InfoItem label="Department" :value="employee.department_name" />
+              <InfoItem label="Designation" :value="employee.designation_name" />
+              <InfoItem label="Employee Code" :value="employee.employee_code" />
               <InfoItem label="Employee ID" :value="employee.employee_id" />
               <InfoItem label="Work Location" :value="employee.location" />
               <InfoItem label="Shift" :value="employee.shift" />
-              <InfoItem label="Reporting Manager" :value="employee.reporting_manager" />
-              <InfoItem label="2nd Reporting Manager" :value="employee.reporting_manager_2" />
-              <InfoItem label="Department Head" :value="employee.department_head" />
+              <InfoItem label="Reporting Manager" :value="employee.reporting_manager_name" />
+              <InfoItem label="2nd Reporting Manager" :value="employee.second_reporting_manager_name" />
+              <InfoItem label="Department Head" :value="employee.department_head_name" />
             </InfoSection>
 
             <InfoSection title="Employment Timeline">
@@ -144,7 +162,7 @@
               <InfoItem label="PAN / SSN" :value="employee.tax_id" />
               <InfoItem label="Tax Status" :value="employee.tax_status" />
               <InfoItem label="Tax Deduction">
-                <Badge :active="employee.tax_deduction">Yes</Badge>
+                <Badge :active="!employee.tax_deduction">Yes</Badge>
               </InfoItem>
               <InfoItem label="Passport Number" :value="employee.passport" />
             </InfoSection>
@@ -157,9 +175,11 @@
               </InfoItem>
               <InfoItem label="Office In/Out Time" :value="employee.office_time" />
               <InfoItem label="Late Time (mins)" :value="employee.late_time" />
-              <InfoItem label="Employee Status">
-                <Badge :active="employee.status === 'Active'">{{ employee.status }}</Badge>
-              </InfoItem>
+           <InfoItem label="Employee Status">
+            <Badge :active="(employee.employee_status || '').toLowerCase() === 'active'">
+              {{ employee.employee_status || '—' }}
+            </Badge>
+          </InfoItem>
             </InfoSection>
 
             <!-- Audit -->
