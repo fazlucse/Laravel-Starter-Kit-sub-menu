@@ -34,35 +34,58 @@
               Print
             </button> -->
         <div class="flex items-center gap-1 ml-auto">
-          <!-- Print Button -->
-          <button @click="print" :disabled="isProcessing"
+             <BaseActionButton
+    label="Print"
+    :icon="Printer"
+    iconPosition="left"
+    :isProcessing="isPrinting" 
+    @click="handlePrint"
+  />
+
+               <BaseActionButton
+                label="PDF"
+                :icon="FileDown"
+                iconPosition="left"
+                :isProcessing="isPdfing"
+                @click="handlePDF"
+              />
+          
+              <!-- <BaseActionButton
+  label="Print"
+  :icon="CornerUpLeft"
+  iconPosition="left"
+  :isProcessing="isPrinting"
+  @click="handlePrint"
+/> -->
+              
+          <!-- <button @click="print" :disabled="isProcessing"
             class=" cursor-pointer inline-flex items-center gap-2 px-4 py-2 btn btn-outline hover:bg-gray-200 dark:hover:bg-gray-600 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
             <span>Print</span>
-          </button>
+          </button> -->
 
           <!-- PDF Button -->
-          <button @click="exportToPDF" :disabled="isProcessing"
+          <!-- <button   @click="exportToPDF('print_content', 'Employee_Details')" :disabled="isProcessing"
             class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 btn btn-primary hover:bg-red-700 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <span>PDF</span>
-          </button>
+          </button> -->
 
           <!-- Excel Button -->
-          <button @click="exportToExcel(tableDataForExcel)" :disabled="isProcessing"
+          <!-- <button @click="exportToExcel(tableDataForExcel)" :disabled="isProcessing"
             class=" cursor-pointer inline-flex items-center gap-2 px-4 py-2 btn btn-success hover:bg-green-700 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
             </svg>
             <span>Excel</span>
-          </button>
+          </button> -->
         </div>
 
            
@@ -94,7 +117,11 @@
 
               <div class="text-center sm:text-left flex-1">
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ employee.person_name }}</h3>
-                <p class="text-gray-600 dark:text-gray-300">{{ employee.designation }} | {{ employee.company }}</p>
+                 <p v-if="employee.designation || employee.company" class="text-gray-600 dark:text-gray-300">
+        {{ employee.designation }}
+        <span v-if="employee.designation && employee.company"> | </span>
+        {{ employee.company }}
+      </p>
                 <div class="flex flex-wrap gap-2 justify-center sm:justify-start mt-3">
                   <span class="px-3 py-1 rounded-full text-xs font-medium"
                         :class="employee.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
@@ -195,15 +222,18 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import InfoSection from '@/components/InfoSection.vue'
 import InfoItem from '@/components/InfoItem.vue'
 import Badge from '@/components/Badge.vue'
 import { useExport } from '@/composables/useExport'
+import BaseActionButton from '@/Components/BaseActionButton.vue'
+import { Printer, FileDown,CornerUpLeft } from 'lucide-vue-next';
 
 const { employee } = usePage().props
-const { isProcessing, print, exportToPDF, exportToExcel } = useExport({
+const { isProcessing, print, exportToPDF, exportToExcel,exportPdfv2 } = useExport({
   contentId: 'print_content',
   filename: `${employee.person_name.replace(/\s+/g, '_')}_Profile`,
   title: `${employee.person_name} - Employee Profile`,
@@ -217,80 +247,25 @@ const getInitials = (name) => name ? name.trim().split(' ').map(n => n[0]).join(
 
 // Actions
 const goBack = () => router.visit('/employees')
-const exportPDF = () => alert('PDF Export coming soon!')
+const isPrinting = ref(false)
+const isPdfing = ref(false)
+const isExcelling = ref(false)
 
-// // CLEAN PRINT — NO SHADOWS, RINGS, BORDERS
-// const printOnlyThis = () => {
-//   const content = document.getElementById('print_content')
-//   if (!content) return
+const handlePrint = async () => {
+  isPrinting.value = true
+  await print()
+  isPrinting.value = false
+}
 
-//   const printWindow = window.open('', 'Print', 'width=1000,height=800')
+const handlePDF = async () => {
+  isPdfing.value = true
+  await exportToPDF('print_content', 'employee_profile')
+  isPdfing.value = false
+}
 
-//   // Collect all styles
-//   let stylesHtml = ''
-//   document.querySelectorAll('link[rel="stylesheet"], style').forEach(el => {
-//     if (el.tagName === 'LINK') {
-//       stylesHtml += `<link rel="stylesheet" href="${el.href}" />`
-//     } else {
-//       stylesHtml += `<style>${el.innerHTML}</style>`
-//     }
-//   })
-
-//   printWindow.document.write(`
-//     <!DOCTYPE html>
-//     <html lang="en">
-//     <head>
-//       <meta charset="utf-8">
-//       <title>${employee.person_name} - Employee Profile</title>
-//       ${stylesHtml}
-//       <style>
-//         @page { margin: 1cm; size: A4 portrait; }
-//         body {
-//           margin: 0;
-//           padding: 20px;
-//           font-family: Arial, Helvetica, sans-serif;
-//           background: white !important;
-//           color: #000 !important;
-//           line-height: 1.6;
-//         }
-//         /* REMOVE ALL SHADOWS & RINGS ON PRINT */
-//         *, *::before, *::after {
-//           box-shadow: none !important;
-//           -webkit-box-shadow: none !important;
-//           text-shadow: none !important;
-//           border: none !important;
-//         }
-//         .shadow, .shadow-lg, .ring, .ring-4 { box-shadow: none !important; }
-//         img { border-radius: 50%; border: 3px solid #333; }
-//         #print_content {
-//           box-shadow: none !important;
-//           border: none !important;
-//           border-radius: 0 !important;
-//           background: white !important;
-//         }
-//         .print\\:hidden { display: none !important; }
-//         h3 { font-size: 24px; margin: 0 0 8px 0; }
-//         table { width: 100%; border-collapse: collapse; }
-//         td { padding: 6px 0; }
-//         .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: bold; }
-//       </style>
-//     </head>
-//     <body>
-//       ${content.outerHTML}
-//     </body>
-//     </html>
-//   `)
-
-//   printWindow.document.close()
-//   printWindow.focus()
-
-//   printWindow.onload = () => {
-//     setTimeout(() => {
-//       printWindow.print()
-//       // printWindow.close()  // Uncomment if you want auto-close after print
-//     }, 800)
-//   }
-// }
+const handleExcel = async () => {
+  isExcelling.value = true
+  await excelFunc()
+  isExcelling.value = false
+}
 </script>
-
-<!-- Optional: Extra safety for normal Ctrl+P -->

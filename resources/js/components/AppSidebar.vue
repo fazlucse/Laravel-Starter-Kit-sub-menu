@@ -13,58 +13,94 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types'; // Import NavItem
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, ChevronDown,Users  } from 'lucide-vue-next';
+import {   LayoutGrid,
+  Menu,
+  Users,
+  CalendarCheck,
+  FileText,
+  Folder,
+  Briefcase,
+    ClipboardList,
+    Receipt,
+    Calendar,
+  MapPin,
+  FileSignature, } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
+    title: 'Dashboard',
+    href: '/dashboard',
+    icon: LayoutGrid, // Grid icon for Dashboard
+  },
+//   {
+//     title: 'Menu',
+//     href: '/menus.index',
+//     icon: Menu, // Menu icon
+//   },
+  {
+    title: 'People',
+    href: '/people.index',
+    icon: Users, // Users icon
+  },
+  {
+    title: 'Employee Management',
+    href: '/employees',
+    icon: Briefcase, // Briefcase for employees
+  },
+  {
+    title: 'Attendance',
+    href: '/attendance',
+    icon: CalendarCheck, // Calendar icon for attendance
+  },
+  {
+    title: 'Leave Request',
+    href: '/leave-request',
+    icon: FileText, // Document icon for leave request
+  },
+  {
+    title: 'Leave Allotment',
+    href: '/leave-allotment',
+    icon: ClipboardList, // List icon for leave allotment
+  },
+  {
+    title: 'Payroll',
+    href: '/payroll',
+    icon: Receipt, // Dollar file icon for payroll
     },
-     {
-        title: 'Menu',
-        href: '/menus.index',
-        icon: LayoutGrid,
-    },
-     {
-        title: 'People',
-        href: '/people.index',
-        icon: Users,
+  {
+    title: 'Holiday Management',
+    href: '/people.index',
+    icon: Calendar, // Users icon
     },
     {
-        title: 'Employee Management',
-        href: '/employees',
-        icon: Users,
-    },
-    {
-        title: 'Projects',
-        href: '#',
-        icon: Folder,
-        subItems: [
-            {
-                title: 'Add ',
-                     icon: Folder,
-                href:  '/projects/active',
-            },
-            {
-                title: 'List',
-                     icon: Folder,
-                href: '/projects/archived',
-            },
-            // {
-            //     title: 'New Project',
-            //     href: dashboard() + '/projects/new',
-            // },  {
-            //     title: 'Archived Projects',
-            //     href: dashboard() + '/projects/archived',
-            // },
-            // {
-            //     title: 'New Project',
-            //     href: dashboard() + '/projects/new',
-            // },
-        ],
-    },
+    title: 'Movement Regsiter',
+    href: '/people.index',
+    icon: MapPin, // Users icon
+  },
+  {
+    title: 'Recruitment & ATS',
+    href: '#',
+    icon: Folder,
+    subItems: [
+      { title: 'Job Openings', href: '/projects/active', icon: Briefcase },
+      { title: 'Applicants', href: '/projects/archived', icon: Users },
+      { title: 'Interviews', href: '/projects/interviews', icon: ClipboardList },
+      { title: 'Offers & Onboarding', href: '/projects/offers', icon: FileSignature },
+    ],
+  },
+  {
+    title: 'Reports',
+    href: '#',
+    icon: FileText,
+    subItems: [
+      { title: 'Employee Reports', href: '/reports/add', icon: FileText },
+        { title: 'Attendance Report', href: '/reports/list', icon: ClipboardList },
+        { title: 'Movement Report', href: '/reports/list', icon: ClipboardList },
+        { title: 'Leave Report', href: '/reports/list', icon: ClipboardList },
+        { title: 'Attendance Report', href: '/reports/list', icon: ClipboardList },
+    ],
+  },
 ];
 
 const footerNavItems: NavItem[] = [

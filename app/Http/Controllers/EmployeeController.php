@@ -177,4 +177,21 @@ public function show(Employee $employee)
         'employee' => $data
     ]);
 }
+    /**
+     * Remove the specified resource from storage.
+     */
+public function destroy(Request $request, Employee $employee)
+    {
+         if ($employee->photo && File::exists(public_path($employee->photo))) {
+            File::delete(public_path($employee->photo));
+        }
+        LogsActions::logDelete($employee, $request->comments);
+        $deleted = $employee->delete(); // or forceDelete() if soft-deleted
+       if ($deleted) {
+        return redirect()
+            ->route('people.index')
+            ->with('success', 'Employee deleted.');
+    }
+    return back()->with('success', 'Employee Deleted');
+    }
 }

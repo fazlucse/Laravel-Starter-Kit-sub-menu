@@ -38,6 +38,7 @@
         "flatpickr": "^4.6.13",
         "html2canvas": "^1.4.1",
         "html2canvas-pro": "^1.5.13",
+        "html2pdf.js": "^0.12.1",
         "jspdf": "^3.0.4",
         "laravel-vite-plugin": "^2.0.0",
         "lucide-vue-next": "^0.468.0",

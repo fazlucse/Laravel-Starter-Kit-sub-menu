@@ -3,6 +3,8 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { ref } from 'vue';
 import * as XLSX from 'xlsx';
+const companyName = import.meta.env.VITE_COM_NAME || 'Default Company';
+const companyAddress = import.meta.env.VITE_COM_ADDRESS || '';
 
 interface UseExportOptions {
     contentId?: string;
@@ -61,7 +63,7 @@ export function useExport(options: UseExportOptions = {}) {
         const printWindow = window.open('', '_blank', 'width=1200,height=900');
 
         if (!printWindow) {
-            alert('Please allow popups for printing');
+            //    alert('Please allow popups for printing');
             isProcessing.value = false;
             return;
         }
@@ -182,60 +184,120 @@ export function useExport(options: UseExportOptions = {}) {
             img.src = url;
         });
     };
-    // 2. EXPORT TO PDF (using html2canvas + jsPDF → perfect layout)
-    const exportToPDF = async () => {
-        const content = getContentElement();
-        if (!content) return;
 
-        isProcessing.value = true;
-
-        // Temporarily remove shadows/borders for perfect screenshot
-        const originalStyle = content.style.cssText;
-        content.style.boxShadow = 'none';
-        content.style.border = 'none';
-        content.style.borderRadius = '0';
-        content.style.background = 'white';
-
-        try {
-            const canvas = await html2canvas(content, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false,
-            });
-
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4',
-            });
-
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const imgWidth = canvas.width;
-            const imgHeight = canvas.height;
-            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-            const imgX = (pdfWidth - imgWidth * ratio) / 2;
-            const imgY = 10;
-
-            pdf.addImage(
-                imgData,
-                'PNG',
-                imgX,
-                imgY,
-                imgWidth * ratio,
-                imgHeight * ratio,
-            );
-            pdf.save(`${filename}.pdf`);
-        } catch (err) {
-            console.error('PDF export failed:', err);
-            alert('PDF export failed. See console.');
-        } finally {
-            content.style.cssText = originalStyle; // restore
-            isProcessing.value = false;
-        }
+    // ──────────────────────────────────────────────────────────────
+    // FIX oklch(), lab(), lch() → html2canvas HATES these colors
+    // ───────────────────────────────────────────────────────────────
+    const applySafeStylesForCanvas = () => {
+        const style = document.createElement('style');
+        style.id = 'safe-canvas-styles';
+        style.textContent = `
+      * {
+        color: #000 !important;
+        background-color: #fff !important;
+        border-color: #000 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+      }
+      img { filter: none !important; opacity: 1 !important; }
+      .dark *, .dark { background-color: #fff !important; color: #000 !important; }
+    `;
+        document.head.appendChild(style);
     };
+    const removeSafeStyles = () => {
+        //   document.getElementById('safe-canvas-styles')?.remove();
+    };
+    // 2. EXPORT TO PDF (using html2canvas + jsPDF → perfect layout)
+    // const exportToPDF = async () => {
+    //     const content = getContentElement();
+    //     if (!content) return;
+
+    //     isProcessing.value = true;
+
+    //     const originalOverflow = document.body.style.overflow;
+    //     const originalStyle = content.style.cssText;
+
+    //     try {
+    //         // Apply safe styles (fixes oklch error)
+    //         applySafeStylesForCanvas();
+    //         document.body.style.overflow = 'hidden';
+    //         content.style.background = 'white';
+    //         content.style.padding = '10px';
+    //         content.style.boxShadow = 'none';
+
+    //         await new Promise((r) => setTimeout(r, 200));
+
+    //         const canvas = await html2canvas(content, {
+    //             scale: 2,
+    //             useCORS: true,
+    //             backgroundColor: '#ffffff',
+    //             logging: false,
+    //             allowTaint: false,
+    //             removeContainer: true,
+    //         });
+
+    //         const imgData = canvas.toDataURL('image/png');
+    //         const pdf = new jsPDF('p', 'mm', 'a4');
+
+    //         const pdfWidth = pdf.internal.pageSize.getWidth();
+    //         const pdfHeight = pdf.internal.pageSize.getHeight() - 20;
+    //         const ratio = Math.min(
+    //             pdfWidth / canvas.width,
+    //             pdfHeight / canvas.height,
+    //         );
+    //         const width = canvas.width * ratio;
+    //         const height = canvas.height * ratio;
+
+    //         pdf.addImage(
+    //             imgData,
+    //             'PNG',
+    //             (pdfWidth - width) / 2,
+    //             10,
+    //             width,
+    //             height,
+    //         );
+
+    //         // THIS IS THE MAGIC → Open in new window instead of direct download
+    //         const pdfBlob = pdf.output('blob');
+    //         const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    //         const previewWindow = window.open(
+    //             pdfUrl,
+    //             '_blank',
+    //             'width=1000,height=800,scrollbars=yes',
+    //         );
+
+    //         if (!previewWindow) {
+    //             alert('Please allow popups to preview PDF');
+    //             // Fallback: direct download
+    //             pdf.save(`${filename}.pdf`);
+    //         } else {
+    //             previewWindow.focus();
+    //             // Optional: Add download button in preview
+    //             previewWindow.onload = () => {
+    //                 setTimeout(() => {
+    //                     previewWindow.document.title = `${filename}.pdf`;
+    //                 }, 500);
+    //             };
+    //         }
+    //     } catch (err) {
+    //         console.error('PDF Export Failed:', err);
+    //         alert('Failed to generate PDF');
+    //         // Fallback download even if preview fails
+    //         const fallbackPdf = new jsPDF('p', 'mm', 'a4');
+    //         fallbackPdf.text(
+    //             'PDF generation failed. Please try again.',
+    //             20,
+    //             20,
+    //         );
+    //         fallbackPdf.save(`${filename}_error.pdf`);
+    //     } finally {
+    //         removeSafeStyles();
+    //         document.body.style.overflow = originalOverflow;
+    //         content.style.cssText = originalStyle;
+    //         isProcessing.value = false;
+    //     }
+    // };
 
     // 3. EXPORT TO EXCEL (.xlsx) – perfect for employee data, tables, etc.
     const exportToExcel = (excelData: any[] | HTMLElement = []) => {
@@ -275,11 +337,131 @@ export function useExport(options: UseExportOptions = {}) {
 
         isProcessing.value = false;
     };
+    const exportToPDF = async (elementId: string, filename = 'document') => {
+        isProcessing.value = true;
+        const element = document.getElementById(elementId);
+        if (!element) return alert('Element not found: ' + elementId);
+        // Temporary safe styles
+        const safeStyle = document.createElement('style');
+        safeStyle.id = 'pdf-safe';
+        safeStyle.textContent = `
+      * {
+        color: #000 !important;
+        background-color: #fff !important;
+        border-color: #000 !important;
+        box-shadow: none !important;
+        line-height: 1.5 !important;
+      }
+      p, span, li, h1,h2,h3,h4,h5,h6 { margin-bottom: 0.5rem !important; }
+      img { filter: none !important; opacity: 1 !important; }
+      #${elementId} { max-width: 780px; padding: 10px; }
+      .dark *, .dark { background-color: #fff !important; color: #000 !important; }
+    `;
+        document.head.appendChild(safeStyle);
 
+        isProcessing.value = true;
+
+        try {
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                allowTaint: true,
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+
+            const pdf = new jsPDF({
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait',
+            });
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const margin = 10;
+
+            // Reserve space for header/footer
+            const headerHeight = 15; // in mm
+            const footerHeight = 10; // in mm
+            const usablePageHeight =
+                pageHeight - headerHeight - footerHeight - 2 * margin;
+
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pageWidth - 2 * margin;
+            const pdfHeightFull = (imgProps.height * pdfWidth) / imgProps.width;
+
+            let position = 0;
+            let page = 1;
+
+            while (position < pdfHeightFull) {
+                const canvasPage = document.createElement('canvas');
+                canvasPage.width = canvas.width;
+                canvasPage.height =
+                    (canvas.height * usablePageHeight) / pdfHeightFull;
+
+                const ctx = canvasPage.getContext('2d');
+                if (!ctx) break;
+
+                ctx.drawImage(
+                    canvas,
+                    0,
+                    (canvas.height * position) / pdfHeightFull,
+                    canvas.width,
+                    canvasPage.height,
+                    0,
+                    0,
+                    canvas.width,
+                    canvasPage.height,
+                );
+
+                const pageData = canvasPage.toDataURL('image/png');
+                pdf.addImage(
+                    pageData,
+                    'PNG',
+                    margin,
+                    margin + headerHeight,
+                    pdfWidth,
+                    usablePageHeight,
+                );
+
+                // Header
+                pdf.setFontSize(12);
+                pdf.text(companyName, pageWidth / 2, margin + 7, {
+                    align: 'center',
+                });
+
+                // Footer
+                pdf.setFontSize(10);
+                pdf.text(
+                    `Page ${page}`,
+                    pageWidth / 2,
+                    pageHeight - margin - 2,
+                    { align: 'center' },
+                );
+
+                position += usablePageHeight;
+                if (position < pdfHeightFull) pdf.addPage();
+                page++;
+            }
+
+            const blob = pdf.output('blob');
+            const url = URL.createObjectURL(blob);
+            const newTab = window.open(
+                url,
+                '_blank',
+                'width=1000,height=800,scrollbars=yes',
+            );
+            // if (!newTab) alert('Please allow popups to preview PDF');
+        } catch (err) {
+            console.error('PDF generation failed:', err);
+        }
+
+        document.getElementById('pdf-safe')?.remove();
+        isProcessing.value = false;
+    };
     return {
         isProcessing,
         print,
-        exportToPDF,
         exportToExcel,
+        exportToPDF,
     };
 }
