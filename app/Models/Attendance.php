@@ -108,4 +108,14 @@ class Attendance extends Model
         'approved_date' => 'datetime',
         'email_sent_date' => 'datetime',
     ];
+    public function employee()
+        {
+            return $this->belongsTo(Employee::class, 'employee_id', 'employee_id'); 
+            // 'employee_id' in attendances maps to 'employee_id' in employees
+        }
+        public function person()
+        {
+            return $this->belongsTo(Person::class, 'contact_id', 'id'); 
+            // 'contact_id' in attendances maps to 'id' in persons
+        }
 }

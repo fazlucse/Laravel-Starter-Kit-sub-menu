@@ -1,107 +1,149 @@
+<!-- AppHeader.vue – FIXED VERSION (instant & close dropdown) -->
 <script setup lang="ts">
-import { computed } from 'vue';
-import Breadcrumbs from '@/components/Breadcrumbs.vue';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { computed } from 'vue'
+import Breadcrumbs from '@/components/Breadcrumbs.vue'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-} from '@/components/ui/dropdown-menu';
-import { LogOut, Folder, Settings } from 'lucide-vue-next';
-import { Link } from '@inertiajs/vue3';
-import type { BreadcrumbItemType } from '@/types';
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
+import { LogOut, Settings, User } from 'lucide-vue-next'
+import { usePage } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 
-interface Props {
-  breadcrumbs?: BreadcrumbItemType[];
-  userPhoto?: string | null;
-  userName?: string;
+const page = usePage()
+const user = computed(() => page.props.auth?.user || {})
+
+const userName = computed(() => user.value?.name || '')
+const userEmail = computed(() => user.value?.email || '')
+const userPhoto = computed(() => user.value?.photo || null)
+const props = defineProps<{
+  breadcrumbs?: Array<{ title: string; href?: string }>
+}>()
+
+const breadcrumbs = computed(() => props.breadcrumbs || [])
+
+
+const initials = computed(() => {
+  if (!userName.value) return '??'
+  const parts = userName.value.trim().split(' ')
+  const first = parts[0]?.[0] || ''
+  const last = parts.length > 1 ? parts[parts.length - 1]?.[0] : ''
+  return (first + last).toUpperCase() || '??'
+})
+
+const handleImageError = () => {
+  // optionally force fallback
 }
 
-const { breadcrumbs, userPhoto, userName } = withDefaults(defineProps<Props>(), {
-  breadcrumbs: () => [],
-  userPhoto: null,
-  userName: '',
-});
-
-const emit = defineEmits<{
-  (e: 'update:userPhoto', value: null): void;
-}>();
-
-// Compute two-letter initials (optional)
-const initials = computed(() => {
-  if (!userName || userName.trim() === '') return 'JD';
-  const nameParts = userName.trim().split(' ');
-  const firstLetter = nameParts[0]?.[0] || 'J';
-  const secondLetter = nameParts[1]?.[0] || nameParts[0]?.[1] || 'D';
-  return `${firstLetter}${secondLetter}`.toUpperCase();
-});
-
-// Handle image error
-const handleImageError = () => {
-  emit('update:userPhoto', null);
-};
+// Instant navigation (no portal delay)
+const goto = (url: string) => {
+  router.visit(url, { preserveState: false })
+}
+const logout = () => {
+  router.post('/logout')
+}
 </script>
 
 <template>
   <header
-    class="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border/70 bg-background px-6 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4"
+    class="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6"
   >
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-3">
       <SidebarTrigger class="-ml-1" />
-      <template v-if="breadcrumbs && breadcrumbs.length > 0">
-        <Breadcrumbs :breadcrumbs="breadcrumbs" />
-      </template>
+      <Breadcrumbs v-if="breadcrumbs?.length" :breadcrumbs="breadcrumbs" />
     </div>
+ <!-- <div class="flex items-center gap-3">
+      <SidebarTrigger class="-ml-1" />
+      <Breadcrumbs v-if="breadcrumbs?.length" :breadcrumbs="breadcrumbs" />
+    </div> -->
+    <!-- User Dropdown -->
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
-        <button class="focus:outline-none" aria-label="User menu">
-          <div
-            class="h-10 w-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center"
-          >
+        <button
+          class="flex items-center gap-3 rounded-lg p-2 transition-all hover:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+          aria-label="User menu"
+        >
+          <div class="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
             <img
               v-if="userPhoto"
               :src="userPhoto"
-              :alt="userName || 'User'"
+              :alt="userName"
               class="h-full w-full object-cover"
               @error="handleImageError"
             />
-            <Folder
+            <div
               v-else
-              class="h-6 w-6 text-gray-500"
-            />
+              class="flex h-full w-full items-center justify-center bg-primary/10 text-sm font-medium text-primary"
+            >
+              {{ initials }}
+            </div>
+          </div>
+          <div class="hidden text-left sm:block">
+            <p class="text-sm font-medium leading-none">{{ userName || 'User' }}</p>
+            <p v-if="userEmail" class="text-xs text-muted-foreground mt-0.5">{{ userEmail }}</p>
           </div>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent class="w-48 p-2" align="end" >
-        <div class="flex flex-col gap-2">
-          <Link
-            :href="'/settings'"
-            as="button"
-            class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-md"
+
+      <!-- This is the key fix: force dropdown to stay close + instant -->
+      <DropdownMenuContent
+        class="w-56 p-3"
+        align="end"
+        side="bottom"
+        :side-offset="8"
+        :avoid-collisions="false"
+        :hide-when-detached="false"
+      >
+        <!-- User Info -->
+        <div class="flex items-center gap-3 px-2 pb-3">
+          <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
+            {{ initials }}
+          </div>
+          <div class="overflow-hidden">
+            <p class="text-sm font-medium truncate">{{ userName || 'User' }}</p>
+            <p v-if="userEmail" class="text-xs text-muted-foreground truncate">{{ userEmail }}</p>
+          </div>
+        </div>
+
+        <DropdownMenuSeparator />
+
+        <!-- Instant navigation items -->
+        <DropdownMenuItem as-child>
+          <button
+            @click="goto('/profile')"
+            class="flex w-full cursor-pointer items-center gap-2.5 px-2 py-1.5 text-sm"
+          >
+            <User class="h-4 w-4" />
+            Profile
+          </button>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem as-child>
+          <button
+            @click="goto('/settings')"
+            class="flex w-full cursor-pointer items-center gap-2.5 px-2 py-1.5 text-sm"
           >
             <Settings class="h-4 w-4" />
-            <span>Settings</span>
-          </Link>
-          <Link
-            :href="'/logout'"
-            method="post"
-            as="button"
-            class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-md"
+            Settings
+          </button>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem as-child>
+          <button
+            @click="logout"
+            class="flex w-full cursor-pointer items-center gap-2.5 px-2 py-1.5 text-sm text-destructive hover:text-destructive"
           >
             <LogOut class="h-4 w-4" />
-            <span>Logout</span>
-          </Link>
-        </div>
+            Log out
+          </button>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   </header>
 </template>
-
-<style scoped>
-.bg-primary {
-  background-color: #3b82f6;
-}
-.text-primary-foreground {
-  color: #ffffff;
-}
-</style>

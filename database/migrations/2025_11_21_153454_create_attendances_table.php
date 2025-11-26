@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('department_name', 200)->nullable();
             $table->unsignedBigInteger('division')->nullable();
             $table->string('division_name', 200)->nullable();
-            $table->string('serving_division_ids', 255);
+            $table->string('serving_division_ids', 255)->nullable();
             $table->string('work_place', 200)->nullable();
             $table->string('work_place_xl', 100)->nullable();
             $table->string('office_in_time', 20)->nullable();
@@ -74,8 +74,8 @@ return new class extends Migration
             $table->string('longitude_in', 200)->nullable();
             $table->string('latitude_out', 200)->nullable();
             $table->string('longitude_out', 200)->nullable();
-            $table->string('login_ip', 200);
-            $table->string('connected_mac', 200);
+            $table->string('login_ip', 200)->nullable();
+            $table->string('connected_mac', 200)->nullable();
             $table->timestamps();
         });
     }

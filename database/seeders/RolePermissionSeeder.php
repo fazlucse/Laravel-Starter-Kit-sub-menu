@@ -21,8 +21,24 @@ class RolePermissionSeeder extends Seeder
             'person.create', 'person.edit', 'person.delete', 'person.view',
             // HR Module
             'employee.view', 'employee.create', 'employee.edit', 'employee.delete',
+            'attendance.view', 'attendance.create', 'attendance.edit', 'attendance.delete',
+         // Leave Request Module
+            'leave-request.view', 'leave-request.create', 'leave-request.edit', 'leave-request.delete',
+
+            // Leave Allotment
+            'leave-allotment.view', 'leave-allotment.create', 'leave-allotment.edit', 'leave-allotment.delete',
+
             // Payroll Module
-            // 'payroll.view', 'payroll.create', 'payroll.edit', 'payroll.delete', 'payroll.manage',
+            'payroll.view', 'payroll.create', 'payroll.edit', 'payroll.delete',
+
+            // Holiday Management
+            'holiday.view', 'holiday.create', 'holiday.edit', 'holiday.delete',
+
+            // Movement Register
+            'movement.view', 'movement.create', 'movement.edit', 'movement.delete',
+
+            // Reports
+            'reports.view',
         ];
 
         foreach ($permissions as $permission) {
