@@ -60,7 +60,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Leave Allotment',
-    href: '/leave-allotment',
+    href: '/leave-allotments',
     icon: ClipboardList, // List icon for leave allotment
   },
   {

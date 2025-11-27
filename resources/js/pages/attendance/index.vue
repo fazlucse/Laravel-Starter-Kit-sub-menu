@@ -9,7 +9,7 @@
     <div class="flex flex-col h-[calc(100vh-5rem)]">
 
       <!-- Header -->
-      <div class="p-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+      <div class="p-2 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Attendance</h1>
 
@@ -46,7 +46,10 @@
               <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Office Out</th>
               <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Emp In</th>
               <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Emp Out</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Late / Delay</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Early In</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Late In</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Early Out</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Late Out</th>
               <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Status</th>
               <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Actions</th>
             </tr>
@@ -64,21 +67,23 @@
               <td class="px-4 py-2 text-sm">{{ a.employee?.designation_name }}</td>
               <td class="px-4 py-2 text-sm">{{ a.employee?.department_name }}</td>
               <td class="px-4 py-2 text-sm">{{ a.employee?.division_name }}</td>
-              <td class="px-4 py-2 text-sm whitespace-nowrap"> {{ a.add_time ? formatDate(a.add_time) : '—' }}</td>
-            <td class="px-4 py-2 text-sm whitespace-nowrap">
-            {{ formatTime(a.office_in_time) }}
-            </td>
-            <td class="px-4 py-2 text-sm whitespace-nowrap">
-            {{ formatTime(a.office_out_time) }}
-            </td>
-            <td class="px-4 py-2 text-sm whitespace-nowrap">
-            {{ formatTime(a.emp_in_time) }}
-            </td>
-            <td class="px-4 py-2 text-sm whitespace-nowrap">
-            {{ formatTime(a.emp_out_time) }}
-            </td>
-              <td class="px-4 py-2 text-sm">
-                {{ a.in_time_late || 0 }}/{{ a.out_time_late || 0 }}
+              <td class="px-4 py-2 text-sm whitespace-nowrap">{{ a.add_time ? formatDate(a.add_time) : '—' }}</td>
+              <td class="px-4 py-2 text-sm whitespace-nowrap">{{ formatTime(a.office_in_time) }}</td>
+              <td class="px-4 py-2 text-sm whitespace-nowrap">{{ formatTime(a.office_out_time) }}</td>
+              <td class="px-4 py-2 text-sm whitespace-nowrap">{{ formatTime(a.emp_in_time) }}</td>
+              <td class="px-4 py-2 text-sm whitespace-nowrap">{{ formatTime(a.emp_out_time) }}</td>
+              <!-- Early / Late In / Out -->
+              <td class="px-4 py-2 text-sm whitespace-nowrap">
+                {{ getTimeDiff(a.office_in_time, a.emp_in_time) < 0 ? formatDiff(getTimeDiff(a.office_in_time, a.emp_in_time)) : '—' }}
+              </td>
+              <td class="px-4 py-2 text-sm whitespace-nowrap">
+                {{ getTimeDiff(a.office_in_time, a.emp_in_time) > 0 ? formatDiff(getTimeDiff(a.office_in_time, a.emp_in_time)) : '—' }}
+              </td>
+              <td class="px-4 py-2 text-sm whitespace-nowrap">
+                {{ getTimeDiff(a.office_out_time, a.emp_out_time) < 0 ? formatDiff(getTimeDiff(a.office_out_time, a.emp_out_time)) : '—' }}
+              </td>
+              <td class="px-4 py-2 text-sm whitespace-nowrap">
+                {{ getTimeDiff(a.office_out_time, a.emp_out_time) > 0 ? formatDiff(getTimeDiff(a.office_out_time, a.emp_out_time)) : '—' }}
               </td>
               <td class="px-4 py-2 text-sm">{{ a.status }}</td>
               <td class="px-4 py-2 text-right">
@@ -92,7 +97,7 @@
             </tr>
 
             <tr v-if="!attendance.data.length">
-              <td colspan="16" class="text-center py-4 text-gray-500 dark:text-gray-400">No attendance found.</td>
+              <td colspan="20" class="text-center py-4 text-gray-500 dark:text-gray-400">No attendance found.</td>
             </tr>
           </tbody>
         </table>
@@ -111,33 +116,53 @@ import DeleteDialog from '@/Components/custom/DeleteDialog.vue'
 import Avatar from '@/Components/custom/Avatar.vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
-import { computed,ref } from 'vue'
+import { computed } from 'vue'
 import { usePagination } from '@/composables/usePagination'
 
 const attendance = defineModel('attendance', { required: true }) as any
 const { perPage, update: updatePerPage } = usePagination()
 
 const { authUser } = usePage().props
+console.log('authUser.permissions:', authUser?.permissions)
 
-const canCreate = computed(() => authUser?.permissions?.includes('attendance.create') ?? false)
 const canDelete = computed(() => authUser?.permissions?.includes('attendance.delete') ?? false)
-
-
+const canCreate = computed(() => authUser?.permissions?.includes('attendance.create') ?? false)
 const handleDelete = ({ success }: { success: boolean }) => {
   if (success) window.location.reload()
 }
+
 function formatDate(dateStr: string) {
   const date = new Date(dateStr)
   const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0') // Months are 0-indexed
+  const month = String(date.getMonth() + 1).padStart(2, '0')
   const year = date.getFullYear()
   return `${day}-${month}-${year}`
 }
+
 function formatTime(timeStr: string | null) {
   if (!timeStr) return '—'
   const [hour, minute] = timeStr.split(':').map(Number)
   const ampm = hour >= 12 ? 'PM' : 'AM'
   const hour12 = hour % 12 === 0 ? 12 : hour % 12
   return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`
+}
+
+// Compute time difference in minutes (positive = late, negative = early)
+function getTimeDiff(officeTime: string | null, empTime: string | null) {
+  if (!officeTime || !empTime) return 0
+  const [oh, om] = officeTime.split(':').map(Number)
+  const [eh, em] = empTime.split(':').map(Number)
+  const officeMinutes = oh * 60 + om
+  const empMinutes = eh * 60 + em
+  return empMinutes - officeMinutes
+}
+
+// Format minutes into h/m string
+function formatDiff(diff: number) {
+  if (diff === 0) return '0'
+  const absDiff = Math.abs(diff)
+  const h = Math.floor(absDiff / 60)
+  const m = absDiff % 60
+  return `${h > 0 ? h + 'h ' : ''}${m}m`
 }
 </script>

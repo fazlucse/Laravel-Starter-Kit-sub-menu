@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
@@ -51,7 +52,6 @@ class AttendanceController extends Controller
         'flash' => [
             'success' => session('success'),
         ],
-        'authUser' => auth()->user(),
     ]);
 }
 

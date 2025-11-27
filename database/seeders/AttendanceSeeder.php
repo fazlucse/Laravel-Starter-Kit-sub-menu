@@ -21,21 +21,18 @@ class AttendanceSeeder extends Seeder
                 $isOffday = $date->isFriday(); // Friday off
                 $statusOptions = ['Present', 'Absent', 'Leave', 'Holiday'];
                 $status = $isOffday ? 'Offday' : $statusOptions[array_rand($statusOptions)];
-
+                $office_in_time  = Carbon::createFromFormat('H:i', '09:00')->format('H:i');
+                $office_out_time = Carbon::createFromFormat('H:i', '18:00')->format('H:i');
                 if (!$isOffday && $status === 'Present') {
                     // Office times
-                    $office_in_time = Carbon::parse('09:00')->addMinutes(rand(0, 15))->format('H:i'); // 9:00-9:15 AM
-                    $office_out_time = Carbon::parse('18:00')->addMinutes(rand(-10, 60))->format('H:i'); // 6:00-7:00 PM
-
                     // Employee actual in/out
                     $emp_in_time = Carbon::parse($office_in_time)->addMinutes(rand(-10, 20))->format('H:i'); // early/late
                     $emp_out_time = Carbon::parse($office_out_time)->addMinutes(rand(-15, 30))->format('H:i');
-
                     // Late/early calculation
                     $in_time_late = max(0, Carbon::parse($emp_in_time)->diffInMinutes(Carbon::parse($office_in_time)));
                     $out_time_late = max(0, Carbon::parse($office_out_time)->diffInMinutes(Carbon::parse($emp_out_time)));
                 } else {
-                    $office_in_time = $office_out_time = $emp_in_time = $emp_out_time = null;
+                   $emp_in_time = $emp_out_time = null;
                     $in_time_late = $out_time_late = 0;
                 }
 

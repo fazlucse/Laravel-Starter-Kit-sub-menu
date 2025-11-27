@@ -5,7 +5,7 @@
   >
     <div class="flex flex-col h-[calc(100vh-5rem)]">
       <!-- Header -->
-      <div class="p-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div class="p-2 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Employees</h1>
           <div class="flex items-center gap-3 w-full sm:w-auto">

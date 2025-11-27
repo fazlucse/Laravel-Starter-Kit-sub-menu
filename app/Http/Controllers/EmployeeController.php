@@ -13,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Http\Requests\StoreEmployeeRequest;
+use App\Traits\LogsActions;
 
 class EmployeeController extends Controller
 {
@@ -106,8 +107,8 @@ public function store(StoreEmployeeRequest $request)
     $data['is_tax_deduction'] = !empty($data['is_tax_deduction']);
     $data['is_salary_stop']   = !empty($data['is_salary_stop']);
 
-    Employee::create($data);
-
+    $employee = Employee::create($data);
+    LogsActions::logCreate($employee, 'Person created successfully.');
     return redirect()
         ->route('employees.index')
         ->with('success', 'Employee created successfully.');

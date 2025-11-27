@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Employee;
 
 class LeaveAllotment extends Model
 {
@@ -58,4 +59,55 @@ class LeaveAllotment extends Model
         'remarks',
         'reason'
     ];
+  /**
+     * Link to Employee
+     */
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id');
+    }
+    /**
+     * Distribute leave for a given employee and year.
+     */
+    public static function distributeLeave(Employee $employee, int $allotmentYear)
+    {
+        // Leave policy
+        $annualLeave = 20;
+        $casualLeave = 12;
+        $sickLeave = 10;
+
+        $joiningDate = $employee->joining_date;
+        $joiningYear = date('Y', strtotime($joiningDate));
+        $joiningMonth = date('m', strtotime($joiningDate));
+
+        // Prorate if joined in the same year
+        if ($joiningYear == $allotmentYear) {
+            $remainingMonths = 12 - ($joiningMonth - 1); // include joining month
+            $annualLeave = round(($annualLeave / 12) * $remainingMonths);
+            $casualLeave = round(($casualLeave / 12) * $remainingMonths);
+            $sickLeave = round(($sickLeave / 12) * $remainingMonths);
+        }
+
+        // Insert or update leave allotment
+        return self::updateOrCreate(
+    [
+        'employee_id' => $employee->id,
+        'year' => $allotmentYear,
+    ],
+    [
+        'annual_allotment' => $annualLeave,
+        'casual_allotment' => $casualLeave,
+        'sick_allotment' => $sickLeave,
+        'name' => $employee->person_name,
+        'person_id' => $employee->person_id,
+        'designation' => $employee->designation->id ?? null,
+        'designation_name' => $employee->designation->name ?? null,
+        'department' => $employee->department->id ?? null,
+        'department_name' => $employee->department->department_name ?? null,
+        'division' => $employee->division->id ?? null,
+        'division_name' => $employee->division->division_name ?? null,
+    ]
+);
+
+    }
 }

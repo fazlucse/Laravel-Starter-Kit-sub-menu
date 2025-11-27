@@ -7,6 +7,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\LeaveAllotmentController;
 
 
 Route::get('/', function () {
@@ -33,7 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
     Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
 
-    Route::prefix('attendance')->name('attendance.')->group(function () {
+    Route::middleware(['auth'])->prefix('attendance')->name('attendance.')->group(function () {
         Route::get('/', [AttendanceController::class, 'index'])->name('index');
         Route::get('/create', [AttendanceController::class, 'create'])->name('create');
         Route::post('/', [AttendanceController::class, 'store'])->name('store');
@@ -41,6 +42,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{attendance}', [AttendanceController::class, 'update'])->name('update');
         Route::delete('/{attendance}', [AttendanceController::class, 'destroy'])->name('destroy');
         Route::get('/{attendance}', [AttendanceController::class, 'show'])->name('show');
+    });
+
+    Route::middleware(['auth'])->prefix('leave-allotments')->group(function () {
+        Route::get('/', [LeaveAllotmentController::class, 'index'])->name('leave_allotments.index');
+        Route::get('/create', [LeaveAllotmentController::class, 'create'])->name('leave_allotments.create');
+        Route::post('/', [LeaveAllotmentController::class, 'store'])->name('leave_allotments.store'); // POST /leave-allotments
+        Route::get('/{id}/edit', [LeaveAllotmentController::class, 'edit'])->name('leave_allotments.edit');
+        Route::put('/{id}', [LeaveAllotmentController::class, 'update'])->name('leave_allotments.update'); // PUT /leave-allotments/{id}
+        Route::delete('/{id}', [LeaveAllotmentController::class, 'destroy'])->name('leave_allotments.destroy');
     });
     // Route::get('/employees/persons/search', [PersonController::class, 'search']);
 // Route::get('/companies', [CompanyController::class, 'index']);

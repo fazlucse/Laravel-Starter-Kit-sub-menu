@@ -43,8 +43,8 @@ class HandleInertiaRequests extends Middleware
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'roles' => $user->getRoleNames()->toArray(),
-                    'permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
+                    'roles' => $request->user()->getRoleNames()->toArray(),
+                    'permissions' => $request->user()->getAllPermissions()->pluck('name')->toArray(),
                 ];
             },
            'isNavigating' => $request->header('X-Inertia') === 'true',
