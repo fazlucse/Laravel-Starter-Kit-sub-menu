@@ -4,24 +4,26 @@
     :breadcrumbs="[
       { title: 'Dashboard', href: '/' },
       { title: 'Leave Allotments', href: '/leave-allotments' },
-      { title: mode === 'create' ? 'Add New' : 'Edit', href: '#' },
+      { title: mode === 'create' ?'Add Leave Allotment' : 'Edit Leave Allotment', href: '#' },
     ]"
   >
-    <div class="bg-white dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
-      <div class="max-w-3xl mx-auto">
+<!--      <div class="max-w-4xl mx-auto p-2 sm:p-4">-->
+<!--          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-8 border border-sidebar-border/70">-->
 
+          <div class=" py-8 px-4 sm:px-6 lg:px-8">
+              <div class="max-w-4xl mx-auto p-2 sm:p-4">
         <!-- Header -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">
-            {{ mode === 'create' ? 'Add Leave Allotment' : 'Edit Leave Allotment' }}
-          </h1>
-          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center">
-            Complete all fields. Fields marked with * are required.
-          </p>
-        </div>
+                  <div class="bg-white dark:bg-gray-800 rounded-t-xl shadow-lg  pt-6">
+                      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">
+                          {{ mode === 'create' ? 'Add Leave Allotment' : 'Edit Leave Allotment' }}
+                      </h1>
+                      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center">
+                          Complete all fields. Fields marked with * are required.
+                      </p>
+                  </div>
 
         <!-- Form -->
-        <form @submit.prevent="submit" class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 space-y-6">
+        <form @submit.prevent="submit" class="bg-white dark:bg-gray-800 shadow-lg rounded-b-xl p-8 space-y-6">
 
           <!-- Fiscal Year -->
           <div class="input-wrapper">
@@ -74,7 +76,7 @@
             <button
               type="submit"
               :disabled="form.processing"
-              class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+              class="cursor-pointer px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <LoadingSpinner v-if="form.processing" />
               {{ mode === 'create' ? 'Submit' : 'Update' }}

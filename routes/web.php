@@ -8,6 +8,7 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeaveAllotmentController;
+use App\Http\Controllers\LeaveRequestController;
 
 
 Route::get('/', function () {
@@ -51,6 +52,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{id}/edit', [LeaveAllotmentController::class, 'edit'])->name('leave_allotments.edit');
         Route::put('/{id}', [LeaveAllotmentController::class, 'update'])->name('leave_allotments.update'); // PUT /leave-allotments/{id}
         Route::delete('/{id}', [LeaveAllotmentController::class, 'destroy'])->name('leave_allotments.destroy');
+    });
+    Route::middleware(['auth'])->prefix('leave-request')->group(function() {
+        Route::get('/', [LeaveRequestController::class, 'index'])->name('leave_requests.index');
+        Route::get('/create', [LeaveRequestController::class, 'create'])->name('leave_requests.create');
+        Route::post('/', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
     });
     // Route::get('/employees/persons/search', [PersonController::class, 'search']);
 // Route::get('/companies', [CompanyController::class, 'index']);

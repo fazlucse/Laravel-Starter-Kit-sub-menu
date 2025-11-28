@@ -41,6 +41,7 @@ class LeaveAllotmentController extends Controller
             'year'        => 'nullable|integer',
             'remarks'     => 'nullable|string|max:255',
         ]);
+
         $year = $data['year'] ?? date('Y');
         if ($data['employee_id']) {
             $employee = Employee::find($data['employee_id']);

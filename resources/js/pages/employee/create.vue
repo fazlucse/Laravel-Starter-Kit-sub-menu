@@ -12,7 +12,7 @@
         <div class="max-w-7xl mx-auto">
 
         <!-- Header -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-0">
+        <div class="bg-white dark:bg-gray-800 rounded-t-xl shadow-lg p-6 mb-0">
           <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center">
             {{ mode === 'create' ? 'Employee Registration' : 'Update Employee' }}
           </h1>

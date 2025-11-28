@@ -79,16 +79,12 @@ class LeaveAllotment extends Model
         $joiningDate = $employee->joining_date;
         $joiningYear = date('Y', strtotime($joiningDate));
         $joiningMonth = date('m', strtotime($joiningDate));
-
-        // Prorate if joined in the same year
         if ($joiningYear == $allotmentYear) {
-            $remainingMonths = 12 - ($joiningMonth - 1); // include joining month
+            $remainingMonths = 12 - ($joiningMonth - 1);
             $annualLeave = round(($annualLeave / 12) * $remainingMonths);
             $casualLeave = round(($casualLeave / 12) * $remainingMonths);
             $sickLeave = round(($sickLeave / 12) * $remainingMonths);
         }
-
-        // Insert or update leave allotment
         return self::updateOrCreate(
     [
         'employee_id' => $employee->id,
@@ -100,12 +96,12 @@ class LeaveAllotment extends Model
         'sick_allotment' => $sickLeave,
         'name' => $employee->person_name,
         'person_id' => $employee->person_id,
-        'designation' => $employee->designation->id ?? null,
-        'designation_name' => $employee->designation->name ?? null,
+        'designation' => $employee->designation_id ?? null,
+        'designation_name' => $employee->designation_name ?? null,
         'department' => $employee->department->id ?? null,
         'department_name' => $employee->department->department_name ?? null,
-        'division' => $employee->division->id ?? null,
-        'division_name' => $employee->division->division_name ?? null,
+        'division' => $employee->division_id ?? null,
+        'division_name' => $employee->division_name ?? null,
     ]
 );
 
