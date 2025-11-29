@@ -70,7 +70,7 @@ const mainNavItems: NavItem[] = [
     },
   {
     title: 'Holiday Management',
-    href: '/people.index',
+    href: '/holidays',
     icon: Calendar, // Users icon
     },
     {

@@ -18,4 +18,8 @@ class Person extends Model
     protected $casts = [
         'material_status' => 'string',
     ];
+    public function holidays()
+    {
+        return $this->belongsToMany(Holiday::class, 'holiday_person', 'person_id', 'holiday_id');
+    }
 }

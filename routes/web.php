@@ -9,7 +9,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeaveAllotmentController;
 use App\Http\Controllers\LeaveRequestController;
-
+use App\Http\Controllers\HolidayController;
 
 Route::get('/', function () {
   return redirect()->route('login');
@@ -58,6 +58,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/create', [LeaveRequestController::class, 'create'])->name('leave_requests.create');
         Route::post('/', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
     });
+
+
+    Route::middleware(['auth'])->prefix('holidays')->group(function () {
+        Route::get('/', [HolidayController::class, 'index'])->name('holidays.index');
+        Route::get('/create', [HolidayController::class, 'create'])->name('holidays.create');
+        Route::post('/', [HolidayController::class, 'store'])->name('holidays.store');
+        Route::get('/{holiday}', [HolidayController::class, 'show'])->name('holidays.show');
+        Route::get('/{holiday}/edit', [HolidayController::class, 'edit'])->name('holidays.edit');
+        Route::put('/{holiday}', [HolidayController::class, 'update'])->name('holidays.update');
+        Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->name('holidays.destroy');
+    });
+
     // Route::get('/employees/persons/search', [PersonController::class, 'search']);
 // Route::get('/companies', [CompanyController::class, 'index']);
 // Route::get('/divisions', [DivisionController::class, 'index']);
