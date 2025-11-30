@@ -75,7 +75,7 @@ const mainNavItems: NavItem[] = [
     },
     {
     title: 'Movement Regsiter',
-    href: '/people.index',
+    href: '/movement-registers',
     icon: MapPin, // Users icon
   },
   {

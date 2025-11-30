@@ -10,6 +10,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeaveAllotmentController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\MovementRegisterController;
 
 Route::get('/', function () {
   return redirect()->route('login');
@@ -70,6 +71,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->name('holidays.destroy');
     });
 
+
+    Route::middleware(['auth'])->prefix('movement-registers')->group(function () {
+        Route::get('/', [MovementRegisterController::class, 'index'])->name('movement-registers.index');
+        Route::get('/create', [MovementRegisterController::class, 'create'])->name('movement-registers.create');
+        Route::post('/', [MovementRegisterController::class, 'store'])->name('movement-registers.store');
+        Route::get('/{movementRegister}', [MovementRegisterController::class, 'show'])->name('movement-registers.show');
+        Route::get('/{movementRegister}/edit', [MovementRegisterController::class, 'edit'])->name('movement-registers.edit');
+        Route::put('/{movementRegister}', [MovementRegisterController::class, 'update'])->name('movement-registers.update');
+        Route::delete('/{movementRegister}', [MovementRegisterController::class, 'destroy'])->name('movement-registers.destroy');
+    });
     // Route::get('/employees/persons/search', [PersonController::class, 'search']);
 // Route::get('/companies', [CompanyController::class, 'index']);
 // Route::get('/divisions', [DivisionController::class, 'index']);
