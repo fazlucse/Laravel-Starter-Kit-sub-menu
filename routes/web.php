@@ -11,6 +11,7 @@ use App\Http\Controllers\LeaveAllotmentController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\MovementRegisterController;
+use App\Http\Controllers\RecruitmentController;
 
 Route::get('/', function () {
   return redirect()->route('login');
@@ -80,6 +81,53 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{movementRegister}/edit', [MovementRegisterController::class, 'edit'])->name('movement-registers.edit');
         Route::put('/{movementRegister}', [MovementRegisterController::class, 'update'])->name('movement-registers.update');
         Route::delete('/{movementRegister}', [MovementRegisterController::class, 'destroy'])->name('movement-registers.destroy');
+    });
+    Route::middleware(['auth'])->prefix('recruitments')->group(function () {
+
+        // ---------------------
+        // Job Openings
+        // ---------------------
+        Route::get('/', [RecruitmentController::class, 'index'])->name('recruitments.index');
+        Route::get('/create', [RecruitmentController::class, 'create'])->name('recruitments.create');
+        Route::post('/', [RecruitmentController::class, 'store'])->name('recruitments.store');
+        Route::get('/{recruitment}', [RecruitmentController::class, 'show'])->name('recruitments.show');
+        Route::get('/{recruitment}/edit', [RecruitmentController::class, 'edit'])->name('recruitments.edit');
+        Route::put('/{recruitment}', [RecruitmentController::class, 'update'])->name('recruitments.update');
+        Route::delete('/{recruitment}', [RecruitmentController::class, 'destroy'])->name('recruitments.destroy');
+
+        // ---------------------
+        // Applicants
+        // ---------------------
+//        Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
+//        Route::get('/applicants/create', [ApplicantController::class, 'create'])->name('applicants.create');
+//        Route::post('/applicants', [ApplicantController::class, 'store'])->name('applicants.store');
+//        Route::get('/applicants/{applicant}', [ApplicantController::class, 'show'])->name('applicants.show');
+//        Route::get('/applicants/{applicant}/edit', [ApplicantController::class, 'edit'])->name('applicants.edit');
+//        Route::put('/applicants/{applicant}', [ApplicantController::class, 'update'])->name('applicants.update');
+//        Route::delete('/applicants/{applicant}', [ApplicantController::class, 'destroy'])->name('applicants.destroy');
+
+        // ---------------------
+        // Interviews
+        // ---------------------
+//        Route::get('/interviews', [InterviewController::class, 'index'])->name('interviews.index');
+//        Route::get('/interviews/create', [InterviewController::class, 'create'])->name('interviews.create');
+//        Route::post('/interviews', [InterviewController::class, 'store'])->name('interviews.store');
+//        Route::get('/interviews/{interview}', [InterviewController::class, 'show'])->name('interviews.show');
+//        Route::get('/interviews/{interview}/edit', [InterviewController::class, 'edit'])->name('interviews.edit');
+//        Route::put('/interviews/{interview}', [InterviewController::class, 'update'])->name('interviews.update');
+//        Route::delete('/interviews/{interview}', [InterviewController::class, 'destroy'])->name('interviews.destroy');
+
+        // ---------------------
+        // Offers & Onboarding
+        // ---------------------
+//        Route::get('/offers', [OfferController::class, 'index'])->name('offers.index');
+//        Route::get('/offers/create', [OfferController::class, 'create'])->name('offers.create');
+//        Route::post('/offers', [OfferController::class, 'store'])->name('offers.store');
+//        Route::get('/offers/{offer}', [OfferController::class, 'show'])->name('offers.show');
+//        Route::get('/offers/{offer}/edit', [OfferController::class, 'edit'])->name('offers.edit');
+//        Route::put('/offers/{offer}', [OfferController::class, 'update'])->name('offers.update');
+//        Route::delete('/offers/{offer}', [OfferController::class, 'destroy'])->name('offers.destroy');
+
     });
     // Route::get('/employees/persons/search', [PersonController::class, 'search']);
 // Route::get('/companies', [CompanyController::class, 'index']);

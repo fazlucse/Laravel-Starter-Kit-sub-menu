@@ -80,14 +80,31 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Recruitment & ATS',
-    href: '#',
+    href: '/recruitments',
     icon: Folder,
-    subItems: [
-      { title: 'Job Openings', href: '/projects/active', icon: Briefcase },
-      { title: 'Applicants', href: '/projects/archived', icon: Users },
-      { title: 'Interviews', href: '/projects/interviews', icon: ClipboardList },
-      { title: 'Offers & Onboarding', href: '/projects/offers', icon: FileSignature },
-    ],
+    // subItems: [
+    //     {
+    //         title: 'Job Openings',
+    //         href: '/recruitments',            // Job Openings index
+    //         icon: Briefcase,
+    //     },
+    //     {
+    //         title: 'Applicants',
+    //         href: '/recruitments/applicants', // Applicants index
+    //         icon: Users,
+    //     },
+    //     {
+    //         title: 'Interviews',
+    //         href: '/recruitments/interviews', // Interviews index
+    //         icon: ClipboardList,
+    //     },
+    //     {
+    //         title: 'Offers & Onboarding',
+    //         href: '/recruitments/offers',     // Offers index
+    //         icon: FileSignature,
+    //     },
+    //
+    // ],
   },
   {
     title: 'Reports',
