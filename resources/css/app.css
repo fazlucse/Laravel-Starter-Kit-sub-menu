@@ -214,46 +214,54 @@
 /* resources/css/app.css */
 @layer utilities {
 
-    /* Thin scrollbar for Webkit (Chrome, Safari, Edge) */
-    .scrollbar-thin::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+    /* ───────────────────────────────
+     FINAL & OPTIMIZED SCROLLBAR
+     Ultra-thin • Fully transparent track
+     Works everywhere • Light + Dark mode
+     ─────────────────────────────── */
+
+    /* Firefox – thin + transparent */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
     }
 
-    .scrollbar-thin::-webkit-scrollbar-track {
-        background: transparent;
-        /* default light mode */
+    /* Chrome, Edge, Safari – Global (applies to ALL scrollable elements) */
+    ::-webkit-scrollbar {
+        width: 6px !important;
+        height: 6px !important;
     }
 
-    .scrollbar-thin::-webkit-scrollbar-thumb {
-        background: rgba(156, 163, 175, 0.5);
-        /* gray-400 */
+    ::-webkit-scrollbar-track {
+        background: transparent !important;
         border-radius: 3px;
     }
 
-    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-        background: rgba(107, 114, 128, 0.7);
-        /* gray-500 */
+    ::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.3) !important;   /* Light mode – subtle gray */
+        border-radius: 3px;
+        transition: background 0.2s ease;
     }
 
-    /* Dark mode */
-    .dark .scrollbar-thin::-webkit-scrollbar-track {
-        background: #111827;
-        /* Tailwind dark-900 */
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(107, 114, 128, 0.6) !important;   /* Light mode hover */
     }
 
-    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-        background: rgba(156, 163, 175, 0.5);
-        /* gray-400 */
+    ::-webkit-scrollbar-corner {
+        background: transparent !important;
     }
 
-    .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-        background: rgba(209, 213, 219, 0.7);
-        /* gray-300 */
+    /* ────── DARK MODE ────── */
+    .dark ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15) !important;   /* Subtle white */
     }
 
-    .dark .scrollbar-thin::-webkit-scrollbar-track {
-        background: #1f2937;
-        /* dark-800 for better contrast with thumb */
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.35) !important;   /* Brighter on hover */
+    }
+
+    /* Firefox Dark Mode */
+    .dark * {
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     }
 }

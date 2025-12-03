@@ -12,10 +12,6 @@
             <RadioOption v-model="local.type" value="Other" label="Other" />
         </div>
 
-        <div v-if="local.type === 'Other'" class="flex gap-8 mb-5">
-            <RadioOption v-model="local.ex_type" value="Existing Location" label="Existing Location" />
-            <RadioOption v-model="local.ex_type" value="New Location" label="New Location" />
-        </div>
 
         <div v-if="showFactorySelect" class="mb-4">
             <FormSelect v-model="local.factory" label="Factory Name" :options="factories" required />
@@ -25,8 +21,8 @@
             <FormSelect v-model="local.sub_factory" label="Sub Factory Name" :options="subFactories" required />
         </div>
 
-        <div v-if="local.ex_type === 'New Location'">
-            <FormInput v-model="local.new_name" label="New Location Name" required />
+        <div v-if="local.type === 'Other'">
+            <FormInput v-model="local.new_name" label="Other Location Name" required />
         </div>
     </fieldset>
 </template>
