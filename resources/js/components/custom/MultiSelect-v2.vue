@@ -5,10 +5,10 @@
         <button
             type="button"
             @click="isOpen = !isOpen"
-            class="w-full bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-left hover:border-indigo-500 focus:outline-none focus:border-indigo-500 transition-all shadow-sm min-h-[48px] flex items-start justify-between"
+            class="w-full bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 text-left hover:border-indigo-500 focus:outline-none focus:border-indigo-500 transition-all shadow-sm min-h-[48px] flex items-center justify-between"
             :class="{ 'border-indigo-500': isOpen }"
         >
-            <div class="flex flex-wrap gap-2 items-center flex-1 max-h-[200px] overflow-y-auto pr-2 scrollbar-thin">
+            <div class="flex flex-wrap gap-2 items-center flex-1">
                 <!-- Placeholder -->
                 <span v-if="selectedItems.length === 0" class="text-gray-400">
           {{ placeholder }}
@@ -19,7 +19,7 @@
           <span
               v-for="item in selectedItems"
               :key="item[idKey]"
-              class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium whitespace-nowrap"
+              class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium"
           >
             {{ getLabel(item) }}
             <button
@@ -33,21 +33,10 @@
           </span>
                 </template>
             </div>
-            <div class="flex items-center gap-2 ml-2 flex-shrink-0">
-                <button
-                    v-if="selectedItems.length > 0"
-                    type="button"
-                    @click.stop="clearAll"
-                    class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition"
-                    title="Clear all"
-                >
-                    <X class="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                </button>
-                <ChevronDown
-                    class="w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform"
-                    :class="{ 'rotate-180': isOpen }"
-                />
-            </div>
+            <ChevronDown
+                class="w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform ml-2"
+                :class="{ 'rotate-180': isOpen }"
+            />
         </button>
 
         <!-- Dropdown -->
@@ -61,11 +50,10 @@
         >
             <div
                 v-if="isOpen"
-                class="absolute z-[9999] w-full bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden max-h-[80vh] flex flex-col"
-                :class="dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'"
+                class="absolute z-50 w-full mt-2 bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden"
             >
                 <!-- Search -->
-                <div class="p-3 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-inherit z-10">
+                <div class="p-3 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-inherit">
                     <div class="relative">
                         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
@@ -80,7 +68,7 @@
                 </div>
 
                 <!-- Options -->
-                <div class="max-h-48 overflow-y-auto flex-1">
+                <div class="max-h-50 overflow-y-auto">
                     <template v-if="filteredItems.length">
                         <button
                             v-for="item in filteredItems"
@@ -104,9 +92,9 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex gap-2 flex-shrink-0">
+                <div class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex gap-2">
                     <button
-                        v-if="selectedItems.length > 0"
+                        v-if="multiple"
                         type="button"
                         @click="clearAll"
                         class="flex-1 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition font-medium"
@@ -146,31 +134,16 @@ const isOpen = ref(false)
 const searchQuery = ref('')
 const dropdownRef = ref(null)
 const searchInput = ref(null)
-const dropdownPosition = ref('bottom')
 
 onClickOutside(dropdownRef, () => (isOpen.value = false))
 
 watch(isOpen, (open) => {
     if (open) {
-        nextTick(() => {
-            searchInput.value?.focus()
-            checkDropdownPosition()
-        })
+        nextTick(() => searchInput.value?.focus())
     } else {
         searchQuery.value = ''
     }
 })
-
-const checkDropdownPosition = () => {
-    if (!dropdownRef.value) return
-
-    const rect = dropdownRef.value.getBoundingClientRect()
-    const spaceBelow = window.innerHeight - rect.bottom
-    const spaceAbove = rect.top
-    const dropdownHeight = 450 // Approximate dropdown height
-
-    dropdownPosition.value = spaceBelow < dropdownHeight && spaceAbove > spaceBelow ? 'top' : 'bottom'
-}
 
 const filteredItems = computed(() => {
     if (!searchQuery.value) return props.items
@@ -230,20 +203,6 @@ const clearAll = () => {
 </script>
 
 <style scoped>
-.scrollbar-thin::-webkit-scrollbar {
-    width: 4px;
-}
-.scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.3);
-    border-radius: 2px;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.5);
-}
-
 .max-h-64::-webkit-scrollbar {
     width: 6px;
 }
