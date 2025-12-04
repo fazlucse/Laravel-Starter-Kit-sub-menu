@@ -43,8 +43,29 @@
                                     class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700"
                                 />
                             </div>
-
+                            <MultiSelect
+                                :items="purposes"
+                                v-model="selectedPurpose"
+                                :multiple="true"
+                                placeholder="Choose a Purpose"
+                                label="Purpose"
+                                label-key="name"
+                                id-key="id"
+                                :required="true"
+                                error-message=""
+                            />
                             <!-- Purpose -->
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                                <label class="block text-lg font-semibold mb-4 text-gray-900 dark:text-white">Purpose</label>
+                                <MultiSelect
+                                    :items="factories"
+                                    v-model="selectedFactory"
+                                    :multiple="true"
+                                    placeholder="Choose a purpose"
+                                    label-key="name"
+                                    id-key="id"
+                                />
+                            </div>
                             <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                                 <FormSelect v-model="form.purpose" label="Purpose of Visit" :options="purposes" required />
                             </div>
@@ -84,19 +105,20 @@
                             <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                                 <FormSelect v-model="form.means_of_transport" label="Means of Transport" :options="transports" required />
                             </div>
+                            <MultiSelect
+                                :items="transports"
+                                v-model="selectedTransport"
+                                :multiple="true"
+                                placeholder="Choose a Purpose"
+                                label="Purpose"
+                                label-key="name"
+                                id-key="id"
+                                :required="true"
+                                error-message=""
+                            />
 
                             <!-- MultiSelect Test -->
-                            <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-                                <label class="block text-lg font-semibold mb-4 text-gray-900 dark:text-white">Test MultiSelect (Factory)</label>
-                                <MultiSelect
-                                    :items="factories"
-                                    v-model="selectedFactory"
-                                    :multiple="true"
-                                    placeholder="Choose a factory"
-                                    label-key="name"
-                                    id-key="id"
-                                />
-                            </div>
+
 
                             <!-- Bills Section -->
                             <Transition name="fade">
@@ -172,6 +194,7 @@ import { Clock } from 'lucide-vue-next'
 
 const mode = 'create'
 const selectedFactory = ref(null)  // Fixed: was selectedCountry
+const selectedPurpose = ref(null)  // Fixed: was selectedCountry
 
 const form = reactive({
     from: { type: '', ex_type: '', factory: '', sub_factory: '', new_name: '' },
@@ -248,6 +271,14 @@ const endMovement = () => {
 }
 
 const submitForm = () => {
+    const isValid = multiSelectRef.value.validate()  // This triggers error display
+
+    if (isValid) {
+        console.log('Form is valid!', selected.value)
+        // Proceed with submission
+    } else {
+        console.log('Form has errors')
+    }
     if (!movement.ended) {
         alert('Please end the movement before saving!')
         return
