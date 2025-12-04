@@ -1,6 +1,6 @@
 <template>
     <fieldset class="border border-gray-300 rounded-lg p-5 bg-gray-50">
-        <legend class="px-3 text-lg font-semibold text-gray-800">
+        <legend class="px-3 text-lg font-semibold text-gray-800 dark:text-white">
             {{ label }} <span class="text-red-500">*</span>
         </legend>
 
@@ -12,14 +12,31 @@
             <RadioOption v-model="local.type" value="Other" label="Other" />
         </div>
 
+        <MultiSelect  v-if="showFactorySelect"
+            :items="factories"
+            v-model="local.factory"
+            :multiple="true"
+            placeholder="Choose a factory"
+            label="Purpose"
+            label-key="name"
+            id-key="id"
+            :required="true"
+            error-message=""
+        />
 
-        <div v-if="showFactorySelect" class="mb-4">
-            <FormSelect v-model="local.factory" label="Factory Name" :options="factories" required />
-        </div>
 
-        <div v-if="local.type === 'Sub Factory'" class="mb-4">
-            <FormSelect v-model="local.sub_factory" label="Sub Factory Name" :options="subFactories" required />
-        </div>
+        <MultiSelect  v-if="local.type === 'Sub Factory'"
+                      :items="factories"
+                      v-model="local.sub_factory"
+                      :multiple="true"
+                      placeholder="Choose a factory"
+                      label="Purpose"
+                      label-key="name"
+                      id-key="id"
+                      :required="true"
+                      error-message=""
+        />
+
 
         <div v-if="local.type === 'Other'">
             <FormInput v-model="local.new_name" label="Other Location Name" required />
@@ -32,7 +49,7 @@ import { reactive, watch, computed } from 'vue'
 import FormSelect from '@/components/movement/FormSelect.vue'
 import FormInput from '@/components/movement/FormInput.vue'
 import RadioOption from '@/components/movement/RadioOption.vue'
-
+import MultiSelect from '@/components/custom/MultiSelect.vue'
 const props = defineProps({
     modelValue: Object,
     label: String,

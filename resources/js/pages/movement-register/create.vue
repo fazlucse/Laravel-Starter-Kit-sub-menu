@@ -271,6 +271,7 @@ const endMovement = () => {
 }
 
 const submitForm = () => {
+    console.log(movement);
     const isValid = multiSelectRef.value.validate()  // This triggers error display
 
     if (isValid) {

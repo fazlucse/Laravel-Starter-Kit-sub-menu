@@ -7,7 +7,8 @@
             @change="$emit('update:modelValue', value)"
             class="w-5 h-5 text-indigo-600 focus:ring-indigo-500"
         />
-        <span class="font-medium text-gray-700">{{ label }}</span>
+        <!-- Add dark:text-white -->
+        <span class="font-medium text-gray-700 dark:text-white">{{ label }}</span>
     </label>
 </template>
 
