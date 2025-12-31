@@ -12,6 +12,7 @@ use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\MovementRegisterController;
 use App\Http\Controllers\RecruitmentController;
+use App\Http\Controllers\PayrollController;
 
 Route::get('/', function () {
   return redirect()->route('login');
@@ -128,6 +129,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 //        Route::put('/offers/{offer}', [OfferController::class, 'update'])->name('offers.update');
 //        Route::delete('/offers/{offer}', [OfferController::class, 'destroy'])->name('offers.destroy');
 
+    });
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/payroll/generate', [PayrollController::class, 'create'])->name('payroll.create');
+        Route::post('/payroll/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
+        Route::post('/payroll/export', [PayrollController::class, 'export'])->name('payroll.export');
+        Route::patch('/payroll/status', [PayrollController::class, 'updateStatus'])->name('payroll.status.update');
     });
     // Route::get('/employees/persons/search', [PersonController::class, 'search']);
 // Route::get('/companies', [CompanyController::class, 'index']);

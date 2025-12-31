@@ -65,7 +65,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Payroll',
-    href: '/payroll',
+    href: '/payroll/generate',
     icon: Receipt, // Dollar file icon for payroll
     },
   {
