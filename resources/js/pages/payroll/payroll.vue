@@ -1,309 +1,236 @@
-<!-- resources/js/Pages/Payroll/Report.vue -->
 <template>
     <AppLayout
-        title="Payroll Report"
-        :breadcrumbs="[
-      { title: 'Dashboard', href: '/' },
-      { title: 'Payroll', href: '/payroll' },
-      { title: mode === 'create' ? 'Generate New Payroll' : 'Payroll Report', href: '#' },
-    ]"
+        title="Payroll Control"
+        :breadcrumbs="[{ title: 'Dashboard', href: '/' }, { title: 'Payroll', href: '/payroll' }]"
     >
-        <div class="py-6">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Header & Status -->
-                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-xl p-6 mb-8 text-white">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-4">
-                                <h1 class="text-3xl font-bold">Payroll Report</h1>
-                                <span
-                                    :class="statusClasses[postStatus]"
-                                    class="px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-2"
-                                >
-                  {{ statusIcons[postStatus] }} {{ postStatus.toUpperCase() }}
+        <div class="flex flex-col h-[calc(100vh-5rem)]">
+
+            <div class="p-2 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ isCreating ? 'Generate Payroll' : 'Payroll' }}
+                    </h1>
+
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="relative flex-1 sm:w-64" v-if="!isCreating">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                    <Search class="w-4 h-4" />
                 </span>
-                            </div>
-
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-sm">
-                                <div>
-                                    <p class="font-semibold opacity-90">Department</p>
-                                    <p>{{ form.department || 'All Departments' }}</p>
-                                </div>
-                                <div>
-                                    <p class="font-semibold opacity-90">Office</p>
-                                    <p>{{ form.office || 'All Offices' }}</p>
-                                </div>
-                                <div>
-                                    <p class="font-semibold opacity-90">Payroll Date</p>
-                                    <p>{{ form.payrollDate }}</p>
-                                </div>
-                                <div>
-                                    <p class="font-semibold opacity-90">Payroll Month</p>
-                                    <p>{{ form.payrollMonth }}</p>
-                                </div>
-                                <div>
-                                    <p class="font-semibold opacity-90">Prepared By</p>
-                                    <p>{{ form.preparedBy }}</p>
-                                </div>
-                                <div>
-                                    <p class="font-semibold opacity-90">Approved By</p>
-                                    <p>{{ form.approvedBy || 'N/A' }}</p>
-                                </div>
-                            </div>
-
-                            <!-- Notes & Statutory Components -->
-                            <div class="mt-5 space-y-3">
-                                <p v-if="form.notes" class="text-sm">
-                                    <span class="font-semibold">Notes:</span> {{ form.notes }}
-                                </p>
-
-                                <div v-if="selectedIndianOptions.length > 0">
-                                    <p class="font-semibold text-sm mb-2">Indian Statutory Components:</p>
-                                    <div class="flex flex-wrap gap-2">
-                    <span
-                        v-for="opt in selectedIndianOptions"
-                        :key="opt"
-                        class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs font-medium"
-                    >
-                      {{ indianPostOptions.find(o => o.value === opt)?.label }}
-                    </span>
-                                    </div>
-                                </div>
-                            </div>
+                            <input
+                                v-model="searchQuery"
+                                type="text"
+                                placeholder="Search batches..."
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-sm focus:ring-blue-500"
+                            />
                         </div>
 
-                        <!-- Action Buttons -->
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <button
-                                @click="downloadCSV"
-                                class="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-5 py-2.5 rounded-lg transition-colors font-medium shadow-sm"
-                            >
-                                <Download class="w-5 h-5" />
-                                Download CSV
-                            </button>
+                        <PerPageSelect v-if="!isCreating" v-model="perPage" @update:modelValue="updatePerPage" />
 
-                            <button
-                                @click="$inertia.visit('/payroll/generate')"
-                                class="bg-white text-indigo-700 px-5 py-2.5 rounded-lg hover:bg-gray-100 transition-colors font-medium"
-                            >
-                                New Report
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Status Change Controls -->
-                    <div class="mt-6 pt-5 border-t border-white border-opacity-30">
-                        <p class="text-sm font-medium mb-3">Change Status:</p>
-                        <div class="flex flex-wrap gap-3">
-                            <button
-                                v-if="postStatus !== 'draft'"
-                                @click="changeStatus('draft')"
-                                class="bg-gray-600 hover:bg-gray-700 px-5 py-2 rounded-lg text-white font-medium transition-colors flex items-center gap-2"
-                            >
-                                📝 Revert to Draft
-                            </button>
-
-                            <button
-                                v-if="postStatus === 'draft'"
-                                @click="changeStatus('posted')"
-                                class="bg-blue-700 hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-medium transition-colors flex items-center gap-2"
-                            >
-                                📤 Post Payroll
-                            </button>
-
-                            <button
-                                v-if="postStatus === 'posted'"
-                                @click="changeStatus('approved')"
-                                class="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-medium transition-colors flex items-center gap-2"
-                            >
-                                ✅ Approve Payroll
-                            </button>
-
-                            <div
-                                v-if="postStatus === 'approved'"
-                                class="bg-green-700 px-5 py-2 rounded-lg text-white font-medium flex items-center gap-2"
-                            >
-                                ✅ Payroll Approved & Finalized
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Payroll Table -->
-                <div class="bg-white rounded-xl shadow overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gradient-to-r from-indigo-600 to-purple-600">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-white">Emp ID</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-white">Name</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-white">Department</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-white">Office</th>
-                                <th class="px-6 py-4 text-right text-sm font-semibold text-white">Base Salary</th>
-                                <th class="px-6 py-4 text-right text-sm font-semibold text-white">Bonuses</th>
-                                <th class="px-6 py-4 text-right text-sm font-semibold text-white">Gross Salary</th>
-                                <th class="px-6 py-4 text-right text-sm font-semibold text-white">Deductions</th>
-                                <th class="px-6 py-4 text-right text-sm font-semibold text-white">Tax</th>
-
-                                <th
-                                    v-for="opt in selectedIndianOptions"
-                                    :key="opt"
-                                    class="px-4 py-4 text-right text-xs font-semibold text-white"
-                                >
-                                    {{ indianPostOptions.find(o => o.value === opt)?.label }}
-                                </th>
-
-                                <th
-                                    v-if="selectedIndianOptions.length > 0"
-                                    class="px-6 py-4 text-right text-sm font-semibold text-white"
-                                >
-                                    Indian Deductions
-                                </th>
-
-                                <th class="px-6 py-4 text-right text-sm font-semibold text-white font-bold">Net Salary</th>
-                            </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="(emp, index) in payrollData" :key="emp.id" :class="index % 2 === 0 ? 'bg-gray-50' : ''">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ emp.empId }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ emp.name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ emp.department }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ emp.office }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">${{ emp.baseSalary.toFixed(2) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-green-600">+${{ emp.totalBonus.toFixed(2) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold">${{ emp.grossSalary.toFixed(2) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-orange-600">-${{ emp.totalDeduction.toFixed(2) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-red-600">-${{ emp.taxAmount.toFixed(2) }}</td>
-
-                                <td
-                                    v-for="opt in selectedIndianOptions"
-                                    :key="opt"
-                                    class="px-4 py-4 whitespace-nowrap text-right text-sm text-purple-600"
-                                >
-                                    -${{ (emp.indianDeductions[opt] || 0).toFixed(2) }}
-                                </td>
-
-                                <td
-                                    v-if="selectedIndianOptions.length > 0"
-                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-purple-700"
-                                >
-                                    -${{ emp.totalIndianDeductions.toFixed(2) }}
-                                </td>
-
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-indigo-700 text-base">
-                                    ${{ emp.netSalary.toFixed(2) }}
-                                </td>
-                            </tr>
-                            </tbody>
-                            <tfoot class="bg-gray-100 font-medium">
-                            <tr>
-                                <td colspan="4" class="px-6 py-4 text-lg font-bold">TOTAL ({{ payrollData.length }} employees)</td>
-                                <td class="px-6 py-4 text-right">${{ total.baseSalary.toFixed(2) }}</td>
-                                <td class="px-6 py-4 text-right text-green-600">${{ total.bonus.toFixed(2) }}</td>
-                                <td class="px-6 py-4 text-right">${{ total.grossSalary.toFixed(2) }}</td>
-                                <td class="px-6 py-4 text-right text-orange-600">${{ total.deduction.toFixed(2) }}</td>
-                                <td class="px-6 py-4 text-right text-red-600">${{ total.tax.toFixed(2) }}</td>
-
-                                <td
-                                    v-for="opt in selectedIndianOptions"
-                                    :key="opt"
-                                    class="px-4 py-4 text-right text-purple-600"
-                                >
-                                    -${{ total.indian[opt]?.toFixed(2) || '0.00' }}
-                                </td>
-
-                                <td
-                                    v-if="selectedIndianOptions.length > 0"
-                                    class="px-6 py-4 text-right text-purple-700 font-bold"
-                                >
-                                    -${{ total.indianTotal.toFixed(2) }}
-                                </td>
-
-                                <td class="px-6 py-4 text-right text-indigo-700 text-lg font-bold">
-                                    ${{ total.netSalary.toFixed(2) }}
-                                </td>
-                            </tr>
-                            </tfoot>
-                        </table>
+                        <Link
+                            v-if="!isCreating && canCreate"
+                            href="/payroll/generate"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition active:scale-95"
+                        >
+                            <Plus class="w-4 h-4" />
+                            <span class="hidden sm:inline">Generate Payroll</span>
+                        </Link>
+                        <button
+                            v-if="isCreating"
+                            @click="isCreating = false"
+                            class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                        >
+                            <ArrowLeft class="w-4 h-4" />
+                            <span>Back</span>
+                        </button>
                     </div>
                 </div>
             </div>
+
+            <div class="flex-1 overflow-hidden bg-white dark:bg-gray-800">
+
+                <div v-if="!isCreating" class="h-full overflow-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">S.L</th>
+                            <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Office / Dept</th>
+                            <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Month</th>
+                            <th class="px-4 py-3 text-center text-xs font-black text-gray-500 uppercase tracking-widest">Staff</th>
+                            <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Status</th>
+                            <th class="px-4 py-3 text-right text-xs font-black text-gray-500 uppercase tracking-widest">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr v-for="(item, i) in historyData" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <td class="px-4 py-3 text-sm text-gray-500">
+                                {{ (payrollHistory.current_page - 1) * payrollHistory.per_page + i + 1 }}
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="text-sm font-bold text-gray-900 dark:text-white">{{ item.com_name }}</div>
+                                <div class="text-[11px] text-gray-500 uppercase font-medium">{{ item.department_name || 'All Departments' }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-medium">{{ item.payroll_month }}</td>
+                            <td class="px-4 py-3 text-center">
+                  <span class="px-2 py-1 rounded bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-bold text-xs">
+                    {{ item.total_staff }}
+                  </span>
+                            </td>
+                            <td class="px-4 py-3">
+                  <span :class="getStatusClass(item.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase border">
+                    {{ item.status }}
+                  </span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex justify-end gap-1">
+                                    <button v-if="canEdit && item.status !== 'approved'" @click="approveBatch(item.id)" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded transition">
+                                        <CheckCircle class="w-4 h-4" />
+                                    </button>
+                                    <button class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition">
+                                        <Eye class="w-4 h-4" />
+                                    </button>
+                                    <DeleteDialog
+                                        v-if="canDelete && item.status !== 'approved'"
+                                        :url="`/payroll/${item.id}`"
+                                        record-name="Payroll Batch"
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div v-if="!historyData.length" class="text-center py-20 text-gray-500 italic">
+                        No payroll records found.
+                    </div>
+                </div>
+
+                <div v-else class="h-full overflow-y-auto p-6 lg:p-12 bg-gray-50 dark:bg-gray-900">
+                    <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="p-8 space-y-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Salary Month</label>
+                                    <input type="month" v-model="form.payrollMonth" class="w-full h-12 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Company / Office</label>
+                                    <select v-model="form.office" class="w-full h-12 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4">
+                                        <option value="">All Locations</option>
+                                        <option v-for="o in offices" :key="o" :value="o">{{ o }}</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Department Filter</label>
+                                    <select v-model="form.department" class="w-full h-12 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4">
+                                        <option value="">All Departments</option>
+                                        <option v-for="d in departments" :key="d" :value="d">{{ d }}</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Processing Status</label>
+                                    <select v-model="form.postOption" class="w-full h-12 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white px-4">
+                                        <option value="draft">Save as Draft</option>
+                                        <option value="posted">Post for Approval</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800 flex gap-4">
+                                <Calculator class="w-6 h-6 text-blue-500 shrink-0" />
+                                <p class="text-xs text-blue-700 dark:text-blue-300">
+                                    This action will generate payroll for all matching active employees.
+                                    Basic salary, allowances, and fixed deductions will be snapshotted.
+                                </p>
+                            </div>
+
+                            <div class="flex justify-end gap-3 pt-6 border-t dark:border-gray-700">
+                                <button @click="isCreating = false" class="px-6 py-2.5 font-bold text-gray-500">Cancel</button>
+                                <button
+                                    @click="submitForm"
+                                    :disabled="form.processing"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-500/30"
+                                >
+                                    <Save v-if="!form.processing" class="w-4 h-4" />
+                                    <LoadingSpinner v-else />
+                                    Run Payroll
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <Pagination v-if="!isCreating" :links="payrollHistory.links" />
         </div>
     </AppLayout>
 </template>
 
-<script setup>
-import { computed } from 'vue'
-import { Download } from 'lucide-vue-next'
+<script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
+import PerPageSelect from '@/Components/custom/PerPageSelect.vue'
+import Pagination from '@/Components/custom/Pagination.vue'
+import DeleteDialog from '@/Components/custom/DeleteDialog.vue'
+import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
+import { Link, router, usePage, useForm } from '@inertiajs/vue3'
+import { Plus, Search, Eye, CheckCircle, ArrowLeft, Save, Calculator } from 'lucide-vue-next'
+import { usePagination } from '@/composables/usePagination'
+import { computed, ref, watch } from 'vue'
 
-// Props (passed from Laravel/Inertia controller)
-const props = defineProps({
-    payrollData: Array,
-    form: Object,
-    postStatus: String,
-    selectedIndianOptions: Array,
-    indianPostOptions: Array,
-    mode: {
-        type: String,
-        default: 'view'
-    }
+// Props using defineModel for reactive sync
+const payrollHistory = defineModel('payrollHistory', { required: true }) as any
+const departments = defineModel('departments') as any
+const offices = defineModel('offices') as any
+
+// UI Control
+const isCreating = ref(false)
+const searchQuery = ref('')
+
+// Permissions
+const { authUser } = usePage().props as any
+const canCreate = computed(() => authUser?.permissions.includes('payroll.create') ?? false)
+const canEdit   = computed(() => authUser?.permissions.includes('payroll.edit') ?? false)
+const canDelete = computed(() => authUser?.permissions.includes('payroll.delete') ?? false)
+
+// Pagination logic
+const { perPage, update: updatePerPage } = usePagination()
+
+// Form for Generation
+const form = useForm({
+    department: '',
+    office: '',
+    payrollMonth: new Date().toISOString().slice(0, 7),
+    postOption: 'draft',
 })
 
-// Status styles & icons
-const statusClasses = {
-    draft: 'bg-gray-600',
-    posted: 'bg-blue-600',
-    approved: 'bg-green-600'
-}
+const historyData = computed(() => payrollHistory.value?.data || [])
 
-const statusIcons = {
-    draft: '📝',
-    posted: '📤',
-    approved: '✅'
-}
+// Watch search query
+watch(searchQuery, (val) => {
+    router.get('/payroll', { search: val }, { preserveState: true, replace: true })
+})
 
-// Totals calculation
-const total = computed(() => {
-    return props.payrollData.reduce((acc, emp) => {
-        acc.baseSalary += Number(emp.baseSalary)
-        acc.bonus += emp.totalBonus
-        acc.grossSalary += emp.grossSalary
-        acc.deduction += emp.totalDeduction
-        acc.tax += emp.taxAmount
-        acc.netSalary += emp.netSalary
-
-        // Indian deductions totals
-        props.selectedIndianOptions.forEach(opt => {
-            const amount = emp.indianDeductions[opt] || 0
-            acc.indian[opt] = (acc.indian[opt] || 0) + amount
-            acc.indianTotal += amount
-        })
-
-        return acc
-    }, {
-        baseSalary: 0,
-        bonus: 0,
-        grossSalary: 0,
-        deduction: 0,
-        tax: 0,
-        indian: {},
-        indianTotal: 0,
-        netSalary: 0
+const submitForm = () => {
+    form.post('/payroll/generate', {
+        preserveScroll: true,
+        onSuccess: () => {
+            isCreating.value = false
+            form.reset()
+        }
     })
-})
-
-// Download CSV (client-side example - you can also do it server-side)
-const downloadCSV = () => {
-    // Implementation similar to your original React version
-    // You can use the same logic, just adapted to Vue + current props
-    alert('CSV download functionality would be implemented here (similar to React version)')
 }
 
-// Status change handler (would typically make an Inertia patch/put request)
-const changeStatus = (newStatus) => {
-    if (confirm(`Are you sure you want to change status to "${newStatus}"?`)) {
-        // Example: Inertia.put('/payroll/status', { id: payrollId, status: newStatus })
-        alert(`Status changed to: ${newStatus} (API call would be made here)`)
+const approveBatch = (id: number) => {
+    if(confirm('Approve this payroll?')) {
+        router.patch(`/payroll/${id}/approve`)
     }
+}
+
+const getStatusClass = (status: string) => {
+    const classes: Record<string, string> = {
+        draft: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
+        posted: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-500 dark:border-amber-800',
+        approved: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800'
+    }
+    return classes[status] || 'bg-gray-100 text-gray-800'
 }
 </script>

@@ -132,12 +132,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::middleware('auth')->group(function () {
+        Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
         Route::get('/payroll/generate', [PayrollController::class, 'create'])->name('payroll.create');
         Route::post('/payroll/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
         Route::post('/payroll/export', [PayrollController::class, 'export'])->name('payroll.export');
         Route::patch('/payroll/status', [PayrollController::class, 'updateStatus'])->name('payroll.status.update');
     });
-    // Route::get('/employees/persons/search', [PersonController::class, 'search']);
+    // Route::get('/employees/persons/search', [PersonController::class, 'search']);index
 // Route::get('/companies', [CompanyController::class, 'index']);
 // Route::get('/divisions', [DivisionController::class, 'index']);
 // Route::get('/departments', [DepartmentController::class, 'index']);
