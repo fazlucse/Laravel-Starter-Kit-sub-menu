@@ -9,7 +9,7 @@
   >
   <div class="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class=" py-6 px-2 sm:px-6 lg:px-5">
-     
+
 
         <!-- PRINTABLE AREA -->
         <div  class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
@@ -38,7 +38,7 @@
     label="Print"
     :icon="Printer"
     iconPosition="left"
-    :isProcessing="isPrinting" 
+    :isProcessing="isPrinting"
     @click="handlePrint"
   />
 
@@ -49,7 +49,7 @@
                 :isProcessing="isPdfing"
                 @click="handlePDF"
               />
-          
+
               <!-- <BaseActionButton
   label="Print"
   :icon="CornerUpLeft"
@@ -57,7 +57,7 @@
   :isProcessing="isPrinting"
   @click="handlePrint"
 /> -->
-              
+
           <!-- <button @click="print" :disabled="isProcessing"
             class=" cursor-pointer inline-flex items-center gap-2 px-4 py-2 btn btn-outline hover:bg-gray-200 dark:hover:bg-gray-600 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -88,7 +88,7 @@
           </button> -->
         </div>
 
-           
+
           </div>
 
           <!-- Header Banner -->
@@ -108,8 +108,8 @@
                      :src="employee.person.photo"
                      class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg ring-4 ring-gray-200 dark:ring-gray-700" />
                 <div v-else
-                     class="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 
-                            flex items-center justify-center text-white font-bold text-3xl shadow-lg 
+                     class="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600
+                            flex items-center justify-center text-white font-bold text-3xl shadow-lg
                             border-4 border-white ring-4 ring-gray-200 dark:ring-gray-700">
                   {{ getInitials(employee.person_name) }}
                 </div>
@@ -229,7 +229,7 @@ import InfoSection from '@/components/InfoSection.vue'
 import InfoItem from '@/components/InfoItem.vue'
 import Badge from '@/components/Badge.vue'
 import { useExport } from '@/composables/useExport'
-import BaseActionButton from '@/Components/BaseActionButton.vue'
+import BaseActionButton from '@/components/BaseActionButton.vue'
 import { Printer, FileDown,CornerUpLeft } from 'lucide-vue-next';
 
 const { employee } = usePage().props
