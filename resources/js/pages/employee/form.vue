@@ -175,6 +175,7 @@
 import { reactive, computed, watch } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue'
+import Section from '@/Components/Section.vue'
 import TextInput from '@/Components/TextInput.vue';
 import NumberInput from '@/Components/NumberInput.vue';
 import DateInput from '@/Components/DateInput.vue';
@@ -182,7 +183,7 @@ import TimeInput from '@/Components/TimeInput.vue';
 import SelectInput from '@/Components/SelectInput.vue';
 import CheckboxInput from '@/Components/CheckboxInput.vue';
 import TextareaInput from '@/Components/TextareaInput.vue';
-import Section from '@/Components/Section.vue';
+
 defineProps({
   employee: Object,
   mode: { type: String, required: true }, // 'create' | 'edit'
