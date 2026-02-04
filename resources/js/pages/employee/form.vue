@@ -339,14 +339,14 @@ function submit() {
 }
 </script>
 
-<style scoped>
-.btn {
-  @apply px-5 py-2.5 rounded font-medium transition;
-}
-.btn-primary {
-  @apply bg-indigo-600 text-white hover:bg-indigo-700;
-}
-.btn-secondary {
-  @apply bg-gray-300 text-gray-800 hover:bg-gray-400;
-}
-</style>
+<!--<style scoped>-->
+<!--.btn {-->
+<!--  @apply px-5 py-2.5 rounded font-medium transition;-->
+<!--}-->
+<!--.btn-primary {-->
+<!--  @apply bg-indigo-600 text-white hover:bg-indigo-700;-->
+<!--}-->
+<!--.btn-secondary {-->
+<!--  @apply bg-gray-300 text-gray-800 hover:bg-gray-400;-->
+<!--}-->
+<!--</style>-->
