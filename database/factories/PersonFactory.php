@@ -28,7 +28,7 @@ class PersonFactory extends Factory
             'nationality' => $this->faker->country(),
             'national_id' => $this->faker->unique()->numerify('##########'),
             'tin' => $this->faker->unique()->numerify('##########'),
-            'avatar' => null,
+            'photo' => null,
             'status_photo' => null,
         ];
     }
