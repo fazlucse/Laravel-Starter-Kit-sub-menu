@@ -9,8 +9,8 @@ class PersonSeeder extends Seeder
 {
     public function run()
     {
-        $chunkSize = 10000; // insert in chunks to avoid memory issues
-        $total = 200000; // 10 lakh
+        $chunkSize = 10; // insert in chunks to avoid memory issues
+        $total = 50; // 10 lakh
 
         for ($i = 0; $i < $total / $chunkSize; $i++) {
             Person::factory()->count($chunkSize)->create();
