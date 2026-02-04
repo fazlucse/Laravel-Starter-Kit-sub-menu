@@ -44,8 +44,8 @@ jobs:
             cd /home/edukiabd/payroll.edukiabd.com
             git pull origin main
             /opt/cpanel/composer/composer install --no-dev --optimize-autoloader
-            ~/nodevenv/20/bin/npm install
-            ~/nodevenv/20/bin/npm run build
+            ~/nodevenv/24/bin/npm install
+            ~/nodevenv/24/bin/npm run build
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
