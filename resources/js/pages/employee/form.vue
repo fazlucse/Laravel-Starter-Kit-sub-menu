@@ -175,6 +175,7 @@
 import { reactive, computed, watch } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import Section from '@/Components/Section.vue';
 import TextInput from '@/Components/TextInput.vue';
 import NumberInput from '@/Components/NumberInput.vue';
 import DateInput from '@/Components/DateInput.vue';
@@ -189,12 +190,12 @@ defineProps({
 });
 
 // Reusable section component
-const Section = (props, { slots }) => (
-  <div class="bg-white rounded-lg shadow p-6">
-    <h2 class="text-lg font-semibold mb-4 text-indigo-700">{props.title}</h2>
-    {slots.default()}
-  </div>
-);
+// const Section = (props, { slots }) => (
+//   <div class="bg-white rounded-lg shadow p-6">
+//     <h2 class="text-lg font-semibold mb-4 text-indigo-700">{props.title}</h2>
+//     {slots.default()}
+//   </div>
+// );
 
 const form = useForm(
   reactive({
