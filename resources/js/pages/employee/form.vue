@@ -174,7 +174,7 @@
 <script setup>
 import { reactive, computed, watch } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue'
 import Section from '@/Components/Section.vue';
 import TextInput from '@/Components/TextInput.vue';
 import NumberInput from '@/Components/NumberInput.vue';
