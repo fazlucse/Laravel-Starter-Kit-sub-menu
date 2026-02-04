@@ -15,11 +15,13 @@ class HolidayController extends Controller
 
     public function index(Request $request)
     {
+
         $perPage = $request->get('perPage', 10);
         $holidays = Holiday::with('employee')
             ->orderBy('id', 'desc')
             ->paginate($perPage)
             ->appends(['perPage' => $perPage]);
+
 
         return Inertia::render('holidays/index', [
             'holidays' => $holidays
