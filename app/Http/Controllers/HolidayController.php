@@ -20,6 +20,7 @@ class HolidayController extends Controller
             ->orderBy('id', 'desc')
             ->paginate($perPage)
             ->appends(['perPage' => $perPage]);
+
         return Inertia::render('holidays/index', [
             'holidays' => $holidays
         ]);
