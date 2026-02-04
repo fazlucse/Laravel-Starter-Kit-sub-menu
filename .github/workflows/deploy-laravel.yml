@@ -40,7 +40,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          debug: true
           script: |
             cd /home/edukiabd/payroll.edukiabd.com
             git pull origin main
