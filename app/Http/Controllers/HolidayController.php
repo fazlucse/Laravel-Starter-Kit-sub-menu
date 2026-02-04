@@ -12,7 +12,6 @@ class HolidayController extends Controller
     /**
      * Display a listing of the resource.
      */
-
     public function index(Request $request)
     {
         $perPage = $request->get('perPage', 10);
