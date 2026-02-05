@@ -49,8 +49,8 @@
                      :src="employee.person.photo"
                      class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg ring-4 ring-gray-200 dark:ring-gray-700" />
                 <div v-else
-                     class="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 
-                            flex items-center justify-center text-white font-bold text-3xl shadow-lg 
+                     class="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600
+                            flex items-center justify-center text-white font-bold text-3xl shadow-lg
                             border-4 border-white ring-4 ring-gray-200 dark:ring-gray-700">
                   {{ getInitials(employee.person_name) }}
                 </div>
@@ -160,7 +160,7 @@
 
 <script setup>
 import { usePage, router } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 import InfoSection from '@/components/InfoSection.vue'
 import InfoItem from '@/components/InfoItem.vue'
 import Badge from '@/components/Badge.vue'

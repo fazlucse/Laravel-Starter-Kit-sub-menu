@@ -62,7 +62,7 @@
                 <td class="px-4 py-3 text-sm">{{ e.designation_name || '—' }}</td>
                 <td class="px-4 py-3 text-sm">{{ e.company_name || '—' }}</td>
                 <td class="px-4 py-3 text-sm">{{ e.employee_status }}</td>
-               
+
               </tr>
               <tr v-if="!employees.data.length">
                 <td colspan="8" class="text-center py-4 text-gray-500">No employees found.</td>
@@ -71,7 +71,7 @@
           </table>
         </div>
 
-       
+
       </div>
        <Pagination :links="employees.links" />
     </div>
@@ -79,10 +79,10 @@
 </template>
 
 <script setup lang="ts">
-import AppLayout from '@/Layouts/AppLayout.vue'
-import PerPageSelect from '@/Components/custom/PerPageSelect.vue'
-import Pagination from '@/Components/custom/Pagination.vue'
-import DeleteDialog from '@/Components/custom/DeleteDialog.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import PerPageSelect from '@/components/custom/PerPageSelect.vue'
+import Pagination from '@/components/custom/Pagination.vue'
+import DeleteDialog from '@/components/custom/DeleteDialog.vue'
 import Avatar from '@/components/custom/Avatar.vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { Plus, Edit,Eye } from 'lucide-vue-next'

@@ -224,7 +224,7 @@
 <script setup>
 import { ref } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 import InfoSection from '@/components/InfoSection.vue'
 import InfoItem from '@/components/InfoItem.vue'
 import Badge from '@/components/Badge.vue'
