@@ -195,7 +195,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 import {
     Briefcase, Users, FileText, Calendar, CheckSquare, Plus, Search, Filter, Send,
     Eye, Edit, Trash2, ChevronRight, Clock, User, Mail, Phone, MapPin, DollarSign

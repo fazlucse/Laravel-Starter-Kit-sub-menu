@@ -422,7 +422,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch } from 'vue'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 import {
     Briefcase, Users, FileText, Calendar, Plus, Eye, Clock, User, Mail,
     CheckSquare, Maximize2, Minimize2

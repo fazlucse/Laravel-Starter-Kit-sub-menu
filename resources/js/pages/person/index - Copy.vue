@@ -144,11 +144,11 @@
 </template>
 
 <script setup lang="ts">
-import AppLayout from '@/Layouts/AppLayout.vue'
-import SearchPopup from '@/Components/custom/SearchPopup.vue'
-import PerPageSelect from '@/Components/custom/PerPageSelect.vue'
-import Pagination from '@/Components/custom/Pagination.vue'
-import DeleteDialog from '@/Components/custom/DeleteDialog.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import SearchPopup from '@/components/custom/SearchPopup.vue'
+import PerPageSelect from '@/components/custom/PerPageSelect.vue'
+import Pagination from '@/components/custom/Pagination.vue'
+import DeleteDialog from '@/components/custom/DeleteDialog.vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { Eye, Edit, Plus } from 'lucide-vue-next'
 import { ref, watch, computed } from 'vue'

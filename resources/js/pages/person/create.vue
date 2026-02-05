@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 import { Link } from '@inertiajs/vue3'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import flatpickr from 'flatpickr'
@@ -93,7 +93,7 @@ function submit() {
       forceFormData: true,
     });
     } else {
-      
+
         form.post('/people', { data: formData, forceFormData: true })
     }
 }
@@ -114,7 +114,7 @@ function submit() {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name <span class="text-red-500">*</span></label>
-                <input v-model="form.name" 
+                <input v-model="form.name"
                   class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   :class="form.errors.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'" />
                 <p v-if="form.errors.name" class="text-red-500 text-xs mt-1">{{ form.errors.name }}</p>
@@ -124,7 +124,7 @@ function submit() {
                 <input v-model="form.designation"
                   class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   :class="form.errors.designation ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'" />
-              
+
                 </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
@@ -136,7 +136,7 @@ function submit() {
                 </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone <span class="text-red-500">*</span></label>
-                <input v-model="form.phone" 
+                <input v-model="form.phone"
                   class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   :class="form.errors.phone ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'" />
                  <p v-if="form.errors.phone" class="text-red-500 text-xs mt-1">{{ form.errors.phone }}</p>
@@ -213,7 +213,7 @@ function submit() {
               <p v-if="form.errors.country" class="text-red-500 text-xs mt-1">{{ form.errors.country }}</p>
             </div>
 
-<!-- 
+<!--
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City</label>
                 <select v-model="form.city"

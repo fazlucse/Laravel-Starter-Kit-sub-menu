@@ -166,11 +166,11 @@
 </template>
 
 <script setup lang="ts">
-import AppLayout from '@/Layouts/AppLayout.vue'
-import PerPageSelect from '@/Components/custom/PerPageSelect.vue'
-import Pagination from '@/Components/custom/Pagination.vue'
-import DeleteDialog from '@/Components/custom/DeleteDialog.vue'
-import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import PerPageSelect from '@/components/custom/PerPageSelect.vue'
+import Pagination from '@/components/custom/Pagination.vue'
+import DeleteDialog from '@/components/custom/DeleteDialog.vue'
+import LoadingSpinner from '@/components/custom/LoadingSpinner.vue'
 import { Link, router, usePage, useForm } from '@inertiajs/vue3'
 import { Plus, Search, Eye, CheckCircle, ArrowLeft, Save, Calculator } from 'lucide-vue-next'
 import { usePagination } from '@/composables/usePagination'

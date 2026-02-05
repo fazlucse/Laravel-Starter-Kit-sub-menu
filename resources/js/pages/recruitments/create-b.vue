@@ -416,7 +416,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 import {
     Briefcase, Users, FileText, Calendar, Plus, Eye, Edit, Clock, User, Mail, MapPin, CheckSquare
 } from 'lucide-vue-next'

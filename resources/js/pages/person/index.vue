@@ -9,7 +9,7 @@
       <div class="p-2 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">People</h1>
-        
+
           <div class="flex items-center gap-3 w-full sm:w-auto">
             <SearchPopup
               v-model="search"
@@ -62,7 +62,7 @@
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                   City
                 </th>
-              
+
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -122,7 +122,7 @@
                 <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                   {{ p.city || '—' }}
                 </td>
-               
+
               </tr>
             </tbody>
           </table>
@@ -184,11 +184,11 @@
 </template>
 
 <script setup lang="ts">
-import AppLayout from '@/Layouts/AppLayout.vue'
-import SearchPopup from '@/Components/custom/SearchPopup.vue'
-import PerPageSelect from '@/Components/custom/PerPageSelect.vue'
-import Pagination from '@/Components/custom/Pagination.vue'
-import DeleteDialog from '@/Components/custom/DeleteDialog.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import SearchPopup from '@/components/custom/SearchPopup.vue'
+import PerPageSelect from '@/components/custom/PerPageSelect.vue'
+import Pagination from '@/components/custom/Pagination.vue'
+import DeleteDialog from '@/components/custom/DeleteDialog.vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { Eye, Edit, Plus } from 'lucide-vue-next'
 import { usePagination } from '@/composables/usePagination'

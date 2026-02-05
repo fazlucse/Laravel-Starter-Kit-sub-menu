@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 import { ref } from 'vue';
 import { useForm,Link } from '@inertiajs/vue3';
 

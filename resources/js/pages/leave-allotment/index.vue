@@ -93,11 +93,11 @@
   </AppLayout>
 </template>
 <script setup lang="ts">
-import AppLayout from '@/Layouts/AppLayout.vue'
-import Pagination from '@/Components/custom/Pagination.vue'
-import PerPageSelect from '@/Components/custom/PerPageSelect.vue'
-import DeleteDialog from '@/Components/custom/DeleteDialog.vue'
-import Avatar from '@/Components/custom/Avatar.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import Pagination from '@/components/custom/Pagination.vue'
+import PerPageSelect from '@/components/custom/PerPageSelect.vue'
+import DeleteDialog from '@/components/custom/DeleteDialog.vue'
+import Avatar from '@/components/custom/Avatar.vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
 import { computed } from 'vue'

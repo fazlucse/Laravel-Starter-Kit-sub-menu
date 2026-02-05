@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useForm, Link } from '@inertiajs/vue3'
 import { ref } from 'vue'
-import AppLayout from '@/Layouts/AppLayout.vue'
-import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import LoadingSpinner from '@/components/custom/LoadingSpinner.vue'
 import { Calculator } from 'lucide-vue-next'
 
 const props = defineProps<{

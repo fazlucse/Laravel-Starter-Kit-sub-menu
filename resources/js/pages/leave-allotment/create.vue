@@ -92,10 +92,10 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useForm } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
-import SelectInput from '@/Components/SelectInput.vue'
-import TextareaInput from '@/Components/TextareaInput.vue'
-import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import SelectInput from '@/components/SelectInput.vue'
+import TextareaInput from '@/components/TextareaInput.vue'
+import LoadingSpinner from '@/components/custom/LoadingSpinner.vue'
 
 const props = defineProps({
   mode: { type: String, required: true },

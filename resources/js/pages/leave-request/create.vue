@@ -144,13 +144,13 @@
 <script setup lang="ts">
 import { reactive, computed } from 'vue'
 import { useForm, usePage } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
-import SelectInput from '@/Components/SelectInput.vue'
-import TextareaInput from '@/Components/TextareaInput.vue'
-import TextInput from '@/Components/TextInput.vue'
-import FlatpickrInput from '@/Components/FlatpickrInput.vue'
-import Autocomplete from '@/Components/Autocomplete.vue'
-import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import SelectInput from '@/components/SelectInput.vue'
+import TextareaInput from '@/components/TextareaInput.vue'
+import TextInput from '@/components/TextInput.vue'
+import FlatpickrInput from '@/components/FlatpickrInput.vue'
+import Autocomplete from '@/components/Autocomplete.vue'
+import LoadingSpinner from '@/components/custom/LoadingSpinner.vue'
 
 const props = defineProps({
     mode: { type: String, required: true },

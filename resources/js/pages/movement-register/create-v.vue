@@ -205,7 +205,7 @@
 
 <script setup>
 import {reactive, ref} from 'vue'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 import LocationSection from '@/components/movement/LocationSection.vue'
 import FormSelect from '@/components/movement/FormSelect.vue'
 import FormInput from '@/components/movement/FormInput.vue'
