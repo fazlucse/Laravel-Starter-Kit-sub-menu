@@ -17,7 +17,7 @@ use App\Http\Controllers\PayrollController;
 Route::get('/', function () {
   return redirect()->route('login');
 })->name('home');
-
+Route::get('/ping', fn() => 'OK');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return inertia('Dashboard');
