@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import AppLayout from '@/layots/AppLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 import Pagination from '@/components/custom/Pagination.vue'
 import PerPageSelect from '@/components/custom/PerPageSelect.vue'
 import DeleteDialog from '@/components/custom/DeleteDialog.vue'
