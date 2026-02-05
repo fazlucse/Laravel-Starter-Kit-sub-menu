@@ -27,9 +27,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('menus', MenuController::class)->except(['index', 'create']);
     Route::match(['get', 'post'], '/people.index', [PersonController::class, 'index'])->name('people.index');
-    Route::get('/people.create', [PersonController::class, 'create'])->name('people.create');
-    Route::post('/people/{person}', [PersonController::class, 'update'])->name('people.update');
-    Route::resource('people', PersonController::class);
+//    Route::get('/people.create', [PersonController::class, 'create'])->name('people.create');
+//    Route::post('/people/{person}', [PersonController::class, 'update'])->name('people.update');
+//    Route::resource('people', PersonController::class);
+
+    Route::match(['get', 'post'], '/people', [PersonController::class, 'index'])
+        ->name('people.index');
+    Route::get('/people/create', [PersonController::class, 'create'])
+        ->name('people.create');
+    Route::post('/people/{person}', [PersonController::class, 'update'])
+        ->name('people.update');
+    Route::resource('people', PersonController::class)
+        ->except(['index', 'create', 'update']);
 
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
     Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
