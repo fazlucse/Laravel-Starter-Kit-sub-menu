@@ -62,7 +62,7 @@
 import { ref, watch } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { Trash2 } from 'lucide-vue-next'
-import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
+import LoadingSpinner from '@/components/custom/LoadingSpinner.vue'
 import {
   Dialog,
   DialogTrigger,
