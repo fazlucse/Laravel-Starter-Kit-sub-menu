@@ -1,4 +1,4 @@
-<!-- resources/js/Components/custom/feedback/ToastContainer.vue -->
+<!-- resources/js/components/custom/feedback/ToastContainer.vue -->
 <template>
   <div class="fixed top-4 right-4 z-50 space-y-2">
     <transition-group name="toast" tag="div">
