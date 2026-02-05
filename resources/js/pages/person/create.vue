@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { Link } from '@inertiajs/vue3'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import flatpickr from 'flatpickr'
-import LoadingSpinner from '@/Components/custom/LoadingSpinner.vue'
+import LoadingSpinner from '@/components/custom/LoadingSpinner.vue'
 
 const props = defineProps<{ person?: any, countries: any[], cities: any[] }>()
 const isEdit = !!props.person
