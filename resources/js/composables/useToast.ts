@@ -1,5 +1,5 @@
 // resources/js/composables/useToast.ts
-import ToastAlert from '@/Components/custom/ToastAlert.vue';
+import ToastAlert from '@/components/custom/ToastAlert.vue';
 import { usePage } from '@inertiajs/vue3';
 import { createApp, h, onMounted, ref, watchEffect } from 'vue';
 
