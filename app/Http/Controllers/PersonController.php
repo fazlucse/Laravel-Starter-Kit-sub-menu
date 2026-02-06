@@ -30,7 +30,7 @@ class PersonController extends Controller
     $people = $query->orderByDesc('id')
                     ->paginate($perPage)
                     ->appends($request->query());
-    
+
     return inertia('person/index', [
         'people' => $people,
         'perPage' => (int) $request->query('per_page', 15),

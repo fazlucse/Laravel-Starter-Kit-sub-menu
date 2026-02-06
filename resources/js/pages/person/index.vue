@@ -71,7 +71,7 @@
                 :key="p.id"
                 class="hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <td class="px-4 py-3 text-sm">
+                <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                   {{ (people.current_page - 1) * people.per_page + i + 1 }}
                 </td>
                  <td class="px-4 py-3 text-right">
@@ -90,7 +90,7 @@
                     />
                   </div>
                 </td>
-                  <td class="px-4 py-3 text-sm">
+                  <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                   {{ p.id }}
                 </td>
                 <td class="px-4 py-3">
@@ -109,7 +109,7 @@
                     </div>
                   </div>
                 </td>
-                <td class="px-4 py-3 text-sm font-medium">{{ p.name }}</td>
+                <td class="px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-300">{{ p.name }}</td>
                 <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                   {{ p.designation || '—' }}
                 </td>
@@ -142,8 +142,8 @@
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 rounded-full overflow-hidden border flex-shrink-0">
                 <img
-                  v-if="p.avatar"
-                  :src="`/storage/${p.avatar}`"
+                    v-if="p.photo"
+                    :src="`${p.photo}`"
                   class="w-full h-full object-cover"
                 />
                 <div
