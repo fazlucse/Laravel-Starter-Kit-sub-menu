@@ -4,7 +4,7 @@
     <DialogTrigger as-child>
       <slot name="trigger">
         <button
-          class="cursor-pointer inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium  text-red-700 hover:bg-red-100 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
+          class="cursor-pointer inline-flex items-center px-2 py-1.5 rounded text-xs font-medium  text-red-700 hover:bg-red-100 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800  transition"
           :title="`Delete ${recordName}`"
         >
           <Trash2 class="w-4 h-4" />

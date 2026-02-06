@@ -33,7 +33,9 @@ const form = useForm({
     avatar: null as File | null,
 })
 
-const avatarPreview = ref(props.person?.avatar ? `/storage/${props.person.avatar}` : null)
+const avatarPreview = ref(
+    props.person?.photo ? `/${props.person.photo}` : null
+)
 const dateInput = ref<HTMLInputElement | null>(null)
 let fp: any = null
 
@@ -57,10 +59,10 @@ watch(() => props.person, (newPerson) => {
                 form[key] = newPerson[key] || ''
             }
         })
-        avatarPreview.value = newPerson.avatar ? `/${newPerson.avatar}` : null
+        // avatarPreview.value = newPerson.photo ? `/${newPerson.photo}` : null
     } else {
         form.reset()
-        avatarPreview.value = null
+        // avatarPreview.value = null
     }
 }, { immediate: true })
 
@@ -100,14 +102,14 @@ function submit() {
 </script>
 
 <template>
+
   <AppLayout :breadcrumbs="[
-    { title: 'People', href: '/people' },
+    { title: 'People', href: '/people.index' },
     { title: isEdit ? 'Edit Person' : 'Create Person' }
   ]">
     <div class="max-w-4xl mx-auto p-2 sm:p-4">
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-8 border border-sidebar-border/70">
         <form @submit.prevent="submit" class="space-y-6">
-
           <!-- PERSONAL INFO -->
           <div>
             <h2 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">Personal Information</h2>
@@ -320,7 +322,7 @@ function submit() {
 
           <!-- SUBMIT BUTTONS -->
           <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <Link href="/people"
+            <Link href="/people.index"
               class="px-5 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-700 text-center">
               Cancel
             </Link>

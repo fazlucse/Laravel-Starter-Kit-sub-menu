@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
-import { 
-  Mail, Phone, MapPin, Home, GraduationCap, Building2, 
-  Users, Heart, User, IdCard, FileText, Edit2, Globe 
+import {
+  Mail, Phone, MapPin, Home, GraduationCap, Building2,
+  Users, Heart, User, IdCard, FileText, Edit2, Globe
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 
@@ -201,9 +201,9 @@ const initials = computed(() => {
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <FileText class="w-5 h-5 text-rose-600" /> Status Photo
           </h3>
-          <div v-if="person.status_photo" class="mt-3">
+          <div v-if="person.photo" class="mt-3">
             <img
-              :src="person.status_photo"
+              :src="person.photo"
               :alt="`${person.name}'s status photo`"
               class="w-full max-w-xs rounded-lg shadow-md border border-gray-300 dark:border-gray-600"
             />

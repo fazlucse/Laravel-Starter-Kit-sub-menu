@@ -76,10 +76,12 @@
                 </td>
                  <td class="px-4 py-3 text-right">
                   <div class="flex justify-end gap-1">
-                    <Link v-if="canView" :href="`/people/${p.id}`" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition">
+                    <Link v-if="canView" :href="`/people/${p.id}`"
+                          class="p-1.5 text-blue-600 hover:bg-blue-50  dark:bg-blue-900 rounded transition"
+                    >
                       <Eye class="w-4 h-4" />
                     </Link>
-                    <Link v-if="canEdit" :href="`/people/${p.id}/edit`" class="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded transition">
+                    <Link v-if="canEdit" :href="`/people/${p.id}/edit`" class="p-1.5 text-yellow-600 hover:bg-yellow-50 dark:bg-yellow-900  rounded transition">
                       <Edit class="w-4 h-4" />
                     </Link>
                     <DeleteDialog
