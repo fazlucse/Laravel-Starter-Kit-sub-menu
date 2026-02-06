@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 //    Route::post('/people/{person}', [PersonController::class, 'update'])->name('people.update');
 //    Route::resource('people', PersonController::class);
 
-    Route::match(['get', 'post'], '/people', [PersonController::class, 'index'])
+    Route::match(['get', 'post'], '/people.index', [PersonController::class, 'index'])
         ->name('people.index');
     Route::get('/people/create', [PersonController::class, 'create'])
         ->name('people.create');
