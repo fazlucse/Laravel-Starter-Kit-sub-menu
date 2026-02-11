@@ -31,8 +31,8 @@ return new class extends Migration
             $table->string('emp_in_time', 20)->nullable();
             $table->string('emp_out_time', 20)->nullable();
             $table->string('work_time', 20)->nullable();
-            $table->integer('in_time_late');
-            $table->integer('out_time_late');
+            $table->integer('in_time_late')->nullable();
+            $table->integer('out_time_late')->nullable();
             $table->string('office_lunch_start', 20)->nullable();
             $table->string('office_lunch_end', 20)->nullable();
             $table->string('lunch_start', 20)->nullable();

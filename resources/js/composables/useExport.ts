@@ -664,7 +664,9 @@ export function useExport(options: UseExportOptions = {}) {
     const exportToPDF = async (
         elementId: string,
         filename = '',
-        orientationArg: 'portrait' | 'landscape' = 'portrait'
+        orientationArg: 'portrait' | 'landscape' = 'portrait',
+        headerHtml='',
+        isDownlaod=0,
     ) => {
         if (isProcessing.value) return;
 
@@ -742,7 +744,7 @@ export function useExport(options: UseExportOptions = {}) {
             const margin = 10;
 
             // Remove top space (headerH) if filename is empty
-            const headerH = filename.trim() ? 15 : 0;
+            const headerH = headerHtml.trim() ? 15 : 0;
             const footerH = 15;
             const usableH = pageHeight - headerH - footerH - (margin * 2);
 
@@ -765,9 +767,9 @@ export function useExport(options: UseExportOptions = {}) {
                     pdf.addImage(canvasPage.toDataURL('image/png'), 'PNG', margin, margin + headerH, pdfWidth, usableH);
                 }
 
-                if (filename.trim()) {
+                if (headerHtml.trim()) {
                     pdf.setFontSize(10);
-                    pdf.text(filename, pageWidth / 2, margin + 7, { align: 'center' });
+                    pdf.text(headerHtml, pageWidth / 2, margin + 7, { align: 'center' });
                 }
 
                 pdf.setFontSize(10);
@@ -781,7 +783,16 @@ export function useExport(options: UseExportOptions = {}) {
             }
 
             const blob = pdf.output('blob');
-            pdfWindow.location.href = URL.createObjectURL(blob);
+            if(isDownlaod){
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;                         // MUST be blob URL
+                a.download = filename+".pdf";  // THIS controls filename
+                a.click();
+            }else{
+                pdfWindow.location.href = URL.createObjectURL(blob);
+            }
+
 
         } catch (err: any) {
             console.error("PDF Export Error:", err);
