@@ -108,4 +108,20 @@ class LeaveRequest extends Model
         'hr_remarks',
         'hr_status',
     ];
+    /**
+     * Get the employee associated with the leave request.
+     */
+    public function employee()
+    {
+        // If your Employee model uses 'person_id' as the key
+        return $this->belongsTo(Employee::class, 'person_id', 'person_id');
+    }
+
+    /**
+     * Get the itemized details for this request.
+     */
+    public function details()
+    {
+        return $this->hasMany(LeaveRequestDetail::class, 'leave_request_id');
+    }
 }

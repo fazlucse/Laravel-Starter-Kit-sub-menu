@@ -10,7 +10,7 @@ return new class extends Migration {
             $table->id();
             $table->string('module');                    // e.g., "Person"
             $table->string('action');                    // e.g., "deleted"
-            $table->unsignedBigInteger('record_id');     // ID of deleted record
+            $table->unsignedBigInteger('record_id')->nullable()->default(0);    // ID of deleted record
             $table->text('comments')->nullable();        // Reason
             $table->unsignedBigInteger('user_id');       // Who did it
             $table->timestamp('deleted_at')->useCurrent();

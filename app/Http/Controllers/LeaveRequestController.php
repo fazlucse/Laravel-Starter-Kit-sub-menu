@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
 use App\Models\LeaveRequest;
+use App\Models\LeaveRequestDetail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class LeaveRequestController extends Controller
 {
@@ -58,32 +61,62 @@ class LeaveRequestController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
+            // Parent Table Fields
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'reliever_id' => 'required',
+            'remarks' => 'nullable|string',
+            // Child Table Fields (The List)
             'leaves' => 'required|array|min:1',
             'leaves.*.request_for' => 'required|in:self,other',
-            'leaves.*.person_name' => 'nullable|string|max:255',
-            'leaves.*.from_date' => 'required|date',
-            'leaves.*.to_date' => 'required|date|after_or_equal:leaves.*.from_date',
+//            'leaves.*.person_id' => 'required',
+//            'leaves.*.from_date' => 'required|date',
+//            'leaves.*.to_date' => 'required|date|after_or_equal:leaves.*.from_date',
             'leaves.*.leave_duration' => 'required|string',
-            'leaves.*.leave_reason' => 'required|string|max:255',
-            'leaves.*.total_days' => 'required|integer|min:1',
+            'leaves.*.leave_reason' => 'required|string',
+            'leaves.*.total_days' => 'required|integer|min:.5',
         ]);
-
-        DB::transaction(function() use ($data) {
-            foreach ($data['leave_requests'] as $leave) {
-                LeaveRequest::create([
-                    'user_id' => Auth::id(),
-                    'request_for' => $leave['request_for'],
-                    'person_name' => $leave['person_name'] ?? null,
-                    'from_date' => $leave['from_date'],
-                    'to_date' => $leave['to_date'],
-                    'leave_duration' => $leave['leave_duration'],
-                    'leave_reason' => $leave['leave_reason'],
-                    'total_days' => $leave['total_days'],
+        return DB::transaction(function () use ($request) {
+            $leaves = $request->leaves;
+            $first = $leaves[0];
+            $personId = ($first['request_for'] === 'self') ? Auth::id() : $first['person_id'];
+            $employee = Employee::where('person_id', $personId)->firstOrFail();
+            $totals = ['annual' => 0, 'casual' => 0, 'sick' => 0, 'paternity' => 0, 'maternity' => 0];
+            foreach ($leaves as $item) {
+                if (isset($totals[$item['leave_reason']])) {
+                    $totals[$item['leave_reason']] += (float)$item['total_days'];
+                }
+            }
+            $parent = LeaveRequest::create([
+                'year' => now()->year,
+                'office' => $employee->office_id,
+                'person_id' => $personId,
+                'person_name' => $employee->full_name,
+                'employee_id' => $employee->employee_code,
+                'on_behalf_request' => ($first['request_for'] === 'other') ? 'Yes' : 'No',
+                'al_leave' => $totals['annual'],
+                'cl_leave' => $totals['casual'],
+                'sl_leave' => $totals['sick'],
+                'pat_leave' => $totals['paternity'],
+                'mat_leave' => $totals['maternity'],
+                'total_leave' => array_sum($totals),
+                'remarks' => $request->remarks,
+                'reliever_employee' => $request->reliever_employee,
+                'leave_type' => count(array_filter($totals)) > 1 ? 'Mixed' : $first['leave_reason'],
+            ]);
+            // 4. Create Detail Records
+            foreach ($leaves as $item) {
+                LeaveRequestDetail::create([
+                    'leave_request_id' => $parent->id,
+                    'from_date' => $item['from_date'],
+                    'to_date' => $item['to_date'],
+                    'leave_reason' => $item['leave_reason'],
+                    'total_days' => $item['total_days'],
+                    'leave_duration' => $item['leave_duration'],
                 ]);
             }
-        });
 
-        return redirect()->back()->with('success', 'Leave requests submitted successfully!');
+            return redirect()->back()->with('success', 'Leave Request Processed!');
+        });
     }
 
     /**

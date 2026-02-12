@@ -91,12 +91,18 @@ class AttendanceController extends Controller
             ]);
 
             try {
+                $file = $request->file('file');
+                $subFolder = date('Y-m-d') . '_' . date('H-i-s');
+                $uploadPath = public_path('uploads/attendance' );
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                $fileName = $subFolder . '_' . $file->getClientOriginalName();
+                $fullSavedPath = $uploadPath . '/' . $fileName;
+                $file->move($uploadPath, $fileName);
 
-                // 3. Use a Transaction for data safety
                 DB::beginTransaction();
-                // 4. Read and process the Excel file using your Import class
-                Excel::import(new AttendanceImport, $request->file('file'));
-
+                Excel::import(new AttendanceImport, $fullSavedPath);
                 DB::commit();
                 LogsActions::logCreate(new Attendance(), 'Bulk Attendance Excel Import performed.');
                 return redirect()->route('attendance.index')

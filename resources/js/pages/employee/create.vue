@@ -258,7 +258,6 @@
                     :error="allErrors.shift"
                   />
                 </div>
-
                 <div class="input-wrapper">
                   <TextInput
                     v-model="form.official_email"
@@ -276,24 +275,37 @@
                     maxlength="20"
                     :error="allErrors.official_phone"
                   />
+
                 </div>
 
                 <div class="input-wrapper">
-                  <FlatpickrInput
-                    v-model="form.office_in_time"
-                    label="Office In Time"
-                    mode="time"
-                    :error="allErrors.office_in_time"
-                  />
+<!--                  <FlatpickrInput-->
+<!--                    v-model="form.office_in_time"-->
+<!--                    label="Office In Time"-->
+<!--                    mode="time"-->
+<!--                    :error="allErrors.office_in_time"-->
+<!--                  />-->
+                    <TimeInput
+                        v-model="form.office_in_time"
+                        label="Office In Time"
+                        mode="time"
+                        :error="allErrors.office_in_time"
+                    />
                 </div>
 
                 <div class="input-wrapper">
-                  <FlatpickrInput
-                    v-model="form.office_out_time"
-                    label="Office Out Time"
-                    mode="time"
-                    :error="allErrors.office_out_time"
-                  />
+<!--                  <FlatpickrInput-->
+<!--                    v-model="form.office_out_time"-->
+<!--                    label="Office Out Time"-->
+<!--                    mode="time"-->
+<!--                    :error="allErrors.office_out_time"-->
+<!--                  />-->
+                    <TimeInput
+                        v-model="form.office_out_time"
+                        label="Office Out Time"
+                        mode="time"
+                        :error="allErrors.office_out_time"
+                    />
                 </div>
 
                 <div class="input-wrapper">
@@ -459,6 +471,8 @@ import PersonAutocomplete from '@/components/PersonAutocomplete.vue'
 import FlatpickrInput from '@/components/FlatpickrInput.vue'
 import Autocomplete from '@/components/Autocomplete.vue'
 import LoadingSpinner from '@/components/custom/LoadingSpinner.vue'
+import TimeInput from '@/components/TimeInput.vue';
+
 import { User, Building2, Briefcase, DollarSign, CreditCard, Phone, Award } from 'lucide-vue-next'
 
 const props = defineProps({

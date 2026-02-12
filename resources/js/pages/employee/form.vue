@@ -64,9 +64,20 @@
 
         <!-- ==== Office Timings ==== -->
         <Section title="Office Timings">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <TimeInput v-model="form.office_in_time" label="In Time" />
-            <TimeInput v-model="form.office_out_time" label="Out Time" />
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4"> d
+              <VueDatePicker
+                  v-model="time"
+                  time-picker
+                  :enable-time-picker="true"
+                  :enable-date-picker="false"
+                  format="hh:mm aa"
+                  placeholder="Select time"
+                  :auto-apply="true"
+                  :close-on-auto-apply="true"
+                  :teleport="true"
+              />
+<!--            <TimeInput v-model="form.office_in_time" label="In Time" />-->
+<!--            <TimeInput v-model="form.office_out_time" label="Out Time" />-->
             <NumberInput v-model.number="form.late_time" label="Late Time (min)" />
             <SelectInput
               v-model="form.employee_status"
@@ -183,7 +194,7 @@ import TimeInput from '@/components/TimeInput.vue';
 import SelectInput from '@/components/SelectInput.vue';
 import CheckboxInput from '@/components/CheckboxInput.vue';
 import TextareaInput from '@/components/TextareaInput.vue';
-
+import VueDatePicker from '@vuepic/vue-datepicker'
 defineProps({
   employee: Object,
   mode: { type: String, required: true }, // 'create' | 'edit'
