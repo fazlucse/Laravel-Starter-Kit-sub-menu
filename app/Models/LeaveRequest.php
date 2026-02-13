@@ -62,7 +62,8 @@ class LeaveRequest extends Model
         'pat_start_time',
         'pat_end_date',
         'pat_end_time',
-        'reliver_employee',
+        'reliever_employee',
+        'reliever_id',
         'leave_year',
         'p_cl',
         'p_sl',
@@ -114,7 +115,7 @@ class LeaveRequest extends Model
     public function employee()
     {
         // If your Employee model uses 'person_id' as the key
-        return $this->belongsTo(Employee::class, 'person_id', 'person_id');
+        return $this->belongsTo(Employee::class, 'employee_id');
     }
 
     /**
@@ -124,4 +125,22 @@ class LeaveRequest extends Model
     {
         return $this->hasMany(LeaveRequestDetail::class, 'leave_request_id');
     }
+    public function scopeVisibleTo($query, $user)
+    {
+        $fullAccessRoles = [
+            'Developer',
+            'Super Admin',
+            'Admin',
+            'HR Manager',
+        ];
+        if (in_array($user->role, $fullAccessRoles)) {
+            return $query;
+        }
+        $supervisedEmployeeIds = Employee::where('reporting_manager_id', $user->employee_id)
+            ->pluck('id')
+            ->toArray();
+        $supervisedEmployeeIds[] = $user->employee_id;
+        return $query->whereIn('employee_id', $supervisedEmployeeIds);
+    }
+
 }

@@ -70,6 +70,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [LeaveRequestController::class, 'index'])->name('leave_requests.index');
         Route::get('/create', [LeaveRequestController::class, 'create'])->name('leave_requests.create');
         Route::post('/', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
+        // Fixed Show Route: Added {id} parameter
+        Route::get('/show/{id}', [LeaveRequestController::class, 'show'])->name('leave_requests.show');
+
+        // Recommended: Add Edit and Update routes
+        Route::get('/{id}/edit', [LeaveRequestController::class, 'edit'])->name('leave_requests.edit');
+        Route::post('/', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
+        Route::put('/{id}', [LeaveRequestController::class, 'update'])->name('leave_requests.update');
+        Route::post('/{id}/status', [LeaveRequestController::class, 'updateStatus'])->name('leave_requests.updateStatus');
+        Route::delete('/{id}', [LeaveRequestController::class, 'destroy'])->name('leave_requests.destroy');
     });
 
 

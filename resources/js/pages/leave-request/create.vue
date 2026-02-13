@@ -102,6 +102,20 @@
                         </button>
                     </div>
 
+                    <div v-if="$page.props.errors.leaves" class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700 font-bold">
+                                    {{ $page.props.errors.leaves }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                     <!-- List of Added Leaves -->
                     <div v-if="leaves.length" class="mt-6 space-y-2">
                         <h2 class="text-lg font-bold">Added Leaves</h2>
@@ -218,6 +232,13 @@ function addLeaveToList() {
 
     const newFrom = new Date(form.from_date)
     const newTo = new Date(form.to_date)
+    if (newTo < newFrom) {
+        return alert('The "To Date" cannot be earlier than the "From Date".');
+    }
+    const isHalfDay = form.leave_duration === 'First Half' || form.leave_duration === 'Second Half';
+    if (isHalfDay && form.from_date !== form.to_date) {
+        return alert('For half-day leave, From Date and To Date must be the same.');
+    }
 
     // Check for overlapping dates
     const isOverlap = leaves.some(l => {
@@ -230,8 +251,12 @@ function addLeaveToList() {
         return alert('Leave for the selected date range already exists or overlaps with another entry!')
     }
 
-    const total_days = Math.ceil((newTo.getTime() - newFrom.getTime()) / (1000 * 60 * 60 * 24)) + 1
-
+    let total_days = 0;
+    if (isHalfDay) {
+        total_days = 0.5;
+    } else {
+        total_days = Math.ceil((newTo.getTime() - newFrom.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    }
     leaves.push({
         request_for: form.request_for,
         person_name: form.request_for === 'self' ? authUser.name : form.person_name,
@@ -241,7 +266,6 @@ function addLeaveToList() {
         leave_reason: form.leave_reason,
         total_days
     })
-
     // Reset fields
     form.from_date = ''
     form.to_date = ''

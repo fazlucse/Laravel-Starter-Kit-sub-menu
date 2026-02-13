@@ -14,37 +14,37 @@ return new class extends Migration
         Schema::create('leave_requests', function (Blueprint $table) {
             $table->id();
             $table->integer('year');
-            $table->unsignedBigInteger('office')->default(0);
+            $table->unsignedBigInteger('office')->default(0)->nullable();
 
-            $table->unsignedBigInteger('person_id')->default(0);
+            $table->unsignedBigInteger('person_id')->default(0)->nullable();
             $table->string('person_name',255)->nullable();
             $table->string('department_name',255)->nullable();
             $table->string('division_name',255)->nullable();
-            $table->string('employee_id',255)->nullable();
+            $table->bigInteger('employee_id')->unsigned()->default(0)->comment('employees.id');
             $table->string('leave_type',255)->nullable();
             $table->string('on_behalf_request',50)->nullable();
-            $table->unsignedBigInteger('division_id');
-            $table->unsignedBigInteger('department_id');
-            $table->double('al_leave', 20, 2)->default(0);
-            $table->double('cl_leave', 20, 2)->default(0);
-            $table->double('sl_leave', 20, 2)->default(0);
-            $table->double('pat_leave', 20, 2)->default(0);
-            $table->double('mat_leave', 20, 2)->default(0);
+            $table->unsignedBigInteger('division_id')->nullable();
+            $table->unsignedBigInteger('department_id')->nullable();
+            $table->double('al_leave', 20, 2)->default(0)->nullable();
+            $table->double('cl_leave', 20, 2)->default(0)->nullable();
+            $table->double('sl_leave', 20, 2)->default(0)->nullable();
+            $table->double('pat_leave', 20, 2)->default(0)->nullable();
+            $table->double('mat_leave', 20, 2)->default(0)->nullable();
 
             $table->tinyText('purpose_leave')->nullable();
             $table->text('contact_address')->nullable();
             $table->text('remarks')->nullable();
-            $table->double('total_leave', 20, 2)->default(0);
+            $table->double('total_leave', 20, 2)->default(0)->nullable();
             $table->string('office_text', 100)->nullable();
             $table->string('division_text', 100)->nullable();
             $table->string('employee_text', 100)->nullable();
 
-            $table->double('balance_al', 20, 2)->default(0);
-            $table->double('balance_cl', 20, 2)->default(0);
-            $table->double('balance_sl', 20, 2)->default(0);
-            $table->double('balance_pat', 20, 2)->default(0);
-            $table->double('balance_mat', 20, 2)->default(0);
-            $table->double('balance_total', 20, 2)->default(0);
+            $table->double('balance_al', 20, 2)->default(0)->nullable();
+            $table->double('balance_cl', 20, 2)->default(0)->nullable();
+            $table->double('balance_sl', 20, 2)->default(0)->nullable();
+            $table->double('balance_pat', 20, 2)->default(0)->nullable();
+            $table->double('balance_mat', 20, 2)->default(0)->nullable();
+            $table->double('balance_total', 20, 2)->default(0)->nullable();
 
             // START + END dates fields (AL, CL, SL, MAT, PAT)
             $table->date('al_start_date')->nullable();
@@ -72,11 +72,12 @@ return new class extends Migration
             $table->date('pat_end_date')->nullable();
             $table->string('pat_end_time', 20)->nullable();
 
-            $table->unsignedBigInteger('reliver_employee')->nullable();
+            $table->unsignedBigInteger('reliever_employee')->nullable();
+            $table->unsignedBigInteger('reliever_id')->nullable();
             $table->unsignedBigInteger('leave_year')->nullable();
-            $table->double('p_cl', 20, 2)->default(0);
-            $table->double('p_sl', 20, 2)->default(0);
-            $table->double('others_emp_leave', 20, 2);
+            $table->double('p_cl', 20, 2)->default(0)->nullable();
+            $table->double('p_sl', 20, 2)->default(0)->nullable();
+            $table->double('others_emp_leave', 20, 2)->nullable();
             $table->date('others_start_date')->nullable();
             $table->date('others_end_date')->nullable();
             $table->string('others_start_time', 25)->nullable();
@@ -99,34 +100,37 @@ return new class extends Migration
             $table->text('pass_note')->nullable();
             $table->dateTime('pass_date')->nullable();
             $table->unsignedBigInteger('approved_by')->default(0);
-            $table->string('approved_by_name', 70);
-            $table->string('approved_by_designation', 70);
+            $table->string('approved_by_name', 70)->nullable();
+            $table->string('approved_by_designation', 70)->nullable();
             $table->text('approved_note')->nullable();
             $table->dateTime('approved_date')->nullable();
-            $table->string('entry_from', 20)->default('System');
-            $table->unsignedBigInteger('inline_supervisor_id');
+            $table->string('entry_from', 20)->default('System')->nullable();
+            $table->unsignedBigInteger('inline_supervisor_id')->default(0)->nullable();
             $table->string('inline_supervisor_name', 50)->nullable();
             $table->string('inline_supervisor_designation', 70)->nullable();
+            $table->unsignedBigInteger('department_head')->default(0)->nullable();
+            $table->string('department_head_name', 50)->nullable();
 
             $table->unsignedBigInteger('request_for_approved')->nullable();
-            $table->tinyInteger('request_for')->default(0);
+            $table->tinyInteger('request_for')->default(0)->nullable();
 
-            $table->unsignedBigInteger('other_person')->default(0);
-            $table->string('other_person_text', 200);
+            $table->unsignedBigInteger('other_person')->default(0)->nullable();
+            $table->string('other_person_text', 200)->nullable();
 
-            $table->integer('is_other_leave')->default(0);
-            $table->integer('is_cancel')->default(0);
+            $table->integer('is_other_leave')->default(0)->nullable();
+            $table->integer('is_cancel')->default(0)->nullable();
 
-            $table->unsignedBigInteger('hr_app_by')->default(0);
+            $table->unsignedBigInteger('hr_app_by')->default(0)->nullable();
             $table->dateTime('hr_date')->nullable();
             $table->text('hr_remarks')->nullable();
-            $table->integer('hr_status')->default(0);
+            $table->integer('hr_status')->default(0)->nullable();
             $table->timestamps();
             // indexing
             $table->index('request_for_approved');
             $table->index('entry_from');
             $table->index('request_by');
             $table->index('inline_supervisor_id');
+            $table->index('department_head');
             $table->index('status');
             $table->index('al_start_date');
             $table->index('division_id');
