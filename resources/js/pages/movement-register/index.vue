@@ -50,8 +50,8 @@
                         <td class="px-4 py-2 text-sm">{{ (movements.current_page - 1) * movements.per_page + i + 1 }}</td>
                         <td class="px-4 py-2 text-sm">{{ m.purpose }}</td>
                         <td class="px-4 py-2 text-sm">{{ m.transport_mode }}</td>
-                        <td class="px-4 py-2 text-sm">{{ m.from_location }}</td>
-                        <td class="px-4 py-2 text-sm">{{ m.to_location }}</td>
+                        <td class="px-4 py-2 text-sm">{{ m.origin_location_name }}</td>
+                        <td class="px-4 py-2 text-sm">{{ m.destination_location_name }}</td>
                         <td class="px-4 py-2 text-sm">{{ m.movement_start_time }}</td>
                         <td class="px-4 py-2 text-sm">{{ m.movemoent_end_time }}</td>
                         <td class="px-4 py-2 text-sm">

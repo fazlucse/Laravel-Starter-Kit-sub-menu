@@ -4,6 +4,8 @@ import { useToast } from '@/composables/useToast'
 import GlobalPageLoader from '@/components/custom/PageLoader.vue'
 import type { BreadcrumbItemType } from '@/types'
 import { usePage } from '@inertiajs/vue3'
+import SmartAlert from '@/components/custom/SmartAlert.vue'
+import { useAlert } from '@/composables/useAlert'
 import { computed } from 'vue'
 
 interface Props {
@@ -16,7 +18,7 @@ withDefaults(defineProps<Props>(), {
 })
 
 const page = usePage()
-
+const { alertState } = useAlert()
 /*  Safe navigation check  */
 const isNavigating = computed(() => {
   const props = page.props.value
@@ -29,6 +31,12 @@ const isNavigating = computed(() => {
     <AppLayout :breadcrumbs="breadcrumbs">
       <GlobalPageLoader v-if="isNavigating" />
       <slot />
+        <SmartAlert
+            :show="alertState.show"
+            :message="alertState.message"
+            :type="alertState.type"
+            @close="alertState.show = false"
+        />
     </AppLayout>
   </div>
 </template>
