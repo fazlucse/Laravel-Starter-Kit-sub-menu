@@ -88,7 +88,7 @@
 
                         <td class="px-4 py-2 text-sm whitespace-nowrap">
                             <div class="flex items-center gap-2">
-                                <Link v-if="m.status === 0" :href="`/movement-registers/${m.id}/edit`" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md border border-blue-200" title="Edit">
+                                <Link v-if="canUpdate && m.status === 0" :href="`/movement-registers/${m.id}/edit`" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md border border-blue-200" title="Edit">
                                     <Edit class="w-4 h-4" />
                                 </Link>
                                 <Link
@@ -174,10 +174,11 @@ import Swal from 'sweetalert2'
 const movements = defineModel('movements', { required: true }) as any
 const { perPage, update: updatePerPage } = usePagination()
 
-const { authUser } = usePage().props as any
+const { authUser,canApprove: canApproveProp } = usePage().props as any
 const canCreate = computed(() => authUser?.permissions?.includes('movement.create') ?? false)
+const canUpdate = computed(() => authUser?.permissions?.includes('movement.update') ?? false)
 const canDelete = computed(() => authUser?.permissions?.includes('movement.delete') ?? false)
-const canApprove = canCreate;
+const canApprove = computed(() => canApproveProp ?? false)
 
 const selectedMovements = ref<number[]>([])
 

@@ -16,6 +16,11 @@ class MovementRegisterController extends Controller
      */
     public function index(Request $request): Response
     {
+        $user = auth()->user();
+        $isManager = \App\Models\Employee::where('reporting_manager_id', $user->employee_id)
+            ->exists();
+        $canApprove = $user->can('movement.approve') || $isManager;
+
         $perPage = (int) $request->query('per_page', 10);
         $movements = MovementRegister::visibleTo(auth()->user(),'movement')
             ->latest()
@@ -24,6 +29,7 @@ class MovementRegisterController extends Controller
 
         return Inertia::render('movement-register/index', [
             'movements' => $movements,
+            'canApprove'=>$canApprove
         ]);
     }
 

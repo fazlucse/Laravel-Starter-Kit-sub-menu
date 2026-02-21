@@ -17,7 +17,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AccessControlController;
 
 //use App\Http\Controllers\CompanyController;
-//use App\Http\Controllers\InfoMasterController;
+use App\Http\Controllers\InfoMasterController;
 
 Route::get('/', function () {
     return redirect()->route('login');

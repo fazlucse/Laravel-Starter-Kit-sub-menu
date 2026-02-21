@@ -25,8 +25,8 @@ trait VisibleToScope
             ->pluck('id')
             ->toArray();
         $supervisedEmployeeIds[] = $user->employee_id;
-        if($module=='movement'){
-            return $query->whereIn($this->getTable() . '.created_by', $user->id);
+        if ($module == 'movement') {
+            return $query->whereIn($this->getTable() . '.created_by', [$user->id]);
         }
         return $query->whereIn($this->getTable() . '.employee_id', array_filter($supervisedEmployeeIds));
     }

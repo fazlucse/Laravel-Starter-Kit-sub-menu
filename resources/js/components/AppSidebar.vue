@@ -115,7 +115,7 @@ const rawNavItems: any[] = [
         ],
     },
     {
-        title: 'Settings',
+        title: 'Initial Setup',
         href: '#',
         icon: Settings,
         slug: 'reports', // Gate Settings to users with admin/reports access

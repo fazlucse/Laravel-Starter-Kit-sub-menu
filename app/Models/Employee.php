@@ -102,4 +102,5 @@ class Employee extends Model
     {
         return $this->belongsTo(Person::class, 'second_reporting_manager_id');
     }
+
 }

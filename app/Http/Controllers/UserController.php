@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Constants\RoleConstants;
 
 class UserController extends Controller
 {
@@ -37,7 +38,7 @@ class UserController extends Controller
             'employees'   => Employee::select('id', 'person_name as name')->get(),
             'divisions'    => Division::select('id', 'division_name')->get(),
             'departments'  => Department::select('id', 'department_name')->get(),
-            'roles'       => ['Admin', 'HR Manager', 'Division Head', 'Department Head', 'User', 'Developer'],
+            'roles'       => RoleConstants::ALL,
         ]);
     }
 
@@ -85,7 +86,7 @@ class UserController extends Controller
             'employees'   => Employee::select('id', 'person_name as name')->get(),
             'divisions'    => Division::select('id', 'division_name as name')->get(),
             'departments'  => Department::select('id', 'department_name as name')->get(),
-            'roles'       => ['Admin', 'HR Manager', 'Division Head', 'Department Head', 'User', 'Developer'],
+            'roles'       => RoleConstants::ALL,
         ]);
     }
 
