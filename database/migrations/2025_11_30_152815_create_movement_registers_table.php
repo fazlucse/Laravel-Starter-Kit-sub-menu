@@ -24,7 +24,9 @@ return new class extends Migration
 
             // Purpose & transport
             $table->text('purpose')->nullable();
-            $table->string('transport_mode')->nullable();
+            $table->integer('status')->default(0);
+            $table->json('transport_mode')->nullable();
+
             $table->double('conveyance_amount', 15, 2)->default(0);
 
             // GPS
@@ -39,6 +41,7 @@ return new class extends Migration
 
             // Entry details
             $table->string('entry_from')->default('system');
+            $table->unsignedBigInteger('employee_id')->default(0)->index();
             $table->unsignedBigInteger('created_by')->default(0)->index();
             $table->string('created_by_name')->nullable();
 
@@ -53,6 +56,7 @@ return new class extends Migration
             // Customer
             $table->string('customer_id')->nullable();
             $table->text('customer_name')->nullable();
+            $table->json('customer_obj')->nullable();
 
             // Billing
             $table->double('night_allowance', 18, 2)->nullable();
@@ -91,7 +95,7 @@ return new class extends Migration
             $table->unsignedBigInteger('email_sent_by')->default(0);
             $table->string('email_sent_by_name')->nullable();
             $table->timestamp('email_sent_date')->nullable();
-
+            $table->text('rejection_reason')->nullable();
             // Laravel timestamps
             $table->timestamps();
         });

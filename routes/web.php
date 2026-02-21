@@ -13,9 +13,14 @@ use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\MovementRegisterController;
 use App\Http\Controllers\RecruitmentController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AccessControlController;
+
+//use App\Http\Controllers\CompanyController;
+//use App\Http\Controllers\InfoMasterController;
 
 Route::get('/', function () {
-  return redirect()->route('login');
+    return redirect()->route('login');
 })->name('home');
 Route::get('/ping', fn() => 'OK');
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -66,7 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{id}', [LeaveAllotmentController::class, 'update'])->name('leave_allotments.update'); // PUT /leave-allotments/{id}
         Route::delete('/{id}', [LeaveAllotmentController::class, 'destroy'])->name('leave_allotments.destroy');
     });
-    Route::middleware(['auth'])->prefix('leave-request')->group(function() {
+    Route::middleware(['auth'])->prefix('leave-request')->group(function () {
         Route::get('/', [LeaveRequestController::class, 'index'])->name('leave_requests.index');
         Route::get('/create', [LeaveRequestController::class, 'create'])->name('leave_requests.create');
         Route::post('/', [LeaveRequestController::class, 'store'])->name('leave_requests.store');
@@ -101,7 +106,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{movementRegister}/edit', [MovementRegisterController::class, 'edit'])->name('movement-registers.edit');
         Route::put('/{movementRegister}', [MovementRegisterController::class, 'update'])->name('movement-registers.update');
         Route::delete('/{movementRegister}', [MovementRegisterController::class, 'destroy'])->name('movement-registers.destroy');
+//        Route::get('/print', [MovementRegisterController::class, 'print'])->name('movement-registers.print');
+        Route::post('/bulk-status-update', [MovementRegisterController::class, 'bulkStatusUpdate'])->name('movement-registers.bulk-approve');
     });
+    Route::get('movement-registers-print-report', [MovementRegisterController::class, 'print'])
+        ->name('movement-registers.print')
+        ->middleware('auth');
     Route::middleware(['auth'])->prefix('recruitments')->group(function () {
 
         // ---------------------
@@ -157,10 +167,46 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/payroll/export', [PayrollController::class, 'export'])->name('payroll.export');
         Route::patch('/payroll/status', [PayrollController::class, 'updateStatus'])->name('payroll.status.update');
     });
+
+
+    // --- USER MANAGEMENT MODULE ---
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('/create', [UserController::class, 'create'])->name('create');
+        Route::post('/store', [UserController::class, 'store'])->name('store');
+        Route::get('/edit/{user}', [UserController::class, 'edit'])->name('edit');
+        Route::put('/update/{user}', [UserController::class, 'update'])->name('update');
+        Route::delete('/delete/{user}', [UserController::class, 'destroy'])->name('destroy');
+    });
+
+    // --- COMPANY MASTER MODULE (Factories/Branches) ---
+    Route::prefix('companies')->name('companies.')->group(function () {
+        Route::get('/', [CompanyController::class, 'index'])->name('index');
+        Route::get('/create', [CompanyController::class, 'create'])->name('create');
+        Route::post('/store', [CompanyController::class, 'store'])->name('store');
+        Route::get('/edit/{company}', [CompanyController::class, 'edit'])->name('edit');
+        Route::put('/update/{company}', [CompanyController::class, 'update'])->name('update');
+        Route::delete('/delete/{company}', [CompanyController::class, 'destroy'])->name('destroy');
+    });
+
+    // --- GENERAL MASTER DATA MODULE (Purposes/Transport) ---
+    Route::prefix('info-masters')->name('info-masters.')->group(function () {
+        Route::get('/', [InfoMasterController::class, 'index'])->name('index');
+        Route::get('/create', [InfoMasterController::class, 'create'])->name('create');
+        Route::post('/store', [InfoMasterController::class, 'store'])->name('store');
+        Route::get('/edit/{infoMaster}', [InfoMasterController::class, 'edit'])->name('edit');
+        Route::put('/update/{infoMaster}', [InfoMasterController::class, 'update'])->name('update');
+        Route::delete('/delete/{infoMaster}', [InfoMasterController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::middleware(['auth', 'role:Developer|Admin'])->group(function () {
+        Route::get('/access-control', [AccessControlController::class, 'index'])->name('access.index');
+        Route::put('/access-control/{role}', [AccessControlController::class, 'update'])->name('access.update');
+    });
     // Route::get('/employees/persons/search', [PersonController::class, 'search']);index
 // Route::get('/companies', [CompanyController::class, 'index']);
 // Route::get('/divisions', [DivisionController::class, 'index']);
 // Route::get('/departments', [DepartmentController::class, 'index']);
 // Route::get('/designations/search', [DesignationController::class, 'search']);
 });
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';

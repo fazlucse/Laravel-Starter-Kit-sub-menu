@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\VisibleToScope;
 
 class MovementRegister extends Model
 {
+    use VisibleToScope;
     protected $fillable = [
         'origin_location_type', 'destination_location_type',
         'origin_location_name', 'origin_location_id',
@@ -24,7 +26,7 @@ class MovementRegister extends Model
         'accounts_confirmed_by', 'accounts_confirm_status',
         'accounts_confirmed_by_name', 'accounts_confirmed_at',
         'budgeted_amount', 'bill_remarks', 'movement_remarks',
-        'module_type','visit_type'
+        'module_type','visit_type','customer_obj'
     ];
 
     protected $casts = [
@@ -34,6 +36,9 @@ class MovementRegister extends Model
         'accounts_confirmed_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'transport_mode'      => 'array',
+        'purpose' => 'array',
+        'customer_obj' => 'array',
     ];
 
     // Relationships
@@ -51,4 +56,5 @@ class MovementRegister extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
+
 }

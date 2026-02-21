@@ -15,9 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('employee_id')->nullable()->default(0);
+            $table->foreignId('department_id')->nullable()->after('employee_id');
+            $table->foreignId('division_id')->nullable()->after('department_id');
             $table->string('email')->unique();
+            $table->string('role')->default('User');
+            $table->string('status')->default('Active');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('last_login_ip')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

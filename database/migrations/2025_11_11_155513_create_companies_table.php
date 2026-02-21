@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id(); // Primary key 'id'
 
             // Basic Company Info
-            $table->string('company_name', 150);
+            $table->string('name', 150);
             $table->string('company_code', 50)->unique()->nullable();
             $table->string('registration_no', 100)->nullable();
             $table->string('tax_identification_no', 100)->nullable();

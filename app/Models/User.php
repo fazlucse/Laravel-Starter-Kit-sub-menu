@@ -18,6 +18,12 @@ class User extends Authenticatable
         'email',
         'password',
         'employee_id',
+        'department_id',
+        'division_id',
+        'role',
+        'status',
+        'mobile_access',
+        'access_days'
     ];
 
     protected $hidden = [
@@ -32,6 +38,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'access_days' => 'array',
+            'mobile_access' => 'boolean',
         ];
     }
     public function canApproveLeave(LeaveRequest $leaveRequest): bool

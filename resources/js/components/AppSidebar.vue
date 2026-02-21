@@ -11,127 +11,159 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types'; // Import NavItem
-import { Link } from '@inertiajs/vue3';
-import {   LayoutGrid,
-  Menu,
-  Users,
-  CalendarCheck,
-  FileText,
-  Folder,
-  Briefcase,
+import { type NavItem } from '@/types';
+import { Link, usePage } from '@inertiajs/vue3'; // Added usePage
+import { computed } from 'vue'; // Added computed
+import {
+    LayoutGrid,
+    Users,
+    CalendarCheck,
+    FileText,
+    Briefcase,
     ClipboardList,
     Receipt,
     Calendar,
-  MapPin,
-  FileSignature, } from 'lucide-vue-next';
+    MapPin,
+    Settings,
+    Building2,
+    Database,
+    ShieldCheck, // Added for Access Matrix icon
+} from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
+const page = usePage();
+
+/**
+ * Robust Permission Helper
+ * Checks if the user has ANY permission for the given module slug.
+ */
+const canAccess = (slug: string | undefined) => {
+    if (!slug) return true; // Always show items without a slug (like Dashboard)
+
+    // We check page.props.authUser because that is where your Middleware puts the data
+    const authUser = page.props.authUser as any;
+    const permissions = authUser?.permissions || [];
+
+    // Check if any permission starts with the module slug (e.g. "movement.")
+    return permissions.some((p: string) => p.startsWith(`${slug}.`));
+};
+
+const rawNavItems: any[] = [
     {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: LayoutGrid, // Grid icon for Dashboard
-  },
-//   {
-//     title: 'Menu',
-//     href: '/menus.index',
-//     icon: Menu, // Menu icon
-//   },
-  {
-    title: 'People',
-    href: '/people.index',
-    icon: Users, // Users icon
-  },
-  {
-    title: 'Employee Management',
-    href: '/employees',
-    icon: Briefcase, // Briefcase for employees
-  },
-  {
-    title: 'Attendance',
-    href: '/attendance',
-    icon: CalendarCheck, // Calendar icon for attendance
-  },
-  {
-    title: 'Leave Request',
-    href: '/leave-request',
-    icon: FileText, // Document icon for leave request
-  },
-  {
-    title: 'Leave Allotment',
-    href: '/leave-allotments',
-    icon: ClipboardList, // List icon for leave allotment
-  },
-  {
-    title: 'Payroll',
-    href: '/payroll',
-    icon: Receipt, // Dollar file icon for payroll
-    },
-  {
-    title: 'Holiday Management',
-    href: '/holidays',
-    icon: Calendar, // Users icon
+        title: 'Dashboard',
+        href: '/dashboard',
+        icon: LayoutGrid,
     },
     {
-    title: 'Movement Regsiter',
-    href: '/movement-registers',
-    icon: MapPin, // Users icon
-  },
-  {
-    title: 'Recruitment & ATS',
-    href: '/recruitments',
-    icon: Folder,
-    // subItems: [
-    //     {
-    //         title: 'Job Openings',
-    //         href: '/recruitments',            // Job Openings index
-    //         icon: Briefcase,
-    //     },
-    //     {
-    //         title: 'Applicants',
-    //         href: '/recruitments/applicants', // Applicants index
-    //         icon: Users,
-    //     },
-    //     {
-    //         title: 'Interviews',
-    //         href: '/recruitments/interviews', // Interviews index
-    //         icon: ClipboardList,
-    //     },
-    //     {
-    //         title: 'Offers & Onboarding',
-    //         href: '/recruitments/offers',     // Offers index
-    //         icon: FileSignature,
-    //     },
-    //
-    // ],
-  },
-  {
-    title: 'Reports',
-    href: '#',
-    icon: FileText,
-    subItems: [
-      { title: 'Employee Reports', href: '/reports/add', icon: FileText },
-        { title: 'Attendance Report', href: '/reports/list', icon: ClipboardList },
-        { title: 'Movement Report', href: '/reports/list', icon: ClipboardList },
-        { title: 'Leave Report', href: '/reports/list', icon: ClipboardList },
-        { title: 'Attendance Report', href: '/reports/list', icon: ClipboardList },
-    ],
-  },
+        title: 'People',
+        href: '/people.index',
+        icon: Users,
+        slug: 'person', // Matches person.view, etc.
+    },
+    {
+        title: 'Employee Management',
+        href: '/employees',
+        icon: Briefcase,
+        slug: 'employee',
+    },
+    {
+        title: 'Attendance',
+        href: '/attendance',
+        icon: CalendarCheck,
+        slug: 'attendance',
+    },
+    {
+        title: 'Leave Request',
+        href: '/leave-request',
+        icon: FileText,
+        slug: 'leave-request',
+    },
+    {
+        title: 'Leave Allotment',
+        href: '/leave-allotments',
+        icon: ClipboardList,
+        slug: 'leave-allotment',
+    },
+    {
+        title: 'Payroll',
+        href: '/payroll',
+        icon: Receipt,
+        slug: 'payroll',
+    },
+    {
+        title: 'Holiday Management',
+        href: '/holidays',
+        icon: Calendar,
+        slug: 'holiday',
+    },
+    {
+        title: 'Movement Register',
+        href: '/movement-registers',
+        icon: MapPin,
+        slug: 'movement',
+    },
+    {
+        title: 'Reports',
+        href: '#',
+        icon: FileText,
+        slug: 'reports',
+        subItems: [
+            { title: 'Employee Reports', href: '/reports/add', icon: FileText, slug: 'reports' },
+            { title: 'Attendance Report', href: '/reports/list', icon: ClipboardList, slug: 'reports' },
+            { title: 'Movement Report', href: '/reports/list', icon: ClipboardList, slug: 'reports' },
+            { title: 'Leave Report', href: '/reports/list', icon: ClipboardList, slug: 'reports' },
+        ],
+    },
+    {
+        title: 'Settings',
+        href: '#',
+        icon: Settings,
+        slug: 'reports', // Gate Settings to users with admin/reports access
+        subItems: [
+            {
+                title: 'User Management',
+                href: '/users',
+                icon: Users,
+                slug: 'employee',
+            },
+            {
+                title: 'Company Setup',
+                href: '/companies',
+                icon: Building2,
+                slug: 'employee',
+            },
+            {
+                title: 'Access Matrix',
+                href: '/access-control',
+                icon: ShieldCheck,
+                slug: 'reports'
+            },
+            {
+                title: 'Master Data',
+                href: '/info-masters',
+                icon: Database,
+                slug: 'reports',
+            },
+        ],
+    },
 ];
 
-const footerNavItems: NavItem[] = [
-    // {
-    //     title: 'Github Repo',
-    //     href: 'https://github.com/laravel/vue-starter-kit',
-    //     icon: Folder,
-    // },
-    // {
-    //     title: 'Documentation',
-    //     href: 'https://laravel.com/docs/starter-kits#vue',
-    //     icon: BookOpen,
-    // },
-];
+// This is the fixed list that respects permissions
+const mainNavItems = computed(() => {
+    return rawNavItems
+        .filter(item => canAccess(item.slug))
+        .map(item => {
+            if (item.subItems) {
+                return {
+                    ...item,
+                    subItems: item.subItems.filter((sub: any) => canAccess(sub.slug))
+                };
+            }
+            return item;
+        });
+});
+
+const footerNavItems: NavItem[] = [];
 </script>
 
 <template>
@@ -141,7 +173,7 @@ const footerNavItems: NavItem[] = [
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
                         <Link href="/dashboard">
-                            <AppLogo />
+                            <AppLogo/>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -149,13 +181,13 @@ const footerNavItems: NavItem[] = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <NavMain :items="mainNavItems"/>
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
-            <NavUser />
+            <NavFooter :items="footerNavItems"/>
+            <NavUser/>
         </SidebarFooter>
     </Sidebar>
-    <slot />
+    <slot/>
 </template>
