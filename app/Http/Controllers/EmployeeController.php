@@ -23,7 +23,7 @@ class EmployeeController extends Controller
         $search = $request->input('search');
 
         $query = Employee::query()
-            ->with(['person:id,name,photo']); 
+            ->with(['person:id,name,photo']);
             // load relationships as needed
 
         // Filters
@@ -64,8 +64,8 @@ class EmployeeController extends Controller
     public function create()
     {
         return Inertia::render('employee/create', [
-            'companies'    => Company::select('id', 'company_name')->where('type', 'company')->get(),
-            'finCompany'   => Company::select('id', 'company_name')-> where('type', 'fin_company')->get(),
+            'companies'    => Company::select('id', 'name as company_name')->where('type', 'company')->get(),
+            'finCompany'   => Company::select('id', 'name as company_name')-> where('type', 'fin_company')->get(),
             'divisions'    => Division::select('id', 'division_name')->get(),
             'departments'  => Department::select('id', 'department_name')->get(),
             'designations' => InfoMaster::select('id', 'name')->where('type', 'desgination')->get(),
@@ -126,8 +126,8 @@ public function store(StoreEmployeeRequest $request)
 
         return Inertia::render('employee/create', [
             'employee'     => $employee,
-            'companies'    => Company::select('id', 'company_name')->where('type', 'company')->get(),
-            'finCompany'   => Company::select('id', 'company_name')->where('type', 'fin_company')->get(),
+            'companies'    => Company::select('id', 'name as  company_name')->where('type', 'company')->get(),
+            'finCompany'   => Company::select('id', 'name as company_name')->where('type', 'fin_company')->get(),
             'divisions'    => Division::select('id', 'division_name')->get(),
             'departments'  => Department::select('id', 'department_name')->get(),
             'designations' => InfoMaster::select('id', 'name')->where('type', 'desgination')->get(),

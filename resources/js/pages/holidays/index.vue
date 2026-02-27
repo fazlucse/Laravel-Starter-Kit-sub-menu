@@ -34,19 +34,27 @@
                     <thead class="bg-gray-50 dark:bg-gray-800 sticky top-0">
                     <tr>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">S.L</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Actions</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Holiday Type</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Date</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Persons</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Department</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Division</th>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Remarks</th>
-                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Actions</th>
                     </tr>
                     </thead>
 
                     <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                     <tr v-for="(h, i) in holidays.data" :key="h.id" class="hover:bg-gray-100 dark:hover:bg-gray-800">
                         <td class="px-4 py-2 text-sm">{{ (holidays.current_page - 1) * holidays.per_page + i + 1 }}</td>
+                        <td class="px-4 py-2 text-right">
+                            <DeleteDialog
+                                v-if="canDelete"
+                                :url="`/holidays/${h.id}`"
+                                record-name="Holiday"
+                                @deleted="handleDelete"
+                            />
+                        </td>
                         <td class="px-4 py-2 text-sm">{{ h.holiday_type_name }}</td>
                         <td class="px-4 py-2 text-sm">{{ h.holiday_date }}</td>
                         <td class="px-4 py-2 text-sm">
@@ -57,14 +65,7 @@
                         <td class="px-4 py-2 text-sm">{{ h.department_name }}</td>
                         <td class="px-4 py-2 text-sm">{{ h.division_name }}</td>
                         <td class="px-4 py-2 text-sm">{{ h.remarks }}</td>
-                        <td class="px-4 py-2 text-right">
-                            <DeleteDialog
-                                v-if="canDelete"
-                                :url="`/holidays/${h.id}`"
-                                record-name="Holiday"
-                                @deleted="handleDelete"
-                            />
-                        </td>
+
                     </tr>
 
                     <tr v-if="!holidays.data.length">

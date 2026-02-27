@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Models\Employee; // Assuming you have an Employee model
 use App\Models\PayrollBatch; // Assuming you have an Employee model
@@ -152,7 +153,7 @@ class PayrollController extends Controller
             'office'            => 'nullable|string',
             'payrollDate'       => 'required|date',
             'payrollMonth'      => 'required|date_format:Y-m',
-            'preparedBy'        => 'required|string|max:100',
+            'preparedBy'        => 'nullable',
             'approvedBy'        => 'nullable|string|max:100',
             'notes'             => 'nullable|string|max:1000',
             'postOption'        => 'required|in:draft,posted,approved',
@@ -183,56 +184,77 @@ class PayrollController extends Controller
         $taxBrackets = $this->getTaxBrackets();
 
         $payrollData = $employees->map(function ($employee) use ($bonuses, $deductions, $taxBrackets, $request) {
+            // 1. Gather Earnings
+            $basic      = $employee->basic_salary ?? 0;
+            $houseRent  = $employee->house_rent_allowance ?? 0;
+            $medical    = $employee->medical_allowance ?? 0;
+            $transport  = $employee->transport_allowance ?? 0;
+            $otherAllow = $employee->other_allowances ?? 0;
+
+            // External bonuses (from your getSampleBonuses method)
             $empBonuses = collect($bonuses)->where('empId', $employee->empId)->sum('amount');
-            $empDeductions = collect($deductions)->where('empId', $employee->empId)->sum('amount');
 
-            $grossSalary = $employee->baseSalary + $empBonuses;
+            // Total Gross Salary
+            $grossSalary = $basic + $houseRent + $medical + $transport + $otherAllow + $empBonuses;
 
-            // Tax calculation
+            // 2. Gather Deductions
             $taxAmount = $this->calculateTax($grossSalary, $taxBrackets);
 
-            // Indian statutory deductions
+            // Indian statutory deductions (PF, ESI, etc.)
             $indianDeductions = $this->calculateIndianDeductions(
                 $grossSalary,
-                $employee->baseSalary,
+                $basic,
                 $request->input('indianComponents', []),
                 $employee->empId
             );
-
             $totalIndianDeductions = collect($indianDeductions)->sum();
 
-            $netSalary = $grossSalary - $empDeductions - $taxAmount - $totalIndianDeductions;
+            // External deductions (from your getSampleDeductions method)
+            $empDeductions = collect($deductions)->where('empId', $employee->empId)->sum('amount');
+
+            // 3. Final Net Salary Calculation
+            // Net = (Gross) - (Tax) - (Statutory/PF) - (Other Deductions)
+            $netSalary = $grossSalary - $taxAmount - $totalIndianDeductions - $empDeductions;
 
             return [
-                'id' => $employee->id,
-                'empId' => $employee->empId,
-                'name' => $employee->name,
-                'department' => $employee->department,
-                'office' => $employee->office,
-                'baseSalary' => $employee->baseSalary,
+                'id'                => $employee->id,
+                'empId'             => $employee->empId,
+                'name'              => $employee->person_name,
+                'designation'       => $employee->designation_name ?? 'N/A',
+                'department'        => $employee->department_name,
+                'division'          => $employee->division_name,
+                'office'            => $employee->office,
 
-                'totalBonus' => $empBonuses,
-                'totalDeduction' => $empDeductions,
-                'grossSalary' => $grossSalary,
-                'taxAmount' => $taxAmount,
-                'indianDeductions' => $indianDeductions,
-                'totalIndianDeductions' => $totalIndianDeductions,
-                'netSalary' => $netSalary,
+                // Earnings
+                'basic_salary'      => $basic,
+                'house_rent'        => $houseRent,
+                'medical'           => $medical,
+                'transport'         => $transport,
+                'other_allowance'   => $otherAllow + $empBonuses,
 
-                // Optional: detailed breakdown
-                'bonusDetails' => collect($bonuses)->where('empId', $employee->empId)->values(),
-                'deductionDetails' => collect($deductions)->where('empId', $employee->empId)->values(),
+                // Deductions
+                'tax_deduction'     => $taxAmount,
+                'pf_deduction'      => $totalIndianDeductions, // Or specifically $indianDeductions['pf'] if exists
+                'other_deduction'   => $empDeductions,
+
+                // Final Totals
+                'gross_salary'      => $grossSalary,
+                'net_salary'        => $netSalary,
+
+                // Metadata for modal/details
+                'bonusDetails'      => collect($bonuses)->where('empId', $employee->empId)->values(),
+                'deductionDetails'  => collect($deductions)->where('empId', $employee->empId)->values(),
             ];
         })->values();
 
-        return Inertia::render('Payroll/Report', [
+        return Inertia::render('payroll/generate', [
             'payrollData' => $payrollData,
             'form' => [
                 'department' => $request->department,
                 'office' => $request->office,
                 'payrollDate' => $request->payrollDate,
                 'payrollMonth' => $request->payrollMonth,
-                'preparedBy' => $request->preparedBy,
+                'preparedBy' => Auth::id(),
                 'approvedBy' => $request->approvedBy,
                 'notes' => $request->notes,
             ],
@@ -395,5 +417,36 @@ class PayrollController extends Controller
         $batch->delete();
 
         return redirect()->back()->with('success', 'Payroll batch deleted.');
+    }
+    public function generatePaySlip(Request $request, $id)
+    {
+        $employee = Employee::findOrFail($id);
+
+        // Calculate Earnings
+        $basic = $employee->basic_salary ?? 0;
+        $med   = $employee->medical_allowance ?? 0;
+        $house = $employee->house_rent_allowance ?? 0;
+        $trans = $employee->transport_allowance ?? 0;
+        $other = $employee->other_allowances ?? 0;
+
+        // This is the variable the template is missing
+        $gross = $basic + $med + $house + $trans + $other;
+
+        // Calculate Deductions
+        $pf    = $employee->pf_deduction ?? 0;
+        $tax   = $employee->tax_deduction ?? 0;
+        $ded   = $employee->other_deductions ?? 0;
+
+        $totalDeductions = $pf + $tax + $ded;
+        $net = $gross - $totalDeductions;
+
+        return view('payroll.payslip_print', [
+            'employee'   => $employee,
+            'month'      => \Carbon\Carbon::parse($request->query('month'))->format('F, Y'),
+            'gross'      => $gross, // <--- MUST MATCH THE BLADE VARIABLE $gross
+            'deductions' => $totalDeductions,
+            'net'        => $net,
+            'date'       => now()->format('d/m/Y')
+        ]);
     }
 }

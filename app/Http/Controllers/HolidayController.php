@@ -7,7 +7,7 @@ use App\Models\Person;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-
+use App\Traits\LogsActions;
 class HolidayController extends Controller
 {
     /**
@@ -58,50 +58,52 @@ class HolidayController extends Controller
             'date_to'      => 'required|date|after_or_equal:date_from',
             'is_personwise'=> 'boolean',
             'total_person_ids' => 'required_if:is_personwise,true|nullable|string',
-        ], [
-            'date_to.after_or_equal' => 'The end date must be after or equal to the start date.',
         ]);
 
         try {
             DB::beginTransaction();
 
-            // 1. Prepare common data (Fetch names once outside the loop for performance)
-            $typeName = DB::table('info_master') // Assuming plural based on your previous error
-            ->where('id', $request->holiday_type)
-                ->where('type', 'Holiday Type')
-                ->value('name');
+            // 1. Fetch common metadata
+            $typeName   = DB::table('info_master')->where('id', $request->holiday_type)->value('name');
+            $officeName = $request->operational_office ? DB::table('operational_offices')->where('id', $request->operational_office)->value('name') : null;
+            $deptName   = $request->department ? DB::table('departments')->where('id', $request->department)->value('department_name') : null;
+            $divName    = $request->division ? DB::table('divisions')->where('id', $request->division)->value('division_name') : null;
 
-            $officeName = $request->operational_office
-                ? DB::table('operational_offices')->where('id', $request->operational_office)->value('name')
-                : null;
-
-            $deptName = $request->department
-                ? DB::table('departments')->where('id', $request->department)->value('department_name')
-                : null;
-
-            $divName = $request->division
-                ? DB::table('divisions')->where('id', $request->division)->value('division_name')
-                : null;
-
-            // 2. Setup Date Range Loop
             $start = \Carbon\Carbon::parse($request->date_from);
-            $end = \Carbon\Carbon::parse($request->date_to);
+            $end   = \Carbon\Carbon::parse($request->date_to);
 
-            // Prepare person IDs array once if personwise
-            $personIdArray = [];
-            if ($request->is_personwise && $request->total_person_ids) {
-                $personIdArray = array_filter(array_map('trim', explode(',', $request->total_person_ids)));
-            }
+            $personIdArray = ($request->is_personwise && $request->total_person_ids)
+                ? array_filter(array_map('trim', explode(',', $request->total_person_ids)))
+                : [];
 
-            // 3. Iterate through each day
             $currentDate = $start->copy();
+            $skippedDates = [];
+
+            // 2. Iterate through each day
             while ($currentDate <= $end) {
+                $formattedDate = $currentDate->format('Y-m-d');
+
+                // 3. Check for existing record for this specific date and scope
+                $exists = Holiday::where('holiday_date', $formattedDate)
+                    ->where('operational_office', $request->operational_office)
+                    ->where('department', $request->department)
+                    ->where('division', $request->division)
+                    ->when($request->is_personwise, function ($query) {
+                        return $query->where('is_personwise', true);
+                    })
+                    ->exists();
+
+                if ($exists) {
+                    $skippedDates[] = $formattedDate;
+                    $currentDate->addDay();
+                    continue; // Skip to next day if record already exists
+                }
 
                 $holiday = Holiday::create([
                     'holiday_type'            => $request->holiday_type,
                     'holiday_type_name'       => $typeName,
-                    'holiday_date'            => $currentDate->format('Y-m-d'),
-                    'date_range'              => 1, // Each record represents exactly 1 day
+                    'holiday_date'            => $formattedDate,
+                    'date_range'              => 1,
                     'is_personwise'           => $request->is_personwise ?? false,
                     'total_person_ids'        => $request->is_personwise ? implode(',', $personIdArray) : null,
                     'operational_office'      => $request->operational_office,
@@ -113,14 +115,22 @@ class HolidayController extends Controller
                     'remarks'                 => $request->remarks,
                 ]);
 
-                // Sync pivot table for each day if personwise
                 if (!empty($personIdArray)) {
                     $holiday->persons()->sync($personIdArray);
                 }
-                $currentDate->addDay(); // Move to next day
+
+                $currentDate->addDay();
             }
+
             DB::commit();
-            return redirect('/holidays')->with('success', 'Holidays created successfully for the selected range.');
+
+            $message = 'Holidays processed successfully.';
+            if (!empty($skippedDates)) {
+                $message .= ' Note: Some dates were skipped as they already exist: ' . implode(', ', $skippedDates);
+                return back()->withErrors(['error' => 'Note: Some dates were skipped as they already exist: ' . implode(', ', $skippedDates)]);
+            }
+
+            return redirect('/holidays')->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -198,12 +208,19 @@ class HolidayController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Holiday $holiday)
+    public function destroy(Holiday $holiday, Request $request)
     {
-        // Detach persons first to maintain integrity
-        $holiday->persons()->detach();
-        $holiday->delete();
-
-        return redirect()->route('holidays.index')->with('success', 'Holiday deleted successfully.');
+        try {
+            DB::beginTransaction();
+            LogsActions::logDelete($holiday, $request->comments ?? 'Holiday deleted');
+            $holiday->delete();
+            DB::commit();
+            return redirect()->route('holidays.index')
+                ->with('success', 'Holiday deleted and logged successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('holidays.index')
+                ->with('error', 'Failed to delete holiday: ' . $e->getMessage());
+        }
     }
 }

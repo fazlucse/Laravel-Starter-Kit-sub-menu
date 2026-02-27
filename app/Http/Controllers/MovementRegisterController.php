@@ -7,13 +7,11 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
-
+use App\Traits\LogsActions;
 
 class MovementRegisterController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(Request $request): Response
     {
         $user = auth()->user();
@@ -216,6 +214,8 @@ class MovementRegisterController extends Controller
             $movementRegister->movement_started_at = now();
             $movementRegister->updated_by = Auth::id();
             $movementRegister->entry_from = 'web';
+            LogsActions::logDelete($movementRegister,  'Movement record updated');
+
         }
 
         // =============================
@@ -250,13 +250,22 @@ class MovementRegisterController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MovementRegister $movementRegister)
+    public function destroy(MovementRegister $movementRegister, Request $request)
     {
-        $movementRegister->delete();
-
-        return redirect()
-            ->route('movement-registers.index')
-            ->with('success', 'Movement deleted successfully');
+        try {
+            DB::beginTransaction();
+            LogsActions::logDelete($movementRegister, $request->comments ?? 'Movement record deleted');
+            $movementRegister->delete();
+            DB::commit();
+            return redirect()
+                ->route('movement-registers.index')
+                ->with('success', 'Movement deleted and logged successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->route('movement-registers.index')
+                ->with('error', 'Failed to delete movement: ' . $e->getMessage());
+        }
     }
     /**
      * Print selected movement records.
