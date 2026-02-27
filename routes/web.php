@@ -167,6 +167,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/payroll/export', [PayrollController::class, 'export'])->name('payroll.export');
         Route::patch('/payroll/status', [PayrollController::class, 'updateStatus'])->name('payroll.status.update');
         Route::get('/payroll/payslip/{id}', [PayrollController::class, 'generatePaySlip'])->name('payroll.payslip');
+        Route::post('/payroll/store-batch', [PayrollController::class, 'storeBatch'])->name('payroll.store.batch');
+        Route::get('/payroll/batch/{id}', [PayrollController::class, 'show'])->name('payroll.show');
     });
 
 

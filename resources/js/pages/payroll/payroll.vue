@@ -13,9 +13,9 @@
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
                         <div class="relative flex-1 sm:w-64" v-if="!isCreating">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                    <Search class="w-4 h-4" />
-                </span>
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                <Search class="w-4 h-4" />
+                            </span>
                             <input
                                 v-model="searchQuery"
                                 type="text"
@@ -53,41 +53,28 @@
                         <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">S.L</th>
+                            <th class="px-4 py-3 text-right text-xs font-black text-gray-500 uppercase tracking-widest">Actions</th>
                             <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Office / Dept</th>
                             <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Month</th>
                             <th class="px-4 py-3 text-center text-xs font-black text-gray-500 uppercase tracking-widest">Staff</th>
+                            <th class="px-4 py-3 text-right text-xs font-black text-gray-500 uppercase tracking-widest">Gross Amount</th>
+                            <th class="px-4 py-3 text-right text-xs font-black text-gray-500 uppercase tracking-widest">Net Payable</th>
                             <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Status</th>
-                            <th class="px-4 py-3 text-right text-xs font-black text-gray-500 uppercase tracking-widest">Actions</th>
                         </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         <tr v-for="(item, i) in historyData" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                            <td class="px-4 py-3 text-sm text-gray-500">
+                            <td class="px-4 py-3 text-sm text-gray-500 font-mono">
                                 {{ (payrollHistory.current_page - 1) * payrollHistory.per_page + i + 1 }}
-                            </td>
-                            <td class="px-4 py-3">
-                                <div class="text-sm font-bold text-gray-900 dark:text-white">{{ item.com_name }}</div>
-                                <div class="text-[11px] text-gray-500 uppercase font-medium">{{ item.department_name || 'All Departments' }}</div>
-                            </td>
-                            <td class="px-4 py-3 text-sm font-medium">{{ item.payroll_month }}</td>
-                            <td class="px-4 py-3 text-center">
-                  <span class="px-2 py-1 rounded bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-bold text-xs">
-                    {{ item.total_staff }}
-                  </span>
-                            </td>
-                            <td class="px-4 py-3">
-                  <span :class="getStatusClass(item.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase border">
-                    {{ item.status }}
-                  </span>
                             </td>
                             <td class="px-4 py-3 text-right">
                                 <div class="flex justify-end gap-1">
-                                    <button v-if="canEdit && item.status !== 'approved'" @click="approveBatch(item.id)" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded transition">
+                                    <button v-if="canEdit && item.status !== 'approved'" @click="approveBatch(item.id)" class="p-1.5 cursor-pointer text-emerald-600 hover:bg-emerald-50 rounded transition">
                                         <CheckCircle class="w-4 h-4" />
                                     </button>
-                                    <button class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition">
+                                    <Link :href="`/payroll/batch/${item.id}`" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition">
                                         <Eye class="w-4 h-4" />
-                                    </button>
+                                    </Link>
                                     <DeleteDialog
                                         v-if="canDelete && item.status !== 'approved'"
                                         :url="`/payroll/${item.id}`"
@@ -95,6 +82,28 @@
                                     />
                                 </div>
                             </td>
+                            <td class="px-4 py-3">
+                                <div class="text-sm font-bold text-gray-900 dark:text-white uppercase">{{ item.com_name }}</div>
+                                <div class="text-[11px] text-gray-500 uppercase font-medium">{{ item.department_name || 'All Departments' }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-medium">{{ formatMonth(item.payroll_month) }}</td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="px-2 py-1 rounded bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-bold text-xs">
+                                    {{ item.total_staff }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right text-sm font-mono text-gray-600 dark:text-gray-400">
+                                {{ formatCurr(item.total_gross_amount) }}
+                            </td>
+                            <td class="px-4 py-3 text-right text-sm font-mono font-black text-blue-600 dark:text-blue-400">
+                                {{ formatCurr(item.total_net_disbursement) }}
+                            </td>
+                            <td class="px-4 py-3">
+                                <span :class="getStatusClass(item.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase border">
+                                    {{ item.status }}
+                                </span>
+                            </td>
+
                         </tr>
                         </tbody>
                     </table>
@@ -193,6 +202,24 @@ const canDelete = computed(() => authUser?.permissions.includes('payroll.delete'
 
 // Pagination logic
 const { perPage, update: updatePerPage } = usePagination()
+
+// Helper: Format Currency
+const formatCurr = (value: number) => {
+    if (!value || value === 0) return '—';
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(value).replace(/^/, '৳ ');
+}
+
+// Helper: Format Month
+const formatMonth = (dateStr: string) => {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric'
+    });
+}
 
 // Form for Generation
 const form = useForm({

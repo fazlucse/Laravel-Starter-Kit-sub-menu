@@ -55,6 +55,36 @@ class PayrollController extends Controller
             'taxBrackets' => $this->getTaxBrackets(),
         ]);
     }
+
+    /**
+     * Display the specific payroll batch details.
+     */
+    public function show($id)
+    {
+        // 1. Fetch the Batch Header
+        $batch = \DB::table('payroll_batches')
+            ->leftJoin('users', 'payroll_batches.prepared_by', '=', 'users.id')
+            ->select('payroll_batches.*', 'users.name as prepared_by_name')
+            ->where('payroll_batches.id', $id)
+            ->first();
+
+        if (!$batch) {
+            return redirect()->route('payroll.index')->withErrors(['error' => 'Payroll batch not found.']);
+        }
+
+        // 2. Fetch all individual employee records for this batch
+        $items = \DB::table('payrolls')
+            ->where('batch_id', $id)
+            ->orderBy('emp_name', 'asc')
+            ->get();
+
+        // 3. Render the show.vue page
+        return Inertia::render('payroll/show', [
+            'batch' => $batch,
+            'items' => $items
+        ]);
+    }
+
     /**
      * Generate and STORE payroll batch and individual records
      */
@@ -153,54 +183,68 @@ class PayrollController extends Controller
             'office'            => 'nullable|string',
             'payrollDate'       => 'required|date',
             'payrollMonth'      => 'required|date_format:Y-m',
-            'preparedBy'        => 'nullable',
-            'approvedBy'        => 'nullable|string|max:100',
-            'notes'             => 'nullable|string|max:1000',
             'postOption'        => 'required|in:draft,posted,approved',
             'indianComponents'  => 'nullable|array',
-            'indianComponents.*'=> 'string|in:pf,esi,tds,professionalTax,lwf,gratuity,bonus',
         ]);
 
         $query = Employee::query();
-
-        if ($request->filled('department')) {
-            $query->where('department', $request->department);
-        }
-
-        if ($request->filled('office')) {
-            $query->where('office', $request->office);
-        }
+        if ($request->filled('department')) $query->where('department', $request->department);
+        if ($request->filled('office')) $query->where('office', $request->office);
 
         $employees = $query->get();
 
         if ($employees->isEmpty()) {
-            return redirect()->back()->withErrors(['employees' => 'No employees found matching the selected filters']);
+            return redirect()->back()->withErrors(['employees' => 'No employees found']);
         }
 
-        // In real app you would fetch from DB
-        // For demo we're using the same static data structure as in React version
+        // --- FACTORY CALCULATION SETTINGS ---
+        $payrollMonthStr = $request->payrollMonth;
+        $startOfMonth = \Carbon\Carbon::parse($payrollMonthStr)->startOfMonth();
+        $endOfMonth = \Carbon\Carbon::parse($payrollMonthStr)->endOfMonth();
+
+        // Hardcoded to 30 for Factory standard
+        $factoryDays = 30;
+
         $bonuses = $this->getSampleBonuses();
         $deductions = $this->getSampleDeductions();
         $taxBrackets = $this->getTaxBrackets();
 
-        $payrollData = $employees->map(function ($employee) use ($bonuses, $deductions, $taxBrackets, $request) {
-            // 1. Gather Earnings
-            $basic      = $employee->basic_salary ?? 0;
-            $houseRent  = $employee->house_rent_allowance ?? 0;
-            $medical    = $employee->medical_allowance ?? 0;
-            $transport  = $employee->transport_allowance ?? 0;
-            $otherAllow = $employee->other_allowances ?? 0;
+        $payrollData = $employees->map(function ($employee) use ($bonuses, $deductions, $taxBrackets, $request, $startOfMonth, $endOfMonth, $factoryDays) {
 
-            // External bonuses (from your getSampleBonuses method)
+            // 1. FACTORY PRORATION LOGIC
+            $effectiveDate = $employee->effective_date ? \Carbon\Carbon::parse($employee->effective_date) : null;
+            $prorationFactor = 1.0;
+            $workedDays = $factoryDays;
+
+            if ($effectiveDate && $effectiveDate->isSameMonth($startOfMonth)) {
+                // Formula: 30 - Start Day + 1
+                $workedDays = $factoryDays - $effectiveDate->day + 1;
+                // Guard: ensure days don't exceed 30 (for months with 28/29 days) or drop below 0
+                $workedDays = max(0, min($factoryDays, $workedDays));
+                $prorationFactor = $workedDays / $factoryDays;
+            }
+            elseif ($effectiveDate && $effectiveDate->isAfter($endOfMonth)) {
+                $prorationFactor = 0;
+                $workedDays = 0;
+            }
+
+            // 2. APPLY PRORATION TO EARNINGS
+            $basic      = ($employee->basic_salary ?? 0) * $prorationFactor;
+            $houseRent  = ($employee->house_rent_allowance ?? 0) * $prorationFactor;
+            $medical    = ($employee->medical_allowance ?? 0) * $prorationFactor;
+            $transport  = ($employee->transport_allowance ?? 0) * $prorationFactor;
+            $otherAllow = ($employee->other_allowances ?? 0) * $prorationFactor;
+
             $empBonuses = collect($bonuses)->where('empId', $employee->empId)->sum('amount');
-
-            // Total Gross Salary
             $grossSalary = $basic + $houseRent + $medical + $transport + $otherAllow + $empBonuses;
 
-            // 2. Gather Deductions
-            $taxAmount = $this->calculateTax($grossSalary, $taxBrackets);
+            // 3. CONDITIONAL TAX DEDUCTION
+            $taxAmount = 0;
+            if ($employee->is_tax_deduction == 1) {
+                $taxAmount = $this->calculateTax($grossSalary, $taxBrackets);
+            }
 
-            // Indian statutory deductions (PF, ESI, etc.)
+            // 4. STATUTORY & EXTERNAL DEDUCTIONS
             $indianDeductions = $this->calculateIndianDeductions(
                 $grossSalary,
                 $basic,
@@ -208,12 +252,9 @@ class PayrollController extends Controller
                 $employee->empId
             );
             $totalIndianDeductions = collect($indianDeductions)->sum();
-
-            // External deductions (from your getSampleDeductions method)
             $empDeductions = collect($deductions)->where('empId', $employee->empId)->sum('amount');
 
-            // 3. Final Net Salary Calculation
-            // Net = (Gross) - (Tax) - (Statutory/PF) - (Other Deductions)
+            // 5. FINAL NET CALCULATION
             $netSalary = $grossSalary - $taxAmount - $totalIndianDeductions - $empDeductions;
 
             return [
@@ -223,7 +264,11 @@ class PayrollController extends Controller
                 'designation'       => $employee->designation_name ?? 'N/A',
                 'department'        => $employee->department_name,
                 'division'          => $employee->division_name,
-                'office'            => $employee->office,
+
+                // Factory Info
+                'worked_days'       => $workedDays,
+                'total_days'        => $factoryDays,
+                'is_prorated'       => $prorationFactor < 1,
 
                 // Earnings
                 'basic_salary'      => $basic,
@@ -234,17 +279,15 @@ class PayrollController extends Controller
 
                 // Deductions
                 'tax_deduction'     => $taxAmount,
-                'pf_deduction'      => $totalIndianDeductions, // Or specifically $indianDeductions['pf'] if exists
+                'pf_deduction'      => $totalIndianDeductions,
                 'other_deduction'   => $empDeductions,
 
-                // Final Totals
+                // Totals
                 'gross_salary'      => $grossSalary,
                 'net_salary'        => $netSalary,
-
-                // Metadata for modal/details
-                'bonusDetails'      => collect($bonuses)->where('empId', $employee->empId)->values(),
-                'deductionDetails'  => collect($deductions)->where('empId', $employee->empId)->values(),
             ];
+        })->filter(function ($item) {
+            return $item['net_salary'] > 0;
         })->values();
 
         return Inertia::render('payroll/generate', [
@@ -254,14 +297,7 @@ class PayrollController extends Controller
                 'office' => $request->office,
                 'payrollDate' => $request->payrollDate,
                 'payrollMonth' => $request->payrollMonth,
-                'preparedBy' => Auth::id(),
-                'approvedBy' => $request->approvedBy,
-                'notes' => $request->notes,
-            ],
-            'postStatus' => $request->postOption,
-            'selectedIndianOptions' => $request->input('indianComponents', []),
-            'indianPostOptions' => $this->getIndianStatutoryOptions(),
-            'mode' => 'view'
+            ]
         ]);
     }
 
@@ -448,5 +484,82 @@ class PayrollController extends Controller
             'net'        => $net,
             'date'       => now()->format('d/m/Y')
         ]);
+    }
+    public function storeBatch(Request $request)
+    {
+        $payrollMonthStr = $request->payrollMonth . '-01'; // Format: 2026-02-01
+        $payrollData = collect($request->payroll_data);
+        $currentUser = \Auth::id();
+
+        // 1. Calculate Totals for the Batch Header
+        $totalStaff = $payrollData->count();
+        $totalGross = $payrollData->sum('gross_salary');
+        $totalNet   = $payrollData->sum('net_salary');
+
+        \DB::beginTransaction();
+        try {
+            // 2. Insert into payroll_batches (The Header)
+            $batchId = \DB::table('payroll_batches')->insertGetId([
+                'payroll_month'          => $payrollMonthStr,
+                'com_id'                 => 1, // Change this to your actual Company ID logic
+                'com_name'               => 'Your Company Ltd.',
+                'status'                 => $request->postOption,
+                'is_locked'              => $request->postOption === 'approved' ? 1 : 0,
+                'total_staff'            => $totalStaff,
+                'total_gross_amount'     => $totalGross,
+                'total_payable_amount'   => $totalNet,
+                'total_net_disbursement' => $totalNet,
+                'prepared_by'            => $currentUser,
+                'prepared_date'          => now(),
+                'created_at'             => now(),
+                'updated_at'             => now(),
+            ]);
+
+            // 3. Insert into payrolls (The Individual Entries)
+            foreach ($payrollData as $data) {
+                $data['empId'] = $data['id'];
+                $exists = \DB::table('payrolls')
+                    ->where('emp_id', $data['empId'])
+                    ->where('month', $payrollMonthStr)
+                    ->exists();
+
+                if ($exists) continue;
+
+                \DB::table('payrolls')->insert([
+                    'batch_id'                => $batchId, // Link to the header ID created above
+                    'month'                   => $payrollMonthStr,
+                    'emp_id'                  => $data['empId'],
+                    'emp_name'                => $data['name'],
+                    'gross_salary_calculated' => $data['gross_salary'],
+                    'basic_salary'            => $data['basic_salary'],
+                    'house_rent'              => $data['house_rent'] ?? 0,
+                    'medical_allowance'       => $data['medical'] ?? 0,
+                    'transport_allowance'     => $data['transport'] ?? 0,
+                    'other_benefits'          => $data['other_allowance'] ?? 0,
+                    'bonus'                   => $data['totalBonus'] ?? 0,
+                    'tax_deduction'           => $data['tax_deduction'] ?? 0,
+                    'pf_deduction'            => $data['pf_deduction'] ?? 0,
+                    'others_deduction'        => $data['other_deduction'] ?? 0,
+                    'bank_amount'             => $data['net_salary'],
+                    'cash_amount'             => 0,
+                    'department_name'         => $data['department'],
+                    'designation_name'        => $data['designation'] ?? 'N/A',
+                    'division_name'           => $data['division'] ?? 'N/A',
+                    'entryby'                 => $currentUser,
+                    'entrytime'               => now(),
+                    'locked'                  => $request->postOption === 'approved' ? 1 : 0,
+                    'created_at'              => now(),
+                    'updated_at'              => now(),
+                ]);
+            }
+
+            \DB::commit();
+            return redirect()->back()->with('success', 'Payroll Batch #' . $batchId . ' has been posted.');
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            // Return detailed error for debugging
+            return redirect()->back()->withErrors(['error' => 'Posting failed: ' . $e->getMessage()]);
+        }
     }
 }
