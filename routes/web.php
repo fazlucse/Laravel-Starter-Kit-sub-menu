@@ -15,6 +15,7 @@ use App\Http\Controllers\RecruitmentController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AccessControlController;
+use App\Http\Controllers\AttendanceReportController;
 
 //use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\InfoMasterController;
@@ -169,6 +170,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/payroll/payslip/{id}', [PayrollController::class, 'generatePaySlip'])->name('payroll.payslip');
         Route::post('/payroll/store-batch', [PayrollController::class, 'storeBatch'])->name('payroll.store.batch');
         Route::get('/payroll/batch/{id}', [PayrollController::class, 'show'])->name('payroll.show');
+        Route::delete('payroll/delete/{user}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
+
     });
 
 
@@ -211,5 +214,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Route::get('/divisions', [DivisionController::class, 'index']);
 // Route::get('/departments', [DepartmentController::class, 'index']);
 // Route::get('/designations/search', [DesignationController::class, 'search']);
+
+    Route::prefix('reports')->group(function () {
+        Route::get('/attendance', [AttendanceReportController::class, 'index'])->name('attendance.report.index');
+        Route::post('/attendance/generate', [AttendanceReportController::class, 'generate'])->name('attendance.report.generate');
+    });
 });
 require __DIR__ . '/settings.php';

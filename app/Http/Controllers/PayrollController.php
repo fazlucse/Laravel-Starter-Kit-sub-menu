@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Traits\LogsActions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -18,25 +19,43 @@ class PayrollController extends Controller
     /**
      * Display a listing of payroll batches (History)
      */
+    /**
+     * Display a listing of payroll batches (History)
+     */
     public function index(Request $request)
     {
-        $perPage = $request->query('per_page', 10);
+        // 1. Handle dynamic per_page selection
+        $perPage = (int) $request->query('per_page', 10);
         $search = $request->input('search');
 
-        $history = PayrollBatch::query()
+        // 2. Query Payroll Batches with dynamic filters
+        $history = \App\Models\PayrollBatch::query()
             ->when($search, function ($query, $search) {
                 $query->where('com_name', 'like', "%{$search}%")
-                    ->orWhere('payroll_month', 'like', "%{$search}%");
+                    ->orWhere('payroll_month', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%");
             })
             ->orderByDesc('payroll_month')
+            ->orderByDesc('id') // Secondary sort to keep latest batches on top
             ->paginate($perPage)
             ->withQueryString();
 
+        // 3. Fetch Departments and Offices for the generation form
+        $departments = \App\Models\Employee::distinct()
+            ->pluck('department_name')
+            ->filter()
+            ->values();
+
+        $offices = \App\Models\Employee::distinct()
+            ->pluck('company_name')
+            ->filter()
+            ->values();
+
         return Inertia::render('payroll/payroll', [
             'payrollHistory' => $history,
-            'departments' => Employee::distinct()->pluck('department_name')->filter()->values(),
-            'offices' => Employee::distinct()->pluck('company_name')->filter()->values(),
-            'filters' => $request->only(['search']),
+            'departments'    => $departments,
+            'offices'        => $offices,
+            'filters'        => $request->only(['search', 'per_page']),
         ]);
     }
     /**
@@ -47,9 +66,11 @@ class PayrollController extends Controller
         // You can fetch departments/offices dynamically if needed
         $departments = Employee::distinct()->pluck('department_name')->filter()->values();
         $offices = Employee::distinct()->pluck('company_name')->filter()->values();
+        $divisions = Employee::distinct()->pluck('division_name')->filter()->values();
 
         return Inertia::render('payroll/generate', [
             'departments' => $departments,
+            'divisions' => $divisions,
             'offices' => $offices,
             'indianPostOptions' => $this->getIndianStatutoryOptions(),
             'taxBrackets' => $this->getTaxBrackets(),
@@ -188,8 +209,8 @@ class PayrollController extends Controller
         ]);
 
         $query = Employee::query();
-        if ($request->filled('department')) $query->where('department', $request->department);
-        if ($request->filled('office')) $query->where('office', $request->office);
+        if ($request->filled('department')) $query->where('department_name', $request->department);
+        if ($request->filled('office')) $query->where('company_name', $request->office);
 
         $employees = $query->get();
 
@@ -290,6 +311,9 @@ class PayrollController extends Controller
             return $item['net_salary'] > 0;
         })->values();
 
+        $departments = Employee::distinct()->pluck('department_name')->filter()->values();
+        $divisions = Employee::distinct()->pluck('division_name')->filter()->values();
+        $offices = Employee::distinct()->pluck('company_name')->filter()->values();
         return Inertia::render('payroll/generate', [
             'payrollData' => $payrollData,
             'form' => [
@@ -297,7 +321,10 @@ class PayrollController extends Controller
                 'office' => $request->office,
                 'payrollDate' => $request->payrollDate,
                 'payrollMonth' => $request->payrollMonth,
-            ]
+            ],
+            'departments' => $departments,
+            'divisions' => $divisions,
+            'offices' => $offices,
         ]);
     }
 
@@ -439,47 +466,85 @@ class PayrollController extends Controller
     }
 
     /**
-     * Delete a draft batch
+     * Delete a draft batch and all associated payroll records.
      */
     public function destroy($id)
     {
-        $batch = PayrollBatch::findOrFail($id);
+        // 1. Find the batch or fail
+        $batch = \App\Models\PayrollBatch::findOrFail($id);
 
-        if ($batch->is_locked) {
-            return redirect()->back()->withErrors(['error' => 'Cannot delete a locked/approved batch.']);
+        // 2. Safety Check: Only allow deletion of unlocked/draft batches
+        // In your DDL, is_locked=1 means it's finalized
+        if ($batch->is_locked || $batch->status === 'approved') {
+            return redirect()->back()->withErrors([
+                'error' => 'Security Violation: Cannot delete an approved or locked payroll batch.'
+            ]);
         }
 
-        // This will automatically delete items in payroll_tbl due to onDelete('cascade')
-        $batch->delete();
+        \DB::beginTransaction();
+        try {
+            LogsActions::logDelete($batch, $request->comments ?? 'Payroll record deleted');
 
-        return redirect()->back()->with('success', 'Payroll batch deleted.');
+            // 3. Delete individual employee records linked to this batch
+            \DB::table('payrolls')->where('batch_id', $id)->delete();
+
+            // 4. Delete the batch header
+            $batch->delete();
+
+            \DB::commit();
+            return redirect()->route('payroll.index')->with('success', 'Payroll batch and associated records deleted successfully.');
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return redirect()->back()->withErrors([
+                'error' => 'Deletion failed: ' . $e->getMessage()
+            ]);
+        }
     }
     public function generatePaySlip(Request $request, $id)
     {
-        $employee = Employee::findOrFail($id);
+        $payroll = \DB::table('payrolls')->where('id', $id)->first();
+        if (!$payroll) {
+            return back()->with('error', 'Payroll record not found.');
+        }
 
-        // Calculate Earnings
-        $basic = $employee->basic_salary ?? 0;
-        $med   = $employee->medical_allowance ?? 0;
-        $house = $employee->house_rent_allowance ?? 0;
-        $trans = $employee->transport_allowance ?? 0;
-        $other = $employee->other_allowances ?? 0;
+        // Earnings from Database Columns
+        $basic   = $payroll->basic_salary ?? 0;
+        $house   = $payroll->house_rent ?? 0;
+        $med     = $payroll->medical_allowance ?? 0;
+        $trans   = $payroll->transport_allowance ?? 0;
+        $other   = $payroll->other_benefits ?? 0;
+        $bonus   = $payroll->bonus ?? 0;
 
-        // This is the variable the template is missing
-        $gross = $basic + $med + $house + $trans + $other;
+        // Arrears (if you have it in pay_rolls table, add it here)
+        $arrear  = $payroll->arrear ?? 0;
 
-        // Calculate Deductions
-        $pf    = $employee->pf_deduction ?? 0;
-        $tax   = $employee->tax_deduction ?? 0;
-        $ded   = $employee->other_deductions ?? 0;
+        // Calculate Gross
+        $gross = $basic + $house + $med + $trans + $other + $bonus + $arrear;
 
-        $totalDeductions = $pf + $tax + $ded;
+        // Deductions (Summing up all your specific deduction columns)
+        $totalDeductions =
+            ($payroll->tax_deduction ?? 0) +
+            ($payroll->pf_deduction ?? 0) +
+            ($payroll->loan_deduction ?? 0) +
+            ($payroll->pf_loan_deduction ?? 0) +
+            ($payroll->mobile_deduction ?? 0) +
+            ($payroll->training_deduction ?? 0) +
+            ($payroll->lwp_deduction ?? 0) +
+            ($payroll->canteen_bill_deduction ?? 0) +
+            ($payroll->cafe_bill_deduction ?? 0) +
+            ($payroll->ips_deduction ?? 0) +
+            ($payroll->ipd_deduction ?? 0) +
+            ($payroll->lb_deduction ?? 0) +
+            ($payroll->others_deduction ?? 0);
+
+        // Net Salary
         $net = $gross - $totalDeductions;
 
         return view('payroll.payslip_print', [
-            'employee'   => $employee,
-            'month'      => \Carbon\Carbon::parse($request->query('month'))->format('F, Y'),
-            'gross'      => $gross, // <--- MUST MATCH THE BLADE VARIABLE $gross
+            'payroll'    => $payroll, // Passing the whole record for name, id, dept, etc.
+            'month'      => \Carbon\Carbon::parse($payroll->month)->format('F, Y'),
+            'gross'      => $gross,
             'deductions' => $totalDeductions,
             'net'        => $net,
             'date'       => now()->format('d/m/Y')
@@ -487,22 +552,42 @@ class PayrollController extends Controller
     }
     public function storeBatch(Request $request)
     {
-        $payrollMonthStr = $request->payrollMonth . '-01'; // Format: 2026-02-01
+        $payrollMonthStr = $request->payrollMonth . '-01';
         $payrollData = collect($request->payroll_data);
         $currentUser = \Auth::id();
 
-        // 1. Calculate Totals for the Batch Header
-        $totalStaff = $payrollData->count();
-        $totalGross = $payrollData->sum('gross_salary');
-        $totalNet   = $payrollData->sum('net_salary');
+        // 1. FILTER OUT DUPLICATES
+        // Get IDs of people who ALREADY have payroll for this month
+        $existingEmpIds = \DB::table('payrolls')
+            ->whereIn('emp_id', $payrollData->pluck('id'))
+            ->where('month', $payrollMonthStr)
+            ->pluck('emp_id')
+            ->toArray();
+
+        // Only keep employees who are NOT in the existing list
+        $newPayrollEntries = $payrollData->filter(function ($item) use ($existingEmpIds) {
+            return !in_array($item['id'], $existingEmpIds);
+        });
+
+        // 2. CHECK IF ANYONE IS LEFT TO PROCESS
+        if ($newPayrollEntries->isEmpty()) {
+            return redirect()->back()->withErrors([
+                'error' => "Process Stopped: All selected employees already have payroll generated for " . Carbon::parse($payrollMonthStr)->format('F Y') . "."
+            ]);
+        }
+
+        // 3. Calculate Totals ONLY for the new entries
+        $totalStaff = $newPayrollEntries->count();
+        $totalGross = $newPayrollEntries->sum('gross_salary');
+        $totalNet   = $newPayrollEntries->sum('net_salary');
 
         \DB::beginTransaction();
         try {
-            // 2. Insert into payroll_batches (The Header)
+            // 4. Insert Batch Header
             $batchId = \DB::table('payroll_batches')->insertGetId([
                 'payroll_month'          => $payrollMonthStr,
-                'com_id'                 => 1, // Change this to your actual Company ID logic
-                'com_name'               => 'Your Company Ltd.',
+                'com_id'                 => 1,
+                'com_name'               => $newPayrollEntries->first()['com_name'] ?? 'Company Name',
                 'status'                 => $request->postOption,
                 'is_locked'              => $request->postOption === 'approved' ? 1 : 0,
                 'total_staff'            => $totalStaff,
@@ -515,20 +600,12 @@ class PayrollController extends Controller
                 'updated_at'             => now(),
             ]);
 
-            // 3. Insert into payrolls (The Individual Entries)
-            foreach ($payrollData as $data) {
-                $data['empId'] = $data['id'];
-                $exists = \DB::table('payrolls')
-                    ->where('emp_id', $data['empId'])
-                    ->where('month', $payrollMonthStr)
-                    ->exists();
-
-                if ($exists) continue;
-
+            // 5. Insert only the NEW entries
+            foreach ($newPayrollEntries as $data) {
                 \DB::table('payrolls')->insert([
-                    'batch_id'                => $batchId, // Link to the header ID created above
+                    'batch_id'                => $batchId,
                     'month'                   => $payrollMonthStr,
-                    'emp_id'                  => $data['empId'],
+                    'emp_id'                  => $data['id'],
                     'emp_name'                => $data['name'],
                     'gross_salary_calculated' => $data['gross_salary'],
                     'basic_salary'            => $data['basic_salary'],
@@ -554,12 +631,17 @@ class PayrollController extends Controller
             }
 
             \DB::commit();
-            return redirect()->back()->with('success', 'Payroll Batch #' . $batchId . ' has been posted.');
+
+            $msg = "Success: Batch #$batchId created for $totalStaff employees.";
+            if (count($existingEmpIds) > 0) {
+                $msg .= " (" . count($existingEmpIds) . " duplicates were skipped).";
+            }
+
+            return redirect()->route('payroll.index')->with('success', $msg);
 
         } catch (\Exception $e) {
             \DB::rollBack();
-            // Return detailed error for debugging
-            return redirect()->back()->withErrors(['error' => 'Posting failed: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Database Error: ' . $e->getMessage()]);
         }
     }
 }

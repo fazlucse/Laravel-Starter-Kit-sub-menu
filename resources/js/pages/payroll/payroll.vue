@@ -29,7 +29,7 @@
                         <Link
                             v-if="!isCreating && canCreate"
                             href="/payroll/generate"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition active:scale-95"
+                            class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition active:scale-95"
                         >
                             <Plus class="w-4 h-4" />
                             <span class="hidden sm:inline">Generate Payroll</span>
@@ -54,11 +54,13 @@
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">S.L</th>
                             <th class="px-4 py-3 text-right text-xs font-black text-gray-500 uppercase tracking-widest">Actions</th>
+                            <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Batch ID</th>
                             <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Office / Dept</th>
                             <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Month</th>
                             <th class="px-4 py-3 text-center text-xs font-black text-gray-500 uppercase tracking-widest">Staff</th>
                             <th class="px-4 py-3 text-right text-xs font-black text-gray-500 uppercase tracking-widest">Gross Amount</th>
                             <th class="px-4 py-3 text-right text-xs font-black text-gray-500 uppercase tracking-widest">Net Payable</th>
+                            <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Created Info</th>
                             <th class="px-4 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-widest">Status</th>
                         </tr>
                         </thead>
@@ -77,10 +79,13 @@
                                     </Link>
                                     <DeleteDialog
                                         v-if="canDelete && item.status !== 'approved'"
-                                        :url="`/payroll/${item.id}`"
+                                        :url="`/payroll/delete/${item.id}`"
                                         record-name="Payroll Batch"
                                     />
                                 </div>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-black text-blue-600 font-mono">
+                                #{{ item.id.toString().padStart(5, '0') }}
                             </td>
                             <td class="px-4 py-3">
                                 <div class="text-sm font-bold text-gray-900 dark:text-white uppercase">{{ item.com_name }}</div>
@@ -97,6 +102,14 @@
                             </td>
                             <td class="px-4 py-3 text-right text-sm font-mono font-black text-blue-600 dark:text-blue-400">
                                 {{ formatCurr(item.total_net_disbursement) }}
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="text-xs font-bold text-gray-800 dark:text-gray-200 truncate max-w-[120px]">
+                                    {{ item.prepared_by_name || 'Admin' }}
+                                </div>
+                                <div class="text-[10px] text-gray-500 font-mono">
+                                    {{ formatDateTime(item.created_at) }}
+                                </div>
                             </td>
                             <td class="px-4 py-3">
                                 <span :class="getStatusClass(item.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase border">
@@ -218,6 +231,18 @@ const formatMonth = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', {
         month: 'long',
         year: 'numeric'
+    });
+}
+
+// Helper: Format Date Time
+const formatDateTime = (dateTimeStr: string) => {
+    if (!dateTimeStr) return '—';
+    return new Date(dateTimeStr).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
     });
 }
 

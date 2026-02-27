@@ -161,7 +161,7 @@ const viewPaySlip = (empId: any) => {
                                     {{ formatCurr(emp.bank_amount) }}
                                 </td>
                                 <td class="p-2 text-center">
-                                    <button @click="viewPaySlip(emp.emp_id)" class="p-1 text-blue-600 hover:scale-110 transition">
+                                    <button @click="viewPaySlip(emp.id)" class="p-1 text-blue-600 hover:scale-110 transition">
                                         <FileText class="w-4 h-4" />
                                     </button>
                                 </td>
