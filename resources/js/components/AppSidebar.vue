@@ -108,9 +108,9 @@ const rawNavItems: any[] = [
         icon: FileText,
         slug: 'reports',
         subItems: [
-            { title: 'Employee Reports', href: '/reports/add', icon: FileText, slug: 'reports' },
+            { title: 'Employee Reports', href: '/reports/employees', icon: FileText, slug: 'reports' },
             { title: 'Attendance Report', href: '/reports/attendance', icon: ClipboardList, slug: 'reports' },
-            { title: 'Movement Report', href: '/reports/list', icon: ClipboardList, slug: 'reports' },
+            { title: 'Movement Report', href: '/reports/movements', icon: ClipboardList, slug: 'reports' },
             { title: 'Leave Report', href: '/reports/list', icon: ClipboardList, slug: 'reports' },
         ],
     },

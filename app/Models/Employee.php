@@ -82,12 +82,18 @@ class Employee extends Model
     {
         return $this->belongsTo(Department::class, 'department_id');
     }
-
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
+    }
     public function designation()
     {
         return $this->belongsTo(InfoMaster::class, 'designation_id');
     }
-
+    public function office()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
     public function departmentHead()
     {
         return $this->belongsTo(Person::class, 'department_head_id');
