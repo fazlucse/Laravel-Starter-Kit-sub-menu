@@ -19,7 +19,7 @@ use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\EmployeeReportController;
 use App\Http\Controllers\MovementReportController;
 
-//use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\InfoMasterController;
 
 Route::get('/', function () {
@@ -192,6 +192,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [CompanyController::class, 'index'])->name('index');
         Route::get('/create', [CompanyController::class, 'create'])->name('create');
         Route::post('/store', [CompanyController::class, 'store'])->name('store');
+        Route::get('/show/{company}', [CompanyController::class, 'show'])->name('show');
         Route::get('/edit/{company}', [CompanyController::class, 'edit'])->name('edit');
         Route::put('/update/{company}', [CompanyController::class, 'update'])->name('update');
         Route::delete('/delete/{company}', [CompanyController::class, 'destroy'])->name('destroy');

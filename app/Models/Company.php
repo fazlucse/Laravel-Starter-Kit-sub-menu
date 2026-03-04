@@ -12,7 +12,7 @@ class Company extends Model
     protected $table = 'companies';
 
     protected $fillable = [
-        'company_name',
+        'name',
         'type',
         'company_code',
         'address',
@@ -21,6 +21,18 @@ class Company extends Model
         'country',
         'email',
         'phone',
+        'country',
+        'state',
+        'postal_code',
+        'address_line1',
+        'address_line2',
+        'website',
+        'logo',
+        'ownership_type',
+        'tax_identification_no',
+        'registration_no',
+        'status',
+        'logo_path'
     ];
 
     // One company has many employees

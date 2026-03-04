@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Event;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use App\Listeners\LogSuccessfulLogin;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -31,6 +33,10 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
+        Event::listen(
+            Login::class,
+            LogSuccessfulLogin::class
+        );
     }
 
     /**
