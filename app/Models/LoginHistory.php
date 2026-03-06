@@ -12,6 +12,7 @@ class LoginHistory extends Model
         'ip_address',
         'user_agent',
         'location',
+        'timezone',
         'login_at'
     ];
 

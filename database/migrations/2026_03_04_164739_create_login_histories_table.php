@@ -17,6 +17,7 @@ return new class extends Migration
             $table->ipAddress('ip_address');
             $table->text('user_agent')->nullable();
             $table->string('location')->default('Dhaka, Bangladesh'); // Manual or GeoIP location
+            $table->string('timezone')->nullable()->default(''); // Manual or GeoIP location
             $table->timestamp('login_at');
             $table->timestamps();
         });

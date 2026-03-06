@@ -197,7 +197,7 @@ class PayrollController extends Controller
     /**
      * Generate and display payroll report
      */
-    public function generate(Request $request)
+    public function generate2(Request $request)
     {
         $validated = $request->validate([
             'department'        => 'nullable|string',
@@ -327,7 +327,139 @@ class PayrollController extends Controller
             'offices' => $offices,
         ]);
     }
+    public function generate(Request $request)
+    {
+        // 1. VALIDATION
+        $validated = $request->validate([
+            'is_salary'      => 'required|boolean',
+            'is_bonus'       => 'required|boolean',
+            'is_individual'  => 'nullable|boolean',
+            'employee_search'=> 'nullable|string',
+            'department'     => 'nullable|string',
+            'division'       => 'nullable|string',
+            'office'         => 'nullable|string',
+            'payrollMonth'   => 'required|date_format:Y-m',
+            'bonus_type'     => 'nullable|string',
+            'bonus_date'     => 'nullable|date',
+            'postOption'     => 'required|in:draft,posted,approved',
+        ]);
 
+        // 2. QUERY EMPLOYEES
+        $query = Employee::query();
+        if ($request->boolean('is_individual') && $request->filled('employee_search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('empId', $request->employee_search)
+                    ->orWhere('person_name', 'like', '%' . $request->employee_search . '%');
+            });
+        } else {
+            if ($request->filled('department')) $query->where('department_name', $request->department);
+            if ($request->filled('division')) $query->where('division_name', $request->division);
+            if ($request->filled('office')) $query->where('company_name', $request->office);
+        }
+
+        $employees = $query->get();
+
+        // 3. CALCULATION SETTINGS
+        $isSalaryEnabled = $request->boolean('is_salary');
+        $isBonusEnabled  = $request->boolean('is_bonus');
+        $factoryDays     = 30; // Factory Standard
+        $payrollMonthStr = $request->payrollMonth;
+        $startOfMonth    = \Carbon\Carbon::parse($payrollMonthStr)->startOfMonth();
+        $endOfMonth      = \Carbon\Carbon::parse($payrollMonthStr)->endOfMonth();
+
+        $taxBrackets     = $this->getTaxBrackets();
+
+        // 4. PROCESS PAYROLL DATA
+        $payrollData = $employees->map(function ($employee) use ($request, $startOfMonth, $endOfMonth, $factoryDays, $isSalaryEnabled, $isBonusEnabled, $taxBrackets) {
+
+            // --- INITIALIZE VARIABLES ---
+            $basic = 0; $houseRent = 0; $medical = 0; $transport = 0; $otherAllow = 0;
+            $bonusAmount = 0;
+            $lwpDays = 0;
+            $workedDays = $factoryDays;
+
+            // --- SALARY LOGIC (Prorated for Joiners + LWP) ---
+            if ($isSalaryEnabled) {
+
+                // Calling your custom LWP check function
+                // Replace 'getEmployeeLwpDays' with your actual function name
+                $lwpDays = $this->getEmployeeLwpDays($employee->id, $startOfMonth, $endOfMonth);
+
+                // Handle New Joiner Proration
+                $effectiveDate = $employee->effective_date ? \Carbon\Carbon::parse($employee->effective_date) : null;
+                if ($effectiveDate && $effectiveDate->isSameMonth($startOfMonth)) {
+                    $workedDays = $factoryDays - $effectiveDate->day + 1;
+                } elseif ($effectiveDate && $effectiveDate->isAfter($endOfMonth)) {
+                    $workedDays = 0;
+                }
+
+                // Final Payable Days (Worked - Unpaid)
+                $payableDays = max(0, $workedDays - $lwpDays);
+                $prorationFactor = $payableDays / $factoryDays;
+
+                $basic      = ($employee->basic_salary ?? 0) * $prorationFactor;
+                $houseRent  = ($employee->house_rent_allowance ?? 0) * $prorationFactor;
+                $medical    = ($employee->medical_allowance ?? 0) * $prorationFactor;
+                $transport  = ($employee->transport_allowance ?? 0) * $prorationFactor;
+                $otherAllow = ($employee->other_allowances ?? 0) * $prorationFactor;
+            }
+
+            // --- BONUS LOGIC ---
+            if ($isBonusEnabled) {
+                if ($request->bonus_type === 'festival') {
+                    // Usually festival bonus is 100% of basic, unaffected by LWP
+                    $bonusAmount = $employee->basic_salary ?? 0;
+                } else {
+                    $bonusAmount = 0; // Editable in Vue for other types
+                }
+            }
+
+            // --- TOTALS ---
+            $grossSalary = $basic + $houseRent + $medical + $transport + $otherAllow + $bonusAmount;
+
+            $taxAmount = 0;
+            if ($isSalaryEnabled && $employee->is_tax_deduction == 1) {
+                $taxAmount = $this->calculateTax($grossSalary, $taxBrackets);
+            }
+
+            $netSalary = $grossSalary - $taxAmount;
+
+            return [
+                'id'                => $employee->id,
+                'empId'             => $employee->empId,
+                'name'              => $employee->person_name,
+                'designation'       => $employee->designation_name ?? 'N/A',
+
+                // Attendance Summary
+                'lwp_days'          => $lwpDays,
+                'payable_days'      => $isSalaryEnabled ? $payableDays : 0,
+
+                // Values
+                'basic_salary'      => round($basic, 2),
+                'bonus_amount'      => round($bonusAmount, 2),
+                'house_rent'        => round($houseRent, 2),
+                'medical'           => round($medical, 2),
+                'transport'         => round($transport, 2),
+                'other_allowance'   => round($otherAllow, 2),
+
+                // Totals
+                'gross_salary'      => round($grossSalary, 2),
+                'tax_deduction'     => round($taxAmount, 2),
+                'net_salary'        => round($netSalary, 2),
+
+                // Meta Flags
+                'is_salary_record'  => $isSalaryEnabled,
+                'is_bonus_record'   => $isBonusEnabled,
+            ];
+        })->filter(fn($item) => $item['gross_salary'] > 0)->values();
+
+        return Inertia::render('payroll/generate', [
+            'payrollData' => $payrollData,
+            'departments' => Employee::distinct()->pluck('department_name')->filter()->values(),
+            'divisions'   => Employee::distinct()->pluck('division_name')->filter()->values(),
+            'offices'     => Employee::distinct()->pluck('company_name')->filter()->values(),
+        ]);
+    }
     /**
      * Download payroll as CSV
      */
@@ -485,6 +617,9 @@ class PayrollController extends Controller
         try {
             LogsActions::logDelete($batch, $request->comments ?? 'Payroll record deleted');
 
+            \DB::table('bonuses')
+                ->where('payroll_id', $id)
+                ->delete();
             // 3. Delete individual employee records linked to this batch
             \DB::table('payrolls')->where('batch_id', $id)->delete();
 
@@ -550,7 +685,7 @@ class PayrollController extends Controller
             'date'       => now()->format('d/m/Y')
         ]);
     }
-    public function storeBatch(Request $request)
+    public function storeBatchbk(Request $request)
     {
         $payrollMonthStr = $request->payrollMonth . '-01';
         $payrollData = collect($request->payroll_data);
@@ -643,5 +778,126 @@ class PayrollController extends Controller
             \DB::rollBack();
             return redirect()->back()->withErrors(['error' => 'Database Error: ' . $e->getMessage()]);
         }
+    }
+    public function storeBatch(Request $request)
+    {
+        $payrollMonthStr = $request->payrollMonth . '-01';
+        $payrollData = collect($request->payroll_data);
+        $currentUser = \Auth::id();
+
+        $existingEmpIds = \DB::table('payrolls')
+            ->whereIn('emp_id', $payrollData->pluck('id'))
+            ->where('month', $payrollMonthStr)
+            ->pluck('emp_id')
+            ->toArray();
+
+        $newPayrollEntries = $payrollData->filter(function ($item) use ($existingEmpIds) {
+            return !in_array($item['id'], $existingEmpIds);
+        });
+
+        // Stop if everyone in the list has already been processed
+        if ($newPayrollEntries->isEmpty()) {
+            return redirect()->back()->withErrors([
+                'error' => "Process Stopped: All selected employees already have payroll generated for " . \Carbon\Carbon::parse($payrollMonthStr)->format('F Y') . "."
+            ]);
+        }
+
+        // 3. PRE-CALCULATE BATCH TOTALS
+        $totalStaff = $newPayrollEntries->count();
+        $totalGross = $newPayrollEntries->sum('gross_salary');
+        $totalNet   = $newPayrollEntries->sum('net_salary');
+
+        \DB::beginTransaction();
+        try {
+            $batchId = \DB::table('payroll_batches')->insertGetId([
+                'payroll_month'          => $payrollMonthStr,
+                'com_id'                 => 1, // Change this to $request->com_id if dynamic
+                'com_name'               => $newPayrollEntries->first()['com_name'] ?? 'Your Company Name',
+                'status'                 => $request->postOption,
+                'is_locked'              => $request->postOption === 'approved' ? 1 : 0,
+                'total_staff'            => $totalStaff,
+                'total_gross_amount'     => $totalGross,
+                'total_payable_amount'   => $totalNet,
+                'total_net_disbursement' => $totalNet,
+                'prepared_by'            => $currentUser,
+                'prepared_date'          => now(),
+                'created_at'             => now(),
+                'updated_at'             => now(),
+            ]);
+
+            foreach ($newPayrollEntries as $data) {
+
+                $payrollId = \DB::table('payrolls')->insertGetId([
+                    'batch_id'                => $batchId,
+                    'month'                   => $payrollMonthStr,
+                    'emp_id'                  => $data['id'],
+                    'emp_name'                => $data['name'],
+                    'gross_salary_calculated' => $data['gross_salary'],
+                    'basic_salary'            => $data['basic_salary'],
+                    'house_rent'              => $data['house_rent'] ?? 0,
+                    'medical_allowance'       => $data['medical'] ?? 0,
+                    'transport_allowance'     => $data['transport'] ?? 0,
+                    'other_benefits'          => $data['other_allowance'] ?? 0,
+                    'bonus'                   => $data['bonus_amount'] ?? 0, // Total bonus stored for payslip
+                    'tax_deduction'           => $data['tax_deduction'] ?? 0,
+                    'pf_deduction'            => $data['pf_deduction'] ?? 0,
+                    'others_deduction'        => $data['other_deduction'] ?? 0,
+                    'bank_amount'             => $data['net_salary'],
+                    'cash_amount'             => 0,
+                    'department_name'         => $data['department'] ?? 'N/A',
+                    'designation_name'        => $data['designation'] ?? 'N/A',
+                    'division_name'           => $data['division'] ?? 'N/A',
+                    'entryby'                 => $currentUser,
+                    'entrytime'               => now(),
+                    'locked'                  => $request->postOption === 'approved' ? 1 : 0,
+                    'created_at'              => now(),
+                    'updated_at'              => now(),
+                ]);
+                if (isset($data['bonus_amount']) && $data['bonus_amount'] > 0) {
+                    \DB::table('bonuses')->updateOrInsert(
+                        [
+                            'employee_id'   => $data['id'],
+                            'payroll_month' => $request->payrollMonth, // Format: Y-m
+                            'bonus_type'    => $data['bonus_type'] ?? 'Festival Bonus',
+                        ],
+                        [
+                            'payroll_id'    => $batchId, // THE LINKING KEY
+                            'remarks'       => $data['remarks'] ?? null,
+                            'amount'        => $data['bonus_amount'],
+                            'bonus_date'    => $data['bonus_date'] ?? $request->bonus_date, // Individual or global date
+                            'is_paid'       => $request->postOption === 'approved' ? 1 : 0,
+                            'processed_at'  => now(),
+                            'created_at'    => now(),
+                            'updated_at'    => now(),
+                        ]
+                    );
+                }
+            }
+
+            \DB::commit();
+
+            $msg = "Success: Batch #$batchId created for $totalStaff employees.";
+            if (count($existingEmpIds) > 0) {
+                $msg .= " (" . count($existingEmpIds) . " duplicates were automatically skipped).";
+            }
+
+            return redirect()->route('payroll.index')->with('success', $msg);
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error("Payroll Batch Store Failed: " . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Critical Database Error: ' . $e->getMessage()]);
+        }
+    }
+    /**
+     * Calculate total Leave Without Pay (LWP) days for a specific employee in a date range.
+     */
+    private function getEmployeeLwpDays($employeeId, $startDate, $endDate)
+    {
+//        return \App\Models\Attendance::where('employee_id', $employeeId)
+//            ->whereBetween('add_time', [$startDate, $endDate])
+//            ->whereIn('status', ['LWP', 'Unpaid Leave']) // Add any other unpaid status codes here
+//            ->count();
+        return 0;
     }
 }
