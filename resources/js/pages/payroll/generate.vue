@@ -252,6 +252,7 @@ const viewPaySlip = (emp: any) => {
             :payroll-month="form.payrollMonth"
             :office="form.office"
             :post-option="form.postOption"
+            :is_bonus="form.is_bonus"
             @close="showPreviewModal = false"
             @confirm="confirmAndPostAll"
             @post-individual="handleIndividualPost"

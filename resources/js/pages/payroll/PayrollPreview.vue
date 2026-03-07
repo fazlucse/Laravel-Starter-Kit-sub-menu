@@ -4,7 +4,7 @@ import Swal from 'sweetalert2'
 
 import {
     X, Printer, CheckCircle,
-    FileText, Loader2, Search, Building2, Send, MessageSquare, Banknote
+    FileText, Loader2, Search, Building2, Send, MessageSquare
 } from 'lucide-vue-next'
 
 const props = defineProps<{
@@ -15,6 +15,7 @@ const props = defineProps<{
     payrollMonth: string
     office: string
     postOption: string
+    is_bonus: boolean // Controls visibility of the column
 }>()
 
 const emit = defineEmits(['close', 'confirm', 'viewPaySlip', 'postIndividual'])
@@ -49,11 +50,9 @@ const updateCalculations = (emp: any) => {
     const pf = Number(emp.pf_deduction) || 0;
     const otherDed = Number(emp.other_deduction) || 0;
 
-    // Reactively update the Gross and Net for this specific row
     emp.gross_salary = basic + house + med + trans + other + arrear + bonus;
     emp.net_salary = emp.gross_salary - (tax + pf + otherDed);
 
-    // Auto-mark as edited if not already
     if(!emp.remarks && bonus !== 0) {
         emp.remarks = "Manual Adjustment";
     }
@@ -105,17 +104,13 @@ const handleIndividualPost = (emp: any) => {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            // Trigger loading spinner for this row
             processingId.value = emp.id;
             emit('postIndividual', emp, () => {
-                processingId.value = null; // Reset when done
+                processingId.value = null;
             });
         }
     });
 }
-// --- IN YOUR Generate.vue (Parent) ---
-
-// --- Inside PayrollPreview.vue <script setup> ---
 
 const handleConfirm = () => {
     const modalElement = document.querySelector('.fixed.inset-0') as HTMLElement;
@@ -187,6 +182,7 @@ const handleConfirm = () => {
                 </div>
             </div>
         </div>
+
         <div v-if="Object.keys(formErrors).length > 0" class="m-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg shrink-0">
             <div class="flex items-center gap-2 mb-2">
                 <X class="w-5 h-5" />
@@ -196,6 +192,7 @@ const handleConfirm = () => {
                 <li v-for="(err, key) in formErrors" :key="key">{{ err }}</li>
             </ul>
         </div>
+
         <div class="flex-1 overflow-auto bg-gray-50 dark:bg-gray-950">
             <table class="w-full border-separate border-spacing-0 text-left text-[11px] lg:text-[12px]">
                 <thead class="sticky top-0 bg-gray-100 dark:bg-gray-900 z-20 border-b-2 border-gray-300 dark:border-gray-700">
@@ -209,7 +206,7 @@ const handleConfirm = () => {
                     <th class="p-4 font-black uppercase text-right text-emerald-600">Arrear</th>
                     <th class="p-4 font-black uppercase text-right text-gray-500">Oth. Ben</th>
 
-                    <th class="p-4 font-black uppercase text-right bg-blue-50 dark:bg-blue-900/20 text-blue-600 min-w-[150px]">
+                    <th v-if="is_bonus" class="p-4 font-black uppercase text-right bg-blue-50 dark:bg-blue-900/20 text-blue-600 min-w-[150px]">
                         Bonus & Remarks
                     </th>
 
@@ -217,7 +214,7 @@ const handleConfirm = () => {
                     <th class="p-4 font-black uppercase text-right text-red-600">Tax</th>
                     <th class="p-4 font-black uppercase text-right text-red-600">PF</th>
                     <th class="p-4 font-black uppercase text-right text-red-600">Oth. Ded</th>
-                    <th class="p-4 font-black uppercase text-right bg-blue-600 text-white w-32">Net Pay</th>
+                    <th class="p-4 font-black uppercase text-right bg-blue-600 text-white w-32 shadow-lg">Net Pay</th>
                     <th class="p-4 font-black uppercase text-center w-28 text-gray-500">Actions</th>
                 </tr>
                 </thead>
@@ -235,7 +232,7 @@ const handleConfirm = () => {
                     <td class="p-4 text-right font-mono border-r dark:border-gray-700 text-emerald-600 font-bold">{{ formatCurr(emp.arrear) }}</td>
                     <td class="p-4 text-right font-mono border-r dark:border-gray-700">{{ formatCurr(emp.other_allowance) }}</td>
 
-                    <td class="p-3 border-r dark:border-gray-700 bg-blue-50/30 dark:bg-blue-900/10 min-w-[150px]">
+                    <td v-if="is_bonus" class="p-3 border-r dark:border-gray-700 bg-blue-50/30 dark:bg-blue-900/10 min-w-[150px]">
                         <div class="flex flex-col gap-2">
                             <div class="flex items-center justify-end relative">
                                 <span class="absolute left-0 text-[10px] font-bold text-blue-400">৳</span>
@@ -267,7 +264,7 @@ const handleConfirm = () => {
 
                     <td class="p-4 text-center">
                         <div class="flex justify-center gap-1">
-                            <button v-if="postOption !== 'draft'" @click="handleIndividualPost(emp)" :disabled="processingId === emp.id" class="p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg text-blue-600 cursor-pointer">
+                            <button v-if="postOption !== 'draft'" @click="handleIndividualPost(emp)" :disabled="processingId === emp.id" class="p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg text-blue-600 cursor-pointer transition">
                                 <Loader2 v-if="processingId === emp.id" class="w-4 h-4 animate-spin" />
                                 <Send v-else class="w-4 h-4" />
                             </button>
@@ -282,8 +279,13 @@ const handleConfirm = () => {
                 <tr>
                     <td colspan="2" class="p-4 text-right uppercase text-gray-400 tracking-widest">Grand Total</td>
                     <td class="p-4 text-right font-mono text-yellow-400">{{ formatCurr(totalBasic) }}</td>
-                    <td colspan="5" class="border-r border-gray-800"></td>
-                    <td class="p-4 text-right font-mono text-blue-400 border-r border-gray-800 bg-blue-900/20">{{ formatCurr(totalBonus) }}</td>
+
+                    <td :colspan="is_bonus ? 5 : 5" class="border-r border-gray-800"></td>
+
+                    <td v-if="is_bonus" class="p-4 text-right font-mono text-blue-400 border-r border-gray-800 bg-blue-900/20">
+                        {{ formatCurr(totalBonus) }}
+                    </td>
+
                     <td class="p-4 text-right font-mono text-green-400 border-r border-gray-800 bg-green-900/20">{{ formatCurr(totalGross) }}</td>
                     <td colspan="3" class="border-r border-gray-800"></td>
                     <td class="p-4 text-right font-mono text-yellow-400 text-sm bg-blue-800/30">{{ formatCurr(totalNet) }}</td>

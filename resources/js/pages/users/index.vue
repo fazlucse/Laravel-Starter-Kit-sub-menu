@@ -13,6 +13,7 @@
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">User Management</h1>
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <HelpModal :doc="HELP_DOCS.users.full_docs" />
                         <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
 
                         <Link
@@ -110,6 +111,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue'
 import Pagination from '@/components/custom/Pagination.vue'
 import PerPageSelect from '@/components/custom/PerPageSelect.vue'
@@ -118,13 +120,23 @@ import { Link } from '@inertiajs/vue3'
 // Change SmartphoneOff to PhoneOff
 import { Plus, Edit, Smartphone, PhoneOff } from 'lucide-vue-next'
 import { usePagination } from '@/composables/usePagination'
+import HelpModal from '@/components/custom/HelpModal.vue'
+import { HELP_DOCS } from '@/constants/helpDocs'
 
 const props = defineProps<{
     users: any
 }>()
 
 const { perPage, update: updatePerPage } = usePagination()
-
+const allUserDocs = computed(() => {
+    return {
+        title: "Full User Management Guide",
+        sections: [
+            ...HELP_DOCS.users.list_docs.sections,
+            ...HELP_DOCS.users.form_docs.sections
+        ]
+    };
+});
 const handleDelete = () => {
     window.location.reload()
 }

@@ -369,6 +369,9 @@ class PayrollController extends Controller
 
         $taxBrackets     = $this->getTaxBrackets();
 
+//        $standardWorkHoursPerDay = 8; // 9am-6pm minus 1hr lunch
+//        $totalExpectedHoursMonth = $factoryDays * $standardWorkHoursPerDay; // 240 hours
+//
         // 4. PROCESS PAYROLL DATA
         $payrollData = $employees->map(function ($employee) use ($request, $startOfMonth, $endOfMonth, $factoryDays, $isSalaryEnabled, $isBonusEnabled, $taxBrackets) {
 
@@ -381,12 +384,19 @@ class PayrollController extends Controller
             // --- SALARY LOGIC (Prorated for Joiners + LWP) ---
             if ($isSalaryEnabled) {
 
+//                $hoursData = $this->calculateWorkedHours($employee->id, $startOfMonth, $endOfMonth);
+//                $prorationFactor = $hoursData['normal'] / $totalExpectedHoursMonth;
                 // Calling your custom LWP check function
                 // Replace 'getEmployeeLwpDays' with your actual function name
                 $lwpDays = $this->getEmployeeLwpDays($employee->id, $startOfMonth, $endOfMonth);
 
                 // Handle New Joiner Proration
                 $effectiveDate = $employee->effective_date ? \Carbon\Carbon::parse($employee->effective_date) : null;
+                $rawDate = $employee->effective_date ?? "";
+                if (!$rawDate || $rawDate === '0000-00-00' || trim($rawDate) === '') {
+                    $employee['gross_salary']=0;
+                    return  $employee; // This person is completely skipped from payroll
+                }
                 if ($effectiveDate && $effectiveDate->isSameMonth($startOfMonth)) {
                     $workedDays = $factoryDays - $effectiveDate->day + 1;
                 } elseif ($effectiveDate && $effectiveDate->isAfter($endOfMonth)) {
@@ -413,10 +423,8 @@ class PayrollController extends Controller
                     $bonusAmount = 0; // Editable in Vue for other types
                 }
             }
-
             // --- TOTALS ---
             $grossSalary = $basic + $houseRent + $medical + $transport + $otherAllow + $bonusAmount;
-
             $taxAmount = 0;
             if ($isSalaryEnabled && $employee->is_tax_deduction == 1) {
                 $taxAmount = $this->calculateTax($grossSalary, $taxBrackets);
@@ -894,10 +902,63 @@ class PayrollController extends Controller
      */
     private function getEmployeeLwpDays($employeeId, $startDate, $endDate)
     {
-//        return \App\Models\Attendance::where('employee_id', $employeeId)
-//            ->whereBetween('add_time', [$startDate, $endDate])
-//            ->whereIn('status', ['LWP', 'Unpaid Leave']) // Add any other unpaid status codes here
-//            ->count();
-        return 0;
+        return \DB::table('leave_request_details')
+            ->where('employee_id', $employeeId)
+            ->where('leave_reason', 'LWP (Leave Without Pay)') // Matches the value: 'lwp'
+            ->where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('from_date', [$startDate, $endDate])
+                    ->orWhereBetween('to_date', [$startDate, $endDate]);
+            })
+            ->sum('total_days');
+    }
+
+    private function calculateWorkedHours($employeeId, $startDate, $endDate)
+    {
+        // Fetch attendance for the month
+        // Assuming you have an Attendance model with 'clock_in' and 'clock_out' (datetime)
+        $attendances = \App\Models\Attendance::where('employee_id', $employeeId)
+            ->whereBetween('clock_in', [$startDate, $endDate])
+            ->get();
+
+        $totalNormalHours = 0;
+        $totalOvertimeHours = 0;
+
+        foreach ($attendances as $record) {
+            if (!$record->clock_in || !$record->clock_out) continue;
+
+            $in = \Carbon\Carbon::parse($record->clock_in);
+            $out = \Carbon\Carbon::parse($record->clock_out);
+
+            // Define Shift
+            $shiftStart = $in->copy()->setTime(9, 0, 0);
+            $shiftEnd   = $in->copy()->setTime(18, 0, 0); // 6 PM
+
+            // 1. Calculate Total Presence
+            $totalPresenceMinutes = $in->diffInMinutes($out);
+
+            // 2. Deduct 1 hour lunch break (60 mins) if they worked more than 5 hours
+            if ($totalPresenceMinutes > 300) {
+                $totalPresenceMinutes -= 60;
+            }
+
+            // 3. Calculate Normal Hours (capped at 18:00)
+            // If they stay later than 18:00, normal time stops at 18:00
+            $effectiveNormalOut = $out->isAfter($shiftEnd) ? $shiftEnd : $out;
+            $normalMinutes = max(0, $in->diffInMinutes($effectiveNormalOut));
+
+            // Subtract lunch from normal minutes if applicable
+            $actualNormalMins = ($totalPresenceMinutes < $normalMinutes) ? $totalPresenceMinutes : $normalMinutes;
+            $totalNormalHours += ($actualNormalMins / 60);
+
+            // 4. Calculate Overtime (Time after 18:00)
+            if ($out->isAfter($shiftEnd)) {
+                $totalOvertimeHours += ($shiftEnd->diffInMinutes($out) / 60);
+            }
+        }
+
+        return [
+            'normal' => $totalNormalHours,
+            'ot'     => $totalOvertimeHours
+        ];
     }
 }

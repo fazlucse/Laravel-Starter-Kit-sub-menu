@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\LeaveConstants;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Models\LeaveRequestDetail;
@@ -53,8 +54,12 @@ class LeaveRequestController extends Controller
      */
     public function create()
     {
+        $user = auth()->user()->load('employee');
+
         return Inertia::render('leave-request/create', [
-            'mode' => 'create'
+            'mode' => 'create',
+            'leaveReasons' => LeaveConstants::REASONS,
+            'userGender' => $user->employee?->gender ?? 'other',
             // pass any data you need for the page
             // Example:
             // 'offices' => Office::all(),

@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -48,5 +50,15 @@ class User extends Authenticatable
             return true;
         }
         return $this->employee_id && (int)$this->employee_id === (int)$leaveRequest->inline_supervisor_id;
+    }
+    public function employee(): BelongsTo // This now points to the correct class
+    {
+        // 'employee_id' is the foreign key in your users table
+        return $this->belongsTo(Employee::class, 'employee_id');
+    }
+    public function getGenderAttribute(): string
+    {
+        // If employee relationship exists, return gender, else 'other'
+        return $this->employee?->gender ?? 'other';
     }
 }
