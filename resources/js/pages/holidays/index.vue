@@ -14,6 +14,14 @@
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Holidays</h1>
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <HelpModal
+                            :doc="{
+                            title: HELP_DOCS.holidays.title,
+                            description: HELP_DOCS.holidays.description,
+                            tips:HELP_DOCS.holidays.tips,
+                            groups: HELP_DOCS.holidays.full_docs.groups
+                          }"
+                        />
                         <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
 
                         <Link
@@ -89,7 +97,8 @@ import { Link, usePage } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { usePagination } from '@/composables/usePagination'
-
+import HelpModal from '@/components/custom/HelpModal.vue'
+import {HELP_DOCS} from '@/constants/helpDocs'
 // Props from Inertia
 const holidays = defineModel('holidays', { required: true }) as any
 const { perPage, update: updatePerPage } = usePagination()

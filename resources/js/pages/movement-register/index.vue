@@ -13,6 +13,14 @@
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Movement Register</h1>
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <HelpModal
+                            :doc="{
+                            title: HELP_DOCS.movement.title,
+                            description: HELP_DOCS.movement.description,
+                            tips:HELP_DOCS.movement.tips,
+                            groups: HELP_DOCS.movement.full_docs.groups
+                          }"
+                        />
                         <button
                             v-if="hasPendingSelected && canApprove"
                             @click="bulkStatusUpdate(2)"
@@ -170,7 +178,8 @@ import { Plus, Printer, Edit,Eye, CheckCircle, Lock, XCircle } from 'lucide-vue-
 import { computed, ref } from 'vue'
 import { usePagination } from '@/composables/usePagination'
 import Swal from 'sweetalert2'
-
+import HelpModal from '@/components/custom/HelpModal.vue'
+import {HELP_DOCS} from '@/constants/helpDocs'
 const movements = defineModel('movements', { required: true }) as any
 const { perPage, update: updatePerPage } = usePagination()
 

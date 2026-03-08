@@ -17,11 +17,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 
                         <div class="md:col-span-2 pb-4 border-b dark:border-gray-800">
-                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 ml-1">Employee Link</label>
+                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 ml-1">Employee</label>
                             <div class="relative">
                                 <select v-model="form.employee_id" @change="handleEmployeeChange"
                                         class="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm text-gray-900 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all">
-                                    <option value="">Independent User (No Link)</option>
+                                    <option value="">Independent User</option>
                                     <option v-for="emp in employees" :key="emp.id" :value="emp.id">{{ emp.name }}</option>
                                 </select>
                                 <ChevronDown class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />

@@ -6,6 +6,14 @@
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Companies</h1>
                     <div class="flex items-center gap-3">
+                        <HelpModal
+                            :doc="{
+                            title: HELP_DOCS.companies.title,
+                            description: HELP_DOCS.companies.description,
+                            tips:HELP_DOCS.companies.tips,
+                            groups: HELP_DOCS.companies.full_docs.groups
+                          }"
+                        />
                         <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
                         <Link href="/companies/create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
                             <Plus class="w-4 h-4" />
@@ -98,7 +106,8 @@ import DeleteDialog from '@/components/custom/DeleteDialog.vue'
 import { Link } from '@inertiajs/vue3'
 import { Plus, Edit2, Eye, Building2 } from 'lucide-vue-next'
 import { usePagination } from '@/composables/usePagination'
-
+import HelpModal from '@/components/custom/HelpModal.vue'
+import {HELP_DOCS} from '@/constants/helpDocs'
 // Props from Inertia
 defineProps<{ companies: any }>()
 

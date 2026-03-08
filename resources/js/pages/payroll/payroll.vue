@@ -12,6 +12,14 @@
                     </h1>
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <HelpModal
+                            :doc="{
+                            title: HELP_DOCS.payroll.title,
+                            description: HELP_DOCS.payroll.description,
+                            tips:HELP_DOCS.payroll.tips,
+                            groups: HELP_DOCS.payroll.full_docs.groups
+                          }"
+                        />
                         <div class="relative flex-1 sm:w-64" v-if="!isCreating">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                                 <Search class="w-4 h-4" />
@@ -197,7 +205,8 @@ import { Link, router, usePage, useForm } from '@inertiajs/vue3'
 import { Plus, Search, Eye, CheckCircle, ArrowLeft, Save, Calculator } from 'lucide-vue-next'
 import { usePagination } from '@/composables/usePagination'
 import { computed, ref, watch } from 'vue'
-
+import HelpModal from '@/components/custom/HelpModal.vue'
+import {HELP_DOCS} from '@/constants/helpDocs'
 // Props using defineModel for reactive sync
 const payrollHistory = defineModel('payrollHistory', { required: true }) as any
 const departments = defineModel('departments') as any

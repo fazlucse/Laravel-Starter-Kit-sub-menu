@@ -8,6 +8,8 @@ import { Link, usePage } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { usePagination } from '@/composables/usePagination'
+import HelpModal from '@/components/custom/HelpModal.vue'
+import {HELP_DOCS} from '@/constants/helpDocs'
 
 const attendance = defineModel('attendance', { required: true }) as any
 const { perPage, update: updatePerPage } = usePagination()
@@ -73,6 +75,14 @@ function formatDiff(diff: number) {
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Attendance</h1>
 
           <div class="flex items-center gap-3 w-full sm:w-auto">
+              <HelpModal
+                  :doc="{
+                            title: HELP_DOCS.attendance.title,
+                            description: HELP_DOCS.attendance.description,
+                            tips:HELP_DOCS.attendance.tips,
+                            groups: HELP_DOCS.attendance.full_docs.groups
+                          }"
+              />
             <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
 
             <Link

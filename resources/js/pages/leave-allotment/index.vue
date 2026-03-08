@@ -14,6 +14,14 @@
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Leave Allotment</h1>
 
           <div class="flex items-center gap-3 w-full sm:w-auto">
+              <HelpModal
+                  :doc="{
+                            title: HELP_DOCS.leave_allotment.title,
+                            description: HELP_DOCS.leave_allotment.description,
+                            tips:HELP_DOCS.leave_allotment.tips,
+                            groups: HELP_DOCS.leave_allotment.full_docs.groups
+                          }"
+              />
             <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
 
             <Link
@@ -102,6 +110,8 @@ import { Link, usePage } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { usePagination } from '@/composables/usePagination'
+import HelpModal from '@/components/custom/HelpModal.vue'
+import {HELP_DOCS} from '@/constants/helpDocs'
 
 const leaveAllotment = defineModel('leaveAllotment', { required: true }) as any
 const { perPage, update: updatePerPage } = usePagination()

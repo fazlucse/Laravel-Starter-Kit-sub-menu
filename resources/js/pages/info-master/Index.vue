@@ -17,6 +17,14 @@
                     </div>
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <HelpModal
+                            :doc="{
+                            title: HELP_DOCS.master_data.title,
+                            description: HELP_DOCS.master_data.description,
+                            tips:HELP_DOCS.master_data.tips,
+                            groups: HELP_DOCS.master_data.full_docs.groups
+                          }"
+                        />
                         <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
 
                         <Link
@@ -125,7 +133,8 @@ import DeleteDialog from '@/components/custom/DeleteDialog.vue';
 import { Link } from '@inertiajs/vue3';
 import { Plus, Edit, Globe, MapPin, Truck, Tag, Hash } from 'lucide-vue-next';
 import { usePagination } from '@/composables/usePagination';
-
+import HelpModal from '@/components/custom/HelpModal.vue'
+import {HELP_DOCS} from '@/constants/helpDocs'
 const props = defineProps({
     entries: Object,
     currentType: String,

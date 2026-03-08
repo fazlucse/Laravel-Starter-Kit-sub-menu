@@ -14,6 +14,14 @@
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Leave Request</h1>
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <HelpModal
+                            :doc="{
+                            title: HELP_DOCS.leave.title,
+                            description: HELP_DOCS.leave.description,
+                            tips:HELP_DOCS.leave.tips,
+                            groups: HELP_DOCS.leave.full_docs.groups
+                          }"
+                        />
                         <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage"/>
 
                         <Link
@@ -173,6 +181,8 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import Pagination from '@/components/custom/Pagination.vue'
 import PerPageSelect from '@/components/custom/PerPageSelect.vue'
 import DeleteDialog from '@/components/custom/DeleteDialog.vue'
+import HelpModal from '@/components/custom/HelpModal.vue'
+import {HELP_DOCS} from '@/constants/helpDocs'
 
 import {Link, usePage} from '@inertiajs/vue3'
 import {Plus, Eye, Pencil, CheckCircle} from 'lucide-vue-next'

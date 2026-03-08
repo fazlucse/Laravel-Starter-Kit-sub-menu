@@ -9,6 +9,14 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Employees</h1>
           <div class="flex items-center gap-3 w-full sm:w-auto">
+              <HelpModal
+                  :doc="{
+                            title: HELP_DOCS.employees.title,
+                            description: HELP_DOCS.employees.description,
+                            tips:HELP_DOCS.employees.tips,
+                            groups: HELP_DOCS.employees.full_docs.groups
+                          }"
+              />
             <EmployeeSearch v-model="search" action="/employees.index" :preserve="{ per_page: perPage }" />
             <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
             <Link v-if="canCreate" href="/employees/create"
@@ -89,6 +97,8 @@ import { Plus, Edit,Eye } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { usePagination } from '@/composables/usePagination'
 import EmployeeSearch from './employeeSearch.vue'
+import HelpModal from '@/components/custom/HelpModal.vue'
+import { HELP_DOCS } from '@/constants/helpDocs'
 
 const employees = defineModel('employees', { required: true }) as any
 const perPageProp = defineModel('perPage', { required: true }) as any

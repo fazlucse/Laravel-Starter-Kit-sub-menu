@@ -15,6 +15,14 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
+                        <HelpModal
+                            :doc="{
+                            title: HELP_DOCS.security.title,
+                            description: HELP_DOCS.security.description,
+                            tips:HELP_DOCS.security.tips,
+                            groups: HELP_DOCS.security.full_docs.groups
+                          }"
+                        />
                         <button @click="savePermissions" :disabled="form.processing"
                                 class="px-8 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50">
                             <Save class="w-4 h-4" />
@@ -100,7 +108,8 @@ import { ref, watch } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import { Check, Plus, ChevronDown, Save, ShieldCheck, Layers } from 'lucide-vue-next';
-
+import HelpModal from '@/components/custom/HelpModal.vue'
+import {HELP_DOCS} from '@/constants/helpDocs'
 const props = defineProps({
     roles: Array,
     modules: Array,
