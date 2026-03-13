@@ -31,7 +31,7 @@ class InfoMasterSeeder extends Seeder
             $countryIds[$country['name']] = InfoMaster::create([
                 'type' => 'country',
                 'name' => $country['name'],
-                'code' => $country['code'],
+                'code' => $country['code']??"",
                 'description' => $country['description'],
                 'created_by' => 1,
                 'created_at' => $now,
@@ -102,7 +102,7 @@ class InfoMasterSeeder extends Seeder
             InfoMaster::create([
                 'type' => 'city',
                 'name' => $city['name'],
-                'code' => $city['code'],
+                'code' => $city['code']??"",
                 'description' => $city['description'],
                 'parent_id' => $countryIds[$city['country']] ?? null,
                 'created_by' => 1,
@@ -113,10 +113,10 @@ class InfoMasterSeeder extends Seeder
 
         foreach ($designations as $city) {
             InfoMaster::create([
-                'type' => 'desgination',
+                'type' => 'designation',
                 'name' => $city['name'],
-                'code' => $city['code'],
-                'description' => $city['description'],
+                'code' => $city['code']??"",
+                'description' => $city['description']??"",
                 'parent_id' => $countryIds[$city['country']] ?? null,
                 'created_by' => 1,
                 'created_at' => $now,
@@ -125,10 +125,10 @@ class InfoMasterSeeder extends Seeder
         }
         foreach ($purpose as $city) {
             InfoMaster::create([
-                'type' => $city['type'],
+                'type' => $city['type']??"",
                 'name' => $city['name'],
-                'code' => $city['code'],
-                'description' => $city['description'],
+                'code' => $city['code']??"",
+                'description' => $city['description']??"",
                 'parent_id' => $countryIds[$city['country']] ?? null,
                 'created_by' => 1,
                 'created_at' => $now,
