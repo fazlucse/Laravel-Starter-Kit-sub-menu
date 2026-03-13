@@ -75,17 +75,28 @@ class InfoMasterSeeder extends Seeder
             ['name' => 'Sydney', 'code' => 'SYD', 'country' => 'Australia', 'description' => 'City in Australia'],
         ];
         $designations = [
-            ['designation_name' => 'Chief Executive Officer (CEO)', 'description' => 'Responsible for overall company direction and leadership.'],
-            ['designation_name' => 'Chief Operating Officer (COO)', 'description' => 'Oversees company operations and logistics.'],
-            ['designation_name' => 'Chief Technology Officer (CTO)', 'description' => 'Leads technology strategy and development.'],
-            ['designation_name' => 'Finance Manager', 'description' => 'Manages financial strategy and reporting.'],
-            ['designation_name' => 'HR Manager', 'description' => 'Oversees human resource management.'],
-            ['designation_name' => 'Operations Manager', 'description' => 'Supervises day-to-day operations.'],
-            ['designation_name' => 'Software Engineer', 'description' => 'Develops software systems and applications.'],
-            ['designation_name' => 'Accountant', 'description' => 'Handles financial accounting and reports.'],
-            ['designation_name' => 'Sales Executive', 'description' => 'Drives company sales and customer relationships.'],
-            ['designation_name' => 'Customer Support Executive', 'description' => 'Provides customer assistance and feedback.'],
+            ['name' => 'Chief Executive Officer (CEO)', 'description' => 'Responsible for overall company direction and leadership.'],
+            ['name' => 'Chief Operating Officer (COO)', 'description' => 'Oversees company operations and logistics.'],
+            ['name' => 'Chief Technology Officer (CTO)', 'description' => 'Leads technology strategy and development.'],
+            ['name' => 'Finance Manager', 'description' => 'Manages financial strategy and reporting.'],
+            ['name' => 'HR Manager', 'description' => 'Oversees human resource management.'],
+            ['name' => 'Operations Manager', 'description' => 'Supervises day-to-day operations.'],
+            ['name' => 'Software Engineer', 'description' => 'Develops software systems and applications.'],
+            ['name' => 'Accountant', 'description' => 'Handles financial accounting and reports.'],
+            ['name' => 'Sales Executive', 'description' => 'Drives company sales and customer relationships.'],
+            ['name' => 'Customer Support Executive', 'description' => 'Provides customer assistance and feedback.'],
         ];
+        $purpose = [
+            ['name' => 'purpose one', 'description' => 'purpose one','type'=>'Movement Purpose'],
+            ['name' => 'purpose one', 'description' => 'purpose one','type'=>'Movement Purpose'],
+            ['name' => 'Bus', 'description' => 'Bus','type'=>'Transport Mode'],
+            ['name' => 'Car', 'description' => 'Car','type'=>'Transport Mode'],
+            ['name' => 'Govement Holaiday', 'description' => 'Govement Holaiday','type'=>'Holiday Type'],
+            ['name' => 'Shaheed Day (Intl. Mother Language Day)', 'description' => 'Govement Holaiday','type'=>'Holiday Type'],
+            ['name' => 'Birthday of Bangabandhu Sheikh Mujib', 'description' => 'Birthday of Bangabandhu Sheikh Mujib','type'=>'Holiday Type'],
+            ['name' => 'Eid-ul-Fitr*', 'description' => 'Eid-ul-Fitr*','type'=>'Holiday Type'],
+        ];
+
 
         foreach ($cities as $city) {
             InfoMaster::create([
@@ -99,5 +110,31 @@ class InfoMasterSeeder extends Seeder
                 'updated_at' => $now,
             ]);
         }
+
+        foreach ($designations as $city) {
+            InfoMaster::create([
+                'type' => 'desgination',
+                'name' => $city['name'],
+                'code' => $city['code'],
+                'description' => $city['description'],
+                'parent_id' => $countryIds[$city['country']] ?? null,
+                'created_by' => 1,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+        foreach ($purpose as $city) {
+            InfoMaster::create([
+                'type' => $city['type'],
+                'name' => $city['name'],
+                'code' => $city['code'],
+                'description' => $city['description'],
+                'parent_id' => $countryIds[$city['country']] ?? null,
+                'created_by' => 1,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+
     }
 }

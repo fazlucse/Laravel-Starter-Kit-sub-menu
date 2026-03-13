@@ -16,7 +16,7 @@ class CompanySeeder extends Seeder
         DB::table('companies')->insert([
             // Regular companies
             [
-                'company_name' => 'Acme Corporation',
+                'name' => 'Acme Corporation',
                 'company_code' => 'ACME',
                 'type' => 'company',
                 'registration_no' => 'REG-001',
@@ -40,7 +40,7 @@ class CompanySeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
-                'company_name' => 'Globex Corporation',
+                'name' => 'Globex Corporation',
                 'company_code' => 'GLOBEX',
                 'type' => 'company',
                 'registration_no' => 'REG-002',
@@ -64,7 +64,7 @@ class CompanySeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
-                'company_name' => 'Initech',
+                'name' => 'Initech',
                 'company_code' => 'INITECH',
                 'type' => 'company',
                 'registration_no' => 'REG-003',
@@ -90,7 +90,7 @@ class CompanySeeder extends Seeder
 
             // Financial companies
             [
-                'company_name' => 'First National Bank',
+                'name' => 'First National Bank',
                 'company_code' => 'FNB',
                 'type' => 'fin_company',
                 'registration_no' => null,
@@ -114,7 +114,7 @@ class CompanySeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
-                'company_name' => 'Global Finance Corp.',
+                'name' => 'Global Finance Corp.',
                 'company_code' => 'GFC',
                 'type' => 'fin_company',
                 'registration_no' => null,

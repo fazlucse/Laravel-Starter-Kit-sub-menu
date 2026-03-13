@@ -16,12 +16,14 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name' => 'Developer',
+                'role' => 'Developer',
                 'email' => 'test@t.com',
                 'password' => Hash::make('12345678'),
                 'created_by' => null, // first user, created by system
             ],
             [
                 'name' => 'Super Admin',
+                'role' => 'Super Admin',
                 'email' => 'superadmin@t.com',
                 'password' => Hash::make('12345678'),
                 'created_by' => 1, // created by Admin
@@ -29,18 +31,21 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Jane Smith',
                 'email' => 'admin@t.com',
+                'role' => 'Admin',
                 'password' => Hash::make('12345678'),
                 'created_by' => 1,
             ],
               [
                 'name' => 'Jane Smith',
                 'email' => 'hr@t.com',
+                'role' => 'HR',
                 'password' => Hash::make('12345678'),
                 'created_by' => 1,
             ],
              [
                 'name' => 'Jane Smith',
                 'email' => 'employee@t.com',
+                 'role' => 'Employee',
                 'password' => Hash::make('12345678'),
                 'created_by' => 1,
             ],
@@ -49,6 +54,8 @@ class UserSeeder extends Seeder
         foreach ($users as $user) {
             User::create([
                 'name' => $user['name'],
+                'role' => $user['role'],
+                'status' => 'Active',
                 'email' => $user['email'],
                 'password' => $user['password']
             ]);
