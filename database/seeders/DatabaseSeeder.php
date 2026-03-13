@@ -13,8 +13,9 @@ class DatabaseSeeder extends Seeder
     {
         // Run multiple seeders together
         $this->call([
-            UserSeeder::class,     
-            InfoMasterSeeder::class, 
+            UserSeeder::class,
+            CompanySeeder::class,
+            InfoMasterSeeder::class,
             RoleSeeder::class,
             UserRoleSeeder::class,
             RolePermissionSeeder::class,
