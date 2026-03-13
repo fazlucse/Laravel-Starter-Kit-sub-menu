@@ -24,6 +24,11 @@ return new class extends Migration
             $table->decimal('total_days', 8, 1)->nullable()->default(0.0);
             $table->integer('remarks')->nullable();
             $table->timestamps();
+            // indexing
+            $table->index('id');
+            $table->index('leave_request_id');
+            $table->index('employee_id');
+            $table->index('request_for');
         });
     }
     /**

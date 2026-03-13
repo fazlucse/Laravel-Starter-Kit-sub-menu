@@ -24,22 +24,88 @@ const filteredResults = computed(() => {
     );
 });
 
-// Helper for Header Dates
+// Helper to sum time strings (format HH:mm) into a total duration string
+const sumTimeStrings = (data: any[], key: string) => {
+    let totalMinutes = 0;
+    data.forEach(row => {
+        const timeStr = row[key];
+        if (timeStr && timeStr !== '--:--' && timeStr !== '--') {
+            const parts = timeStr.split(':').map(Number);
+            if (parts.length === 2) {
+                totalMinutes += (parts[0] * 60) + parts[1];
+            }
+        }
+    });
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    return `${h}h ${m}m`;
+};
+
+// Grand Totals for Footer
+const totalOvertime = computed(() => sumTimeStrings(filteredResults.value, 'overtime'));
+const totalLessWorking = computed(() => sumTimeStrings(filteredResults.value, 'less_working'));
+const totalExtraWorking = computed(() => {
+    const parseToMins = (timeStr) => {
+        if (!timeStr || timeStr.includes('--')) return 0;
+        // Handles "5h 20m" format from sumTimeStrings
+        const h = parseInt(timeStr.match(/(\d+)h/) ? timeStr.match(/(\d+)h/)[1] : 0);
+        const m = parseInt(timeStr.match(/(\d+)m/) ? timeStr.match(/(\d+)m/)[1] : 0);
+        return (h * 60) + m;
+    };
+
+    const otMins = parseToMins(totalOvertime.value);
+    const lessMins = parseToMins(totalLessWorking.value);
+    const diff = otMins - lessMins;
+
+    const isNegative = diff < 0;
+    const absDiff = Math.abs(diff);
+    const h = Math.floor(absDiff / 60);
+    const m = absDiff % 60;
+
+    return `${isNegative ? '-' : ''}${h}h ${m}m`;
+});
+const adjustedResults = computed(() => {
+    return filteredResults.value.map(row => {
+        const parseTime = (timeStr: string) => {
+            if (!timeStr || timeStr === '--' || timeStr === '--:--') return 0;
+            const parts = timeStr.split(':').map(Number);
+            if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) return 0;
+            return parts[0] + parts[1] / 60;
+        };
+
+        const formatTime = (hours: number) => {
+            if (!hours || hours <= 0) return '--';
+            const h = Math.floor(hours);
+            const m = Math.round((hours - h) * 60);
+            return `${h}:${m.toString().padStart(2, '0')}`;
+        };
+
+        const workingHours = parseTime(row.working_time);
+        const overtimeHours = parseTime(row.overtime);
+        const lessWorkingHours = parseTime(row.less_working);
+
+        return {
+            ...row,
+            working_time: formatTime(workingHours),
+            overtime: formatTime(overtimeHours),
+            less_working: formatTime(lessWorkingHours),
+        };
+    });
+});
+
 const formatDate = (date: string) => {
     if (!date) return '---';
     return new Date(date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
-// Helper for Table Row Dates
 const rowDate = (dateStr: string) => {
     if (!dateStr) return '---';
     return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
 };
 
-// CSV Export Logic
 const exportCSV = () => {
-    const headers = ["SL", "Name", "ID", "Status", "Date", "Office In", "Office Out", "Office Hours", "Actual In", "Actual Out", "Late In", "Out Status", "Work Time", "Overtime"];
-    const rows = filteredResults.value.map((row, idx) => [
+    const headers = ["SL", "Name", "ID", "Status", "Date", "Office In", "Office Out", "Office Hours", "Actual In", "Actual Out", "Late In", "Out Status", "Work Time", "Overtime", "Less Work"];
+    const rows = adjustedResults.value.map((row, idx) => [
         idx + 1,
         (row.emp_name || '').replace(/,/g, ''),
         row.employee_id,
@@ -47,13 +113,14 @@ const exportCSV = () => {
         rowDate(row.date) || '---',
         row.off_in,
         row.off_out,
-        row.office_work_hours, // Added to CSV
+        row.office_work_hours,
         row.att_in,
         row.att_out,
         row.late_in,
         row.out_status,
         row.working_time,
-        row.overtime
+        row.overtime,
+        row.less_working
     ]);
 
     const csvContent = "data:text/csv;charset=utf-8,"
@@ -67,6 +134,18 @@ const exportCSV = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+};
+const printReport = () => {
+    // 1. Manually find the scroll container and reset it
+    const scrollContainer = document.querySelector('.overflow-auto');
+    if (scrollContainer) {
+        scrollContainer.scrollTop = 0;
+    }
+
+    // 2. Delay slightly to allow the browser to recalculate layout
+    setTimeout(() => {
+        window.print();
+    }, 100);
 };
 </script>
 
@@ -91,7 +170,7 @@ const exportCSV = () => {
                 </div>
 
                 <div class="flex gap-2">
-                    <button @click="window.print()" class="px-5 py-2 bg-blue-600 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-500 transition cursor-pointer text-white">
+                    <button @click="printReport" class="px-5 py-2 bg-blue-600 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-500 transition cursor-pointer text-white">
                         <Printer class="w-4 h-4" /> Print
                     </button>
                     <button @click="emit('close')" class="px-5 py-2 bg-gray-700 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-gray-600 transition cursor-pointer text-white">
@@ -101,7 +180,7 @@ const exportCSV = () => {
             </div>
         </div>
 
-        <div class="flex-1 overflow-auto bg-gray-50 dark:bg-gray-950 print:p-0 relative">
+        <div class="flex-1 attendance_price overflow-auto bg-gray-50 dark:bg-gray-950 print:p-0 relative">
             <div class="max-w-full bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-xl print:border-none print:shadow-none">
                 <table class="w-full text-left text-[11px] border-collapse">
                     <thead class="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900 shadow-sm border-b-2 border-gray-300 dark:border-gray-700">
@@ -112,16 +191,20 @@ const exportCSV = () => {
                         <th class="p-4 text-center bg-gray-100 dark:bg-gray-900">Status</th>
                         <th class="p-4 text-center text-indigo-600 dark:text-indigo-400 bg-gray-100 dark:bg-gray-900">Date</th>
                         <th class="p-4 text-center bg-gray-100 dark:bg-gray-900">Office Schedule</th>
-                        <th class="p-4 text-center text-slate-500 bg-gray-100 dark:bg-gray-900">Office Hrs</th> <th class="p-4 text-center bg-gray-100 dark:bg-gray-900 text-blue-600">Actual In/Out</th>
+                        <th class="p-4 text-center text-slate-500 bg-gray-100 dark:bg-gray-900">Office Hrs</th>
+                        <th class="p-4 text-center bg-gray-100 dark:bg-gray-900 text-blue-600">Actual In/Out</th>
                         <th class="p-4 text-center text-red-600 bg-gray-100 dark:bg-gray-900 border-x">Late In</th>
                         <th class="p-4 text-center text-orange-600 bg-gray-100 dark:bg-gray-900 border-r">Out Status</th>
                         <th class="p-4 text-center text-green-600 bg-gray-100 dark:bg-gray-900">Work Time</th>
                         <th class="p-4 text-center text-blue-600 bg-gray-100 dark:bg-gray-900">Overtime</th>
+                        <th class="p-4 text-center text-amber-600 bg-gray-100 dark:bg-gray-900">Less Work</th>
                     </tr>
                     </thead>
 
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                    <tr v-for="(row, idx) in filteredResults" :key="idx" class="hover:bg-blue-50/50 dark:hover:bg-gray-700/50 transition">
+                    <tr v-for="(row, idx) in adjustedResults" :key="idx"
+                        class="bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700 transition"
+                    >
                         <td class="p-4 text-center font-bold text-gray-400 border-r dark:border-gray-700">{{ idx + 1 }}</td>
                         <td class="p-4 border-r dark:border-gray-700">
                             <div class="font-black uppercase text-xs leading-tight text-blue-900 dark:text-blue-300">{{ row.emp_name }}</div>
@@ -163,8 +246,11 @@ const exportCSV = () => {
                         <td class="p-4 text-center font-black border-r dark:border-gray-700 text-gray-700 dark:text-gray-300">
                             {{ row.working_time }}
                         </td>
-                        <td class="p-4 text-center font-black text-blue-700 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-900/10 italic">
+                        <td class="p-4 text-center font-black text-blue-700 dark:text-blue-400 italic border-r dark:border-gray-700">
                             {{ row.overtime }}
+                        </td>
+                        <td class="p-4 text-center font-black text-amber-600 italic">
+                            {{ row.less_working }}
                         </td>
                     </tr>
                     </tbody>
@@ -173,13 +259,21 @@ const exportCSV = () => {
         </div>
 
         <div class="p-4 bg-white dark:bg-gray-900 border-t flex flex-wrap justify-between items-center gap-4 shadow-2xl no-print flex-shrink-0">
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-x-8 gap-y-2">
-                <div><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">Total</p><p class="text-lg font-black dark:text-white">{{ filteredResults.length }}</p></div>
-                <div><p class="text-[9px] font-bold text-green-600 uppercase tracking-widest leading-none">Present</p><p class="text-lg font-black text-green-600">{{ filteredResults.filter(r => r.status === 'Present').length }}</p></div>
-                <div><p class="text-[9px] font-bold text-red-600 uppercase tracking-widest leading-none">Absent</p><p class="text-lg font-black text-red-600">{{ filteredResults.filter(r => r.status === 'Absent').length }}</p></div>
-                <div><p class="text-[9px] font-bold text-yellow-600 uppercase tracking-widest leading-none">Leave</p><p class="text-lg font-black text-yellow-600">{{ filteredResults.filter(r => r.status.includes('Leave')).length }}</p></div>
-                <div><p class="text-[9px] font-bold text-red-400 uppercase tracking-widest leading-none">Late In</p><p class="text-lg font-black text-red-400">{{ filteredResults.filter(r => r.late_in !== '--').length }}</p></div>
-                <div><p class="text-[9px] font-bold text-orange-600 uppercase tracking-widest leading-none">Early Out</p><p class="text-lg font-black text-orange-600">{{ filteredResults.filter(r => r.out_status.includes('Early')).length }}</p></div>
+            <div class="grid grid-cols-2 md:grid-cols-9 gap-x-8 gap-y-2">
+                <div><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">Total</p><p class="text-lg font-black dark:text-white">{{ adjustedResults.length }}</p></div>
+                <div><p class="text-[9px] font-bold text-green-600 uppercase tracking-widest leading-none">Present</p><p class="text-lg font-black text-green-600">{{ adjustedResults.filter(r => r.status === 'Present').length }}</p></div>
+                <div><p class="text-[9px] font-bold text-red-600 uppercase tracking-widest leading-none">Absent</p><p class="text-lg font-black text-red-600">{{ adjustedResults.filter(r => r.status === 'Absent').length }}</p></div>
+                <div><p class="text-[9px] font-bold text-yellow-600 uppercase tracking-widest leading-none">Leave</p><p class="text-lg font-black text-yellow-600">{{ adjustedResults.filter(r => r.status.includes('Leave')).length }}</p></div>
+                <div><p class="text-[9px] font-bold text-red-400 uppercase tracking-widest leading-none">Late In</p><p class="text-lg font-black text-red-400">{{ adjustedResults.filter(r => r.late_in !== '--').length }}</p></div>
+
+                <div class="border-l pl-4 border-gray-200 dark:border-gray-700"><p class="text-[9px] font-bold text-blue-600 uppercase tracking-widest leading-none">Total OT</p><p class="text-lg font-black text-blue-600">{{ totalOvertime }}</p></div>
+
+                <div><p class="text-[9px] font-bold text-amber-600 uppercase tracking-widest leading-none">Total Less</p><p class="text-lg font-black text-amber-600">{{ totalLessWorking }}</p></div>
+
+                <div class="border-l pl-4 border-gray-200 dark:border-gray-700">
+                    <p class="text-[9px] font-bold uppercase tracking-widest leading-none" :class="totalExtraWorking.startsWith('-') ? 'text-red-500' : 'text-indigo-600'">Net Balance</p>
+                    <p class="text-lg font-black" :class="totalExtraWorking.startsWith('-') ? 'text-red-500' : 'text-indigo-600'">{{ totalExtraWorking }}</p>
+                </div>
             </div>
 
             <button @click="exportCSV" type="button" class="px-8 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black transition hover:bg-black active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer shadow-lg">
@@ -193,11 +287,64 @@ const exportCSV = () => {
 th, td { white-space: nowrap; }
 thead th { position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1); }
 @media print {
-    .no-print { display: none !important; }
-    .bg-gray-900, .bg-gray-700, .bg-blue-600 { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .fixed { position: relative; z-index: auto; overflow: visible; height: auto !important; }
-    body { background: white; }
-    .flex-1 { overflow: visible !important; }
-    thead { position: static !important; }
+    /* 1. Hide the entire application root and all layout elements */
+    #app,
+    #app > div,
+    aside,
+    nav,
+    header,
+    [data-sidebar],
+    .group,
+    .peer {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 2. Force the Modal to be the ONLY visible element on the page */
+    /* This overrides the 'fixed' positioning so it starts at the top of the paper */
+    .fixed.inset-0 {
+        display: block !important;
+        visibility: visible !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        background: white !important;
+        z-index: 99999 !important;
+    }
+
+    /* 3. Ensure the Modal and all its children are visible */
+    .fixed.inset-0 * {
+        visibility: visible !important;
+    }
+
+    /* 4. Reset the 2800px table width to fill the paper width */
+    .min-w-\[2800px\] {
+        min-width: 100% !important;
+        width: 100% !important;
+    }
+
+    /* 5. Hide the Modal's UI buttons and search bar */
+    .no-print,
+    button,
+    input {
+        display: none !important;
+    }
+
+    /* 6. Ensure the scrollable area expands for all rows */
+    .flex-1 {
+        overflow: visible !important;
+        display: block !important;
+    }
+
+    /* 7. Setup for Landscape printing */
+    @page {
+        size: landscape;
+        margin: 1cm;
+    }
 }
 </style>

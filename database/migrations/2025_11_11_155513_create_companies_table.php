@@ -44,6 +44,10 @@ return new class extends Migration
             // Foreign Keys
             $table->foreign('created_by')->references('id')->on('users');
             $table->foreign('updated_by')->references('id')->on('users');
+            // indexing
+            $table->index('id');
+            $table->index('status');
+            $table->index('created_by');
         });
     }
 

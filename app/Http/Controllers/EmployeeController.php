@@ -195,4 +195,14 @@ public function destroy(Request $request, Employee $employee)
     }
     return back()->with('success', 'Employee Deleted');
     }
+    public function search(Request $request)
+    {
+        $query = $request->input('q', '');
+        $persons = Employee::query()
+            ->when($query, fn($q) => $q->where('person_name', 'like', "%{$query}%"))
+            ->select('id', 'person_name as name')
+            ->limit(10)
+            ->get();
+        return response()->json(['person' => $persons]);
+    }
 }

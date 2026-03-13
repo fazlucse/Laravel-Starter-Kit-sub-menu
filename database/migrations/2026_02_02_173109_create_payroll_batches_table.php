@@ -25,6 +25,9 @@ return new class extends Migration {
             $table->unsignedBigInteger('approved_by')->nullable();
             $table->timestamp('approved_date')->nullable();
             $table->timestamps();
+            // indexing
+            $table->index('id');
+            $table->index('com_id');
         });
     }
 

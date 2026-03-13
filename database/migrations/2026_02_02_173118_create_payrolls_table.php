@@ -71,6 +71,10 @@ return new class extends Migration
                     $blueprint->tinyInteger('gsc_flag')->unsigned();
 
                     $blueprint->timestamps();
+                    // indexing
+                    $blueprint->index('id');
+                    $blueprint->index('batch_id');
+                    $blueprint->index('fin_com_id');
                 });
     }
 

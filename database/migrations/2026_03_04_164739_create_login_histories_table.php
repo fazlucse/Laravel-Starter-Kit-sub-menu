@@ -20,6 +20,9 @@ return new class extends Migration
             $table->string('timezone')->nullable()->default(''); // Manual or GeoIP location
             $table->timestamp('login_at');
             $table->timestamps();
+            // indexing
+            $table->index('id');
+            $table->index('user_id');
         });
     }
 

@@ -18,6 +18,7 @@ use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\EmployeeReportController;
 use App\Http\Controllers\MovementReportController;
+use App\Http\Controllers\LeaveReportController;
 
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\InfoMasterController;
@@ -225,6 +226,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/employees/generate',  [EmployeeReportController::class,'generate'])->name('employees.generate');
         Route::get('/movements', [MovementReportController::class,'index'])->name('movements.index');
         Route::post('/movements/generate',  [MovementReportController::class,'generate'])->name('movements.generate');
+        Route::get('/leaves', [LeaveReportController::class, 'index'])->name('leaves.report.index');
+        Route::post('/leaves/generate', [LeaveReportController::class, 'generate']);
     });
 
 });

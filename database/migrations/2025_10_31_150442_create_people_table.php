@@ -30,8 +30,13 @@ return new class extends Migration
             $table->string('tin')->unique()->nullable();
             $table->string('photo')->nullable();
             $table->string('gender')->nullable();
+            $table->date('dob')->nullable();
             $table->string('religion')->nullable();
+
             $table->timestamps();
+            // indexing
+            $table->index('id');
+            $table->index('gender');
         });
     }
 

@@ -47,13 +47,17 @@ return new class extends Migration
             $table->text('replacement_leave_encash_date')->nullable();
             $table->date('rl_start_date')->nullable();
             $table->date('rl_end_date')->nullable();
-            $table->longText('replacement_leave_dates');
-            $table->longText('replacement_leave_utl_dates');
+            $table->longText('replacement_leave_dates')->nullable();
+            $table->longText('replacement_leave_utl_dates')->nullable();
             $table->string('remarks', 255)->nullable();
             $table->string('reason', 255)->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
+            // indexing
+            $table->index('employee_id');
+            $table->index('year');
+            $table->index(['year','employee_id']);
         });
     }
 

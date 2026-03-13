@@ -3,7 +3,9 @@ import { ref } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import AttendanceReportModal from './AttendanceReportModal.vue'
-import { FileSearch, CalendarDays, Users, Building2 } from 'lucide-vue-next'
+import PersonAutocomplete from '@/components/PersonAutocomplete.vue' // Assuming the path
+import FlatpickrInput from '@/components/FlatpickrInput.vue'
+import { FileSearch } from 'lucide-vue-next'
 import axios from 'axios'
 
 const props = defineProps<{
@@ -16,12 +18,13 @@ const showReportModal = ref(false)
 const reportData = ref([])
 const isGenerating = ref(false)
 
-// Define the form with all necessary keys
+// Define the form with updated keys for PersonAutocomplete
 const form = useForm({
     office: '',
     department: '',
     division: '',
-    employee_id: '',
+    employee_id: null,
+    person_name: '',
     date_from: new Date().toISOString().slice(0, 10),
     date_to: new Date().toISOString().slice(0, 10),
 })
@@ -29,7 +32,6 @@ const form = useForm({
 const submitReport = async () => {
     isGenerating.value = true
     try {
-        // We use axios for the data fetch to keep the main page state clean
         const response = await axios.post('/reports/attendance/generate', form.data())
         reportData.value = response.data.reportData
         showReportModal.value = true
@@ -73,33 +75,35 @@ const submitReport = async () => {
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div>
-                            <label class="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Employee ID / Name</label>
-                            <input
-                                type="text"
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                        <div class="md:col-span-1">
+                            <PersonAutocomplete
                                 v-model="form.employee_id"
-                                placeholder="Search Employee..."
-                                class="w-full h-11 rounded-xl border-2 border-gray-300 bg-gray-50 dark:bg-gray-900 dark:text-white text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none px-4 transition-all"
+                                :initial-name="form.person_name"
+                                @update:name="form.person_name = $event"
+                                label="Employee / Person"
+                                endpoint="/api/persons/search"
+                                :error="form.errors.employee_id"
                             />
                         </div>
+
                         <div>
                             <label class="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">From Date</label>
-                            <input
-                                type="date"
+                            <FlatpickrInput
                                 v-model="form.date_from"
-                                class="w-full h-11 rounded-xl border-2 border-gray-300 bg-gray-50 dark:bg-gray-900 dark:text-white text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none px-4 transition-all"
+                                placeholder="Select start date"
                             />
                         </div>
+
                         <div>
                             <label class="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">To Date</label>
-                            <input
-                                type="date"
+                            <FlatpickrInput
                                 v-model="form.date_to"
-                                class="w-full h-11 rounded-xl border-2 border-gray-300 bg-gray-50 dark:bg-gray-900 dark:text-white text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none px-4 transition-all"
+                                placeholder="Select end date"
                             />
                         </div>
-                        <div class="flex items-end">
+
+                        <div>
                             <button
                                 type="submit"
                                 :disabled="isGenerating"
@@ -130,11 +134,3 @@ const submitReport = async () => {
         </div>
     </AppLayout>
 </template>
-
-<style scoped>
-/* Scoped styles to ensure the date picker and selects look industrial */
-input[type="date"]::-webkit-calendar-picker-indicator {
-    cursor: pointer;
-    filter: invert(0.5);
-}
-</style>

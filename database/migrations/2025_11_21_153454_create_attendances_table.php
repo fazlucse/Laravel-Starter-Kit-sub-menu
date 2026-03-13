@@ -77,6 +77,13 @@ return new class extends Migration
             $table->string('login_ip', 200)->nullable();
             $table->string('connected_mac', 200)->nullable();
             $table->timestamps();
+            // indexing
+            $table->index('id');
+            $table->index('device_id');
+            $table->index('employee_id');
+            $table->index('add_time');
+            $table->index('division');
+            $table->index('department');
         });
     }
 

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('parent_id')->nullable()->comment('Used if city belongs to a country');
             $table->unsignedBigInteger('created_by')->nullable()->comment('User who created this record');
             $table->timestamps(); // created_at + updated_at
+            // indexing
+            $table->index('id');
         });
     }
 

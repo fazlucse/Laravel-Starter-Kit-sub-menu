@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\MovementRegisterController;
 
 // Autocomplete search
@@ -10,3 +11,4 @@ Route::get('/persons/search', [PersonController::class, 'search'])->name('api.pe
 // Show single person by ID
 Route::get('/persons/{id}', [PersonController::class, 'show'])->name('api.persons.show');
 Route::get('/movement-settings', [MovementRegisterController::class, 'getSettings']);
+Route::get('/employees/search', [EmployeeController::class, 'search'])->name('api.employees.search');

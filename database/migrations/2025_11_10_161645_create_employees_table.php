@@ -100,6 +100,16 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->integer('is_tax_deduction')->nullable(0);
             $table->timestamps();
+            // indexing
+            $table->index('id');
+            $table->index('employee_id');
+            $table->index('company_id');
+            $table->index('person_id');
+            $table->index('reporting_manager_id');
+            $table->index('effective_date');
+            $table->index('division_id');
+            $table->index('department_id');
+            $table->index('designation_id');
 
             // Foreign Key Constraints (without onDelete)
             // $table->foreign('company_id')->references('id')->on('companies');

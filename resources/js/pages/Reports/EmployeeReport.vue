@@ -72,7 +72,7 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="[{ title: 'Reports', href: '#' }, { title: 'Employee Directory' }]">
+    <AppLayout :breadcrumbs="[ { title: 'Dashboard', href: '/' },{ title: 'Reports', href: '#' }, { title: 'Employee Directory' }]">
         <div class="max-w-[98%] mx-auto py-6">
 
             <div v-if="hasErrors" class="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3 animate-bounce">

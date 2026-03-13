@@ -12,12 +12,12 @@ return new class extends Migration {
             $table->string('action');                    // e.g., "deleted"
             $table->unsignedBigInteger('record_id')->nullable()->default(0);    // ID of deleted record
             $table->text('comments')->nullable();        // Reason
-            $table->unsignedBigInteger('user_id');       // Who did it
+            $table->unsignedBigInteger('user_id')->default(0);       // Who did it
             $table->timestamp('deleted_at')->useCurrent();
             $table->timestamps();
 
             $table->index(['module', 'action']);
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->index('user_id');
         });
     }
 

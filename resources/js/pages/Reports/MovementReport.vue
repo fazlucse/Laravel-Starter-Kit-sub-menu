@@ -53,7 +53,7 @@ const selectClasses = "w-full h-11 rounded-xl border-2 border-gray-200 dark:bord
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="[{ title: 'Reports', href: '#' }, { title: 'Movement Register' }]">
+    <AppLayout :breadcrumbs="[ { title: 'Dashboard', href: '/' },{ title: 'Reports', href: '#' }, { title: 'Movement Register' }]">
         <div class="max-w-[95%] mx-auto py-8">
 
             <div v-if="Object.keys(form.errors).length > 0" class="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3 animate-pulse">
