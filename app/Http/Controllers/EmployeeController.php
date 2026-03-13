@@ -68,7 +68,7 @@ class EmployeeController extends Controller
             'finCompany'   => Company::select('id', 'name as company_name')-> where('type', 'fin_company')->get(),
             'divisions'    => Division::select('id', 'division_name')->get(),
             'departments'  => Department::select('id', 'department_name')->get(),
-            'designations' => InfoMaster::select('id', 'name')->where('type', 'desgination')->get(),
+            'designations' => InfoMaster::select('id', 'name')->where('type', 'designation')->get(),
             'mode'         => 'create',
         ]);
     }
@@ -130,7 +130,7 @@ public function store(StoreEmployeeRequest $request)
             'finCompany'   => Company::select('id', 'name as company_name')->where('type', 'fin_company')->get(),
             'divisions'    => Division::select('id', 'division_name')->get(),
             'departments'  => Department::select('id', 'department_name')->get(),
-            'designations' => InfoMaster::select('id', 'name')->where('type', 'desgination')->get(),
+            'designations' => InfoMaster::select('id', 'name')->where('type', 'designation')->get(),
             'mode'         => 'edit',
         ]);
     }
