@@ -31,7 +31,7 @@ return new class extends Migration
             // Designation
             $table->unsignedBigInteger('designation_id');
             $table->string('designation_name', 100);
-            $table->string('employee_code', 20)->unique();
+            $table->string('employee_code', 20)->nullable();
             $table->string('employee_id', 20)->unique();
             // Joining & Employment
             $table->date('joining_date');
@@ -58,7 +58,7 @@ return new class extends Migration
             $table->decimal('other_allowances', 15, 2)->default(0);
             $table->decimal('overtime_rate', 15, 2)->default(0);
             $table->decimal('total_salary', 15, 2)->default(0)->comment('Gross salary + overtime');
-            $table->string('currency', 10)->default('USD');
+            $table->string('currency', 10)->default('BDT');
 
             // Banking & Tax
             $table->string('bank_name', 255)->nullable();
@@ -98,6 +98,7 @@ return new class extends Migration
             $table->text('office_time')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
+            $table->integer('is_tax_deduction')->nullable(0);
             $table->timestamps();
 
             // Foreign Key Constraints (without onDelete)
