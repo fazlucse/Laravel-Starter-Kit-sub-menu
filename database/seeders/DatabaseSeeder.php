@@ -15,13 +15,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             CompanySeeder::class,
-            DepartmentSeeder::class,
-            DivisionSeeder::class,
             InfoMasterSeeder::class,
             RoleSeeder::class,
             UserRoleSeeder::class,
             RolePermissionSeeder::class,
-            PersonSeeder::class
+            PersonSeeder::class,
+            DepartmentSeeder::class,
+            DivisionSeeder::class
         ]);
     }
 }
