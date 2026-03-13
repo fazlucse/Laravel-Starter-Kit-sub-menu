@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('employee_id')->nullable()->default(0);
-            $table->foreignId('department_id')->nullable()->after('employee_id');
-            $table->foreignId('division_id')->nullable()->after('department_id');
+            $table->unsignedBigInteger('department_id')->nullable()->default(0);
+            $table->unsignedBigInteger('division_id')->nullable()->default(0);
             $table->string('email')->unique();
             $table->string('role')->default('User');
             $table->string('status')->default('Active');
