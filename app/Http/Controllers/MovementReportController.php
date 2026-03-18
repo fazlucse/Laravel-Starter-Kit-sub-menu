@@ -1,6 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
+use App\Models\Company;
+use App\Models\Department;
+use App\Models\Division;
+use App\Models\InfoMaster;
 use App\Models\MovementRegister;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,13 +16,14 @@ class MovementReportController extends Controller
      */
     public function index()
     {
-        // Fetch unique divisions that have movement records
-        $divisions = MovementRegister::whereNotNull('division_name')
-            ->distinct()
-            ->pluck('division_name');
+
 
         return Inertia::render('Reports/MovementReport', [
-            'divisions' => $divisions,
+            'offices'      => Company::getByType('company'),
+            'finCompany'   => Company::getByType('fin_company'),
+            'divisions'    => Division::getDivision(),
+            'departments'  => Department::getDepartment(),
+            'designations' => InfoMaster::getByType('designation'),
             'statuses' => [
                 ['id' => 0, 'name' => 'Pending'],
                 ['id' => 2, 'name' => 'Approved'],
@@ -30,7 +35,7 @@ class MovementReportController extends Controller
     public function generate(Request $request)
     {
         $request->validate([
-            'division' => 'nullable|string',
+            'division' => 'nullable',
             'employee_name' => 'nullable|string',
             'status' => 'nullable|integer',
             'date_from' => 'nullable|date',

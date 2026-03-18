@@ -21,4 +21,8 @@ class Department extends Model
     {
         return $this->hasMany(Employee::class, 'department_id');
     }
+    public static function getDepartment()
+    {
+        return self::select('id', 'department_name as name')->orderBy('department_name')->get();
+    }
 }

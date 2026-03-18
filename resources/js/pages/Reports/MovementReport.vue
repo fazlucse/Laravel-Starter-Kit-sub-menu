@@ -9,7 +9,7 @@ import {
     CalendarClock, Building2, AlertCircle, Loader2
 } from 'lucide-vue-next'
 import axios from 'axios'
-
+import ProcessingOverlay from '@/components/custom/ProcessingOverlay.vue'
 const props = defineProps<{
     divisions: string[],
     statuses: { id: number, name: string }[]
@@ -49,14 +49,15 @@ const submitReport = async () => {
 // UI Styling Constants
 const labelClasses = "block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2"
 const inputClasses = "w-full h-11 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 text-sm outline-none focus:border-blue-600 transition-all"
-const selectClasses = "w-full h-11 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 text-sm outline-none focus:border-blue-600 cursor-pointer transition-all"
+const selectClasses = "border p-2 rounded w-full dark:bg-gray-700 dark:text-white dark:border-gray-600"
 </script>
 
 <template>
     <AppLayout :breadcrumbs="[ { title: 'Dashboard', href: '/' },{ title: 'Reports', href: '#' }, { title: 'Movement Register' }]">
-        <div class="max-w-[95%] mx-auto py-8">
+        <div class="max-w-[95%] mx-auto py-0">
+            <ProcessingOverlay :active="isGenerating" message="Generating Report Data..." />
 
-            <div v-if="Object.keys(form.errors).length > 0" class="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3 animate-pulse">
+            <div v-if="Object.keys(form.errors).length > 0" class="ml-8 mt-8 p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3 ">
                 <AlertCircle class="w-5 h-5 text-red-600 mt-0.5" />
                 <div>
                     <h3 class="text-sm font-black text-red-800 uppercase">Filter Errors</h3>
@@ -64,7 +65,7 @@ const selectClasses = "w-full h-11 rounded-xl border-2 border-gray-200 dark:bord
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl border-2 border-gray-200 dark:border-gray-700 shadow-2xl">
+            <div class="bg-white dark:bg-gray-800 p-8  dark:border-gray-700 ">
                 <form @submit.prevent="submitReport" class="space-y-8 no-print">
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -72,7 +73,7 @@ const selectClasses = "w-full h-11 rounded-xl border-2 border-gray-200 dark:bord
                             <label :class="labelClasses"><Building2 class="w-3 h-3 text-blue-500"/> Division</label>
                             <select v-model="form.division" :class="selectClasses">
                                 <option value="">All Divisions</option>
-                                <option v-for="d in divisions" :key="d" :value="d">{{ d }}</option>
+                                <option v-for="d in divisions" :key="d.id" :value="d">{{ d.name }}</option>
                             </select>
                         </div>
 
@@ -103,17 +104,28 @@ const selectClasses = "w-full h-11 rounded-xl border-2 border-gray-200 dark:bord
                             </div>
                         </div>
 
-                        <div class="flex items-end">
-                            <button
-                                type="submit"
-                                :disabled="isGenerating"
-                                class="w-full h-11 bg-slate-900 hover:bg-black text-white rounded-xl font-black uppercase tracking-widest text-[11px] flex items-center justify-center gap-3 transition active:scale-95 shadow-xl disabled:opacity-50 cursor-pointer"
-                            >
-                                <Loader2 v-if="isGenerating" class="w-5 h-5 animate-spin" />
-                                <FileSearch v-else class="w-5 h-5" />
-                                {{ isGenerating ? 'Generating...' : 'Generate Movement Report' }}
-                            </button>
+                        <div class="flex items-end">  <button
+                            type="submit"
+                            :disabled="isGenerating"
+                            class="w-full md:w-auto min-w-[140px] px-6 py-2 rounded h-10 text-sm font-bold flex items-center justify-center gap-2 transition-all"
+                            :class="processing ? 'bg-blue-400 cursor-not-allowed text-white' : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'"
+                        >
+                            <Loader2 v-if="processing" class="w-4 h-4 animate-spin" />
+                            <FileSearch v-else class="w-5 h-5" />
+                            <span>{{ processing ? 'Processing...' : 'Generate Report' }}</span>
+                        </button>
                         </div>
+<!--                        <div class="flex items-end">-->
+<!--                            <button-->
+<!--                                type="submit"-->
+<!--                                :disabled="isGenerating"-->
+<!--                                class="w-full h-11 bg-slate-900 hover:bg-black text-white rounded-xl font-black uppercase tracking-widest text-[11px] flex items-center justify-center gap-3 transition active:scale-95 shadow-xl disabled:opacity-50 cursor-pointer"-->
+<!--                            >-->
+<!--                                <Loader2 v-if="isGenerating" class="w-5 h-5 animate-spin" />-->
+<!--                                <FileSearch v-else class="w-5 h-5" />-->
+<!--                                {{ isGenerating ? 'Generating...' : 'Generate Movement Report' }}-->
+<!--                            </button>-->
+<!--                        </div>-->
                     </div>
                 </form>
             </div>

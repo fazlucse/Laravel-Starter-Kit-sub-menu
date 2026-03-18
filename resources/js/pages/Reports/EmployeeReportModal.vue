@@ -122,7 +122,7 @@ const printReport = () => {
         </div>
 
         <div class="flex-1 overflow-auto bg-gray-50 dark:bg-gray-950 print:p-0 relative">
-            <div class="max-w-full bg-white dark:bg-gray-900  border-2 border-gray-200 dark:border-gray-800 shadow-2xl min-w-[2800px]">
+            <div class="max-w-full bg-white dark:bg-gray-900  border-2 border-gray-200 dark:border-gray-800  min-w-[2800px]">
 
                 <table class="w-full text-left text-[11px] border-collapse ">
                     <thead class="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900 shadow-sm border-b-2 border-gray-300 dark:border-gray-700">
@@ -164,9 +164,9 @@ const printReport = () => {
                             <div class="text-[9px] font-mono text-blue-600 font-bold mt-1 uppercase tracking-tighter">ID: {{ emp.employee_id }} | {{ emp.employee_code }}</div>
                         </td>
 
-                        <td class="p-2 border-r dark:border-gray-800 font-bold uppercase text-gray-600">{{ emp.division_name }}</td>
-                        <td class="p-2 border-r dark:border-gray-800 font-bold uppercase text-gray-600">{{ emp.department_name }}</td>
-                        <td class="p-2 border-r dark:border-gray-800 font-bold uppercase text-slate-500">{{ emp.designation_name }}</td>
+                        <td class="p-2 border-r dark:border-gray-800 font-bold uppercase  dark:text-white ">{{ emp.division_name }}</td>
+                        <td class="p-2 border-r dark:border-gray-800 font-bold uppercase  dark:text-white ">{{ emp.department_name }}</td>
+                        <td class="p-2 border-r dark:border-gray-800  dark:text-white  font-bold uppercase text-slate-500">{{ emp.designation_name }}</td>
 
                         <td class="p-2 border-r dark:border-gray-800 font-black text-blue-800 dark:text-blue-400 uppercase text-[10px]">{{ emp.reporting_manager_name || '---' }}</td>
                         <td class="p-2 border-r dark:border-gray-800 font-bold text-indigo-700 dark:text-indigo-400 uppercase text-[10px]">{{ emp.department_head_name || '---' }}</td>

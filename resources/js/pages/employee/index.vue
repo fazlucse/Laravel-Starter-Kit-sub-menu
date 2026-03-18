@@ -17,8 +17,13 @@
                             groups: HELP_DOCS.employees.full_docs.groups
                           }"
               />
-            <EmployeeSearch v-model="search" action="/employees.index" :preserve="{ per_page: perPage }" />
-            <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
+              <EmployeeSearch
+                  v-model="search"
+                  action="/employees"
+                  :preserve="{ per_page: perPage }"
+                  :division-options="divisions"
+                  :department-options="departments"
+              />            <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
             <Link v-if="canCreate" href="/employees/create"
                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
               <Plus class="w-4 h-4" />
@@ -99,7 +104,12 @@ import { usePagination } from '@/composables/usePagination'
 import EmployeeSearch from './employeeSearch.vue'
 import HelpModal from '@/components/custom/HelpModal.vue'
 import { HELP_DOCS } from '@/constants/helpDocs'
-
+const props = defineProps<{
+    employees: any,
+    perPage: number,
+    divisions: Array<{ id: number|string, name: string }>,
+    departments: Array<{ id: number|string, name: string }>,
+}>()
 const employees = defineModel('employees', { required: true }) as any
 const perPageProp = defineModel('perPage', { required: true }) as any
 const { perPage, update: updatePerPage } = usePagination()

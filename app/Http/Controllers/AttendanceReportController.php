@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
+use App\Models\Department;
+use App\Models\Division;
+use App\Models\InfoMaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -12,9 +16,11 @@ class AttendanceReportController extends Controller
     public function index()
     {
         return Inertia::render('Reports/AttendanceReport', [
-            'offices' => DB::table('attendances')->distinct()->pluck('operational_office_name'),
-            'departments' => DB::table('attendances')->distinct()->pluck('department_name'),
-            'divisions' => DB::table('attendances')->distinct()->pluck('division_name'),
+            'offices'      => Company::getByType('company'),
+            'finCompany'   => Company::getByType('fin_company'),
+            'divisions'    => Division::getDivision(),
+            'departments'  => Department::getDepartment(),
+            'designations' => InfoMaster::getByType('designation')
         ]);
     }
 
@@ -286,9 +292,9 @@ class AttendanceReportController extends Controller
         $query = DB::table('attendances');
 
         // Filters
-        if ($request->office) $query->where('operational_office_name', $request->office);
-        if ($request->department) $query->where('department_name', $request->department);
-        if ($request->division) $query->where('division_name', $request->division);
+        if ($request->office) $query->where('operational_office', $request->office);
+        if ($request->department) $query->where('department', $request->department);
+        if ($request->division) $query->where('division', $request->division);
 
         // Filter by Person ID (Autocomplete) or Employee ID
         if ($request->person_id) {

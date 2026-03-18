@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\Department;
+use App\Models\Division;
 use App\Traits\LogsActions;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,40 +22,37 @@ class AttendanceController extends Controller
   public function index(Request $request)
 {
     $perPage = (int) $request->query('per_page', 10);
-    $search = $request->input('search');
 
     $query = Attendance::with(['employee']); // eager load employee relationship
 
-    // Filters
-    $filters = $request->only(['emp_name', 'employee_id', 'department_name', 'designation_name']);
-
+    $filters = $request->only(['employee_name', 'department_id', 'division_id', 'employee_id', 'designation_name']);
     foreach ($filters as $field => $value) {
         if (!empty($value)) {
-            $query->where($field, 'like', "%{$value}%");
+            if ($field === 'employee_name') {
+                $query->where('emp_name', 'like', "%{$value}%");
+            } elseif ($field === 'department_id') {
+                $query->where('department_id', $value);
+            } elseif ($field === 'division_id') {
+                $query->where('division_id', $value);
+            } else {
+                $query->where($field, 'like', "%{$value}%");
+            }
         }
-    }
-
-    // Optional global search
-    if (!empty($search)) {
-        $query->where(function ($q) use ($search) {
-            $q->where('emp_name', 'like', "%{$search}%")
-              ->orWhere('employee_id', 'like', "%{$search}%")
-              ->orWhereHas('employee', function ($q2) use ($search) {
-                  $q2->where('person_name', 'like', "%{$search}%");
-              });
-        });
     }
 
     $attendance = $query->orderByDesc('add_time')
                         ->paginate($perPage)
                         ->appends($request->query());
-
+    if ($request->isMethod('post')) {
+        return redirect()->route('attendance.index', $request->all());
+    }
     return Inertia::render('attendance/index', [
         'attendance' => $attendance,
         'perPage' => $perPage,
         'defaultPerPage' => 15,
-        'search' => $search,
         'filters' => $filters,
+        'divisions'    => Division::getDivision(),
+        'departments'  => Department::getDepartment(),
         'flash' => [
             'success' => session('success'),
         ],

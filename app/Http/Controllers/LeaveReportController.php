@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
+use App\Models\Department;
+use App\Models\Division;
+use App\Models\InfoMaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -11,7 +15,11 @@ class LeaveReportController extends Controller
     public function index()
     {
         return Inertia::render('Reports/LeaveReport', [
-            'departments' => DB::table('departments')->pluck('department_name as name'),
+            'offices'      => Company::getByType('company'),
+            'finCompany'   => Company::getByType('fin_company'),
+            'divisions'    => Division::getDivision(),
+            'departments'  => Department::getDepartment(),
+            'designations' => InfoMaster::getByType('designation'),
             'statuses' => ['Pending','Approved','Rejected']
         ]);
     }

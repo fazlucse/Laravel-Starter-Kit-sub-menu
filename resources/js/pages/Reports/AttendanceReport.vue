@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import {computed, ref} from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import AttendanceReportModal from './AttendanceReportModal.vue'
 import PersonAutocomplete from '@/components/PersonAutocomplete.vue' // Assuming the path
 import FlatpickrInput from '@/components/FlatpickrInput.vue'
+import ProcessingOverlay from '@/components/custom/ProcessingOverlay.vue'
 import { FileSearch } from 'lucide-vue-next'
 import axios from 'axios'
 
@@ -28,16 +29,32 @@ const form = useForm({
     date_from: new Date().toISOString().slice(0, 10),
     date_to: new Date().toISOString().slice(0, 10),
 })
-
+const hasErrors = computed(() => Object.keys(form.errors).length > 0)
 const submitReport = async () => {
     isGenerating.value = true
+    form.clearErrors() // Reset previous errors
+
     try {
         const response = await axios.post('/reports/attendance/generate', form.data())
         reportData.value = response.data.reportData
         showReportModal.value = true
-    } catch (error) {
+    } catch (error: any) {
         console.error("Report Generation Failed:", error)
-        alert("Failed to generate report. Please check your connection.")
+
+        if (error.response && error.response.status === 422) {
+            // Laravel Validation Errors
+            form.setError(error.response.data.errors)
+        } else if (error.response && error.response.status === 500) {
+            // Laravel System/Code Error
+            form.setError({
+                server: error.response.data.message || "Internal Server Error"
+            })
+        } else {
+            // Connection/Network issues
+            form.setError({
+                server: "Could not connect to the server. Please check your network."
+            })
+        }
     } finally {
         isGenerating.value = false
     }
@@ -47,30 +64,43 @@ const submitReport = async () => {
 <template>
     <AppLayout :breadcrumbs="[{ title: 'Dashboard', href: '/' },{ title: 'Reports',  href: '#' }, { title: 'Attendance' }]">
         <div class="max-w-[98%] mx-auto py-6">
-
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border-2 border-gray-300 dark:border-gray-700 shadow-lg mb-6">
+            <ProcessingOverlay :active="isGenerating" message="Generating Report Data..." />
+            <div v-if="hasErrors" class="mx-6 mb-0 p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3">
+                <AlertCircle class="w-5 h-5 text-red-600 mt-0.5" />
+                <div>
+                    <h3 class="text-sm font-black text-red-800 uppercase tracking-tight">
+                        {{ form.errors.server ? 'System Error' : 'Validation Errors Detected' }}
+                    </h3>
+                    <ul class="mt-1 list-disc list-inside text-xs text-red-700 font-medium">
+                        <li v-for="(error, key) in form.errors" :key="key">
+                            {{ key === 'server' ? '' : key + ': ' }}{{ error }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 border-gray-300 dark:border-gray-700  mb-6">
                 <form @submit.prevent="submitReport" class="space-y-6">
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <label class="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Office / Location</label>
-                            <select v-model="form.office" class="w-full h-11 rounded-xl border-2 border-gray-300 bg-gray-50 dark:bg-gray-900 dark:text-white text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all cursor-pointer">
+                            <select v-model="form.office" class="border p-2 rounded w-full dark:bg-gray-700 dark:text-white dark:border-gray-60">
                                 <option value="">All Offices</option>
-                                <option v-for="off in offices" :key="off" :value="off">{{ off }}</option>
+                                <option v-for="off in offices" :key="off.id" :value="off.id">{{ off.name }}</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Division</label>
-                            <select v-model="form.division" class="w-full h-11 rounded-xl border-2 border-gray-300 bg-gray-50 dark:bg-gray-900 dark:text-white text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all cursor-pointer">
+                            <select v-model="form.division" class="border p-2 rounded w-full dark:bg-gray-700 dark:text-white dark:border-gray-60">
                                 <option value="">All Divisions</option>
-                                <option v-for="div in divisions" :key="div" :value="div">{{ div }}</option>
+                                <option v-for="div in divisions" :key="div.id" :value="div.id">{{ div.name }}</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Department</label>
-                            <select v-model="form.department" class="w-full h-11 rounded-xl border-2 border-gray-300 bg-gray-50 dark:bg-gray-900 dark:text-white text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all cursor-pointer">
+                            <select v-model="form.department" class="border p-2 rounded w-full dark:bg-gray-700 dark:text-white dark:border-gray-60">
                                 <option value="">All Departments</option>
-                                <option v-for="dept in departments" :key="dept" :value="dept">{{ dept }}</option>
+                                <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
                             </select>
                         </div>
                     </div>
@@ -107,7 +137,7 @@ const submitReport = async () => {
                             <button
                                 type="submit"
                                 :disabled="isGenerating"
-                                class="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition active:scale-95 shadow-lg shadow-blue-500/30 cursor-pointer disabled:opacity-50"
+                                class="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition active:scale-95 shadow-lg shadow-blue-500/30 cursor-pointer disabled:opacity-50"
                             >
                                 <FileSearch v-if="!isGenerating" class="w-4 h-4" />
                                 <span v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>

@@ -6,17 +6,24 @@ import DeleteDialog from '@/components/custom/DeleteDialog.vue'
 import Avatar from '@/components/custom/Avatar.vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { Plus } from 'lucide-vue-next'
-import { computed } from 'vue'
+import {computed, ref} from 'vue'
 import { usePagination } from '@/composables/usePagination'
 import HelpModal from '@/components/custom/HelpModal.vue'
 import {HELP_DOCS} from '@/constants/helpDocs'
+import AttendanceSearch from './AttendanceSearch.vue'
+
+const props = defineProps<{
+    attendance: any,
+    divisions: Array<{ id: number|string, name: string }>,
+    departments: Array<{ id: number|string, name: string }>,
+}>()
 
 const attendance = defineModel('attendance', { required: true }) as any
 const { perPage, update: updatePerPage } = usePagination()
 
 const { authUser } = usePage().props
 console.log('authUser.permissions:', authUser?.permissions)
-
+const search = ref('')
 const canDelete = computed(() => authUser?.permissions?.includes('attendance.delete') ?? false)
 const canCreate = computed(() => authUser?.permissions?.includes('attendance.create') ?? false)
 const handleDelete = ({ success }: { success: boolean }) => {
@@ -83,7 +90,14 @@ function formatDiff(diff: number) {
                             groups: HELP_DOCS.attendance.full_docs.groups
                           }"
               />
-            <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
+              <AttendanceSearch
+                  v-model="search"
+                  action="attendance"
+                  :preserve="{ per_page: perPage }"
+                  :division-options="divisions"
+                  :department-options="departments"
+              />
+              <PerPageSelect v-model="perPage" @update:modelValue="updatePerPage" />
 
             <Link
               v-if="canCreate"

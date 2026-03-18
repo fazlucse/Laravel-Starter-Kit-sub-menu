@@ -40,4 +40,11 @@ class Company extends Model
     {
         return $this->hasMany(Employee::class, 'company_id');
     }
+    public static function getByType($type)
+    {
+        return self::where('type', $type)
+            ->select('id', 'name') // Assuming 'name' is already the column name
+            ->orderBy('name')
+            ->get();
+    }
 }

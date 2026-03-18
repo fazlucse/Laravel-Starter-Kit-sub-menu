@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
+use App\Models\Department;
+use App\Models\Division;
+use App\Models\InfoMaster;
 use App\Traits\LogsActions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,8 +57,10 @@ class PayrollController extends Controller
 
         return Inertia::render('payroll/payroll', [
             'payrollHistory' => $history,
-            'departments'    => $departments,
-            'offices'        => $offices,
+            'offices'      => Company::getByType('company'),
+            'divisions'    => Division::getDivision(),
+            'departments'  => Department::getDepartment(),
+            'designations' => InfoMaster::getByType('designation'),
             'filters'        => $request->only(['search', 'per_page']),
         ]);
     }
@@ -63,15 +69,12 @@ class PayrollController extends Controller
      */
     public function create()
     {
-        // You can fetch departments/offices dynamically if needed
-        $departments = Employee::distinct()->pluck('department_name')->filter()->values();
-        $offices = Employee::distinct()->pluck('company_name')->filter()->values();
-        $divisions = Employee::distinct()->pluck('division_name')->filter()->values();
 
         return Inertia::render('payroll/generate', [
-            'departments' => $departments,
-            'divisions' => $divisions,
-            'offices' => $offices,
+            'offices'      => Company::getByType('company'),
+            'divisions'    => Division::getDivision(),
+            'departments'  => Department::getDepartment(),
+            'designations' => InfoMaster::getByType('designation'),
             'indianPostOptions' => $this->getIndianStatutoryOptions(),
             'taxBrackets' => $this->getTaxBrackets(),
         ]);
@@ -334,10 +337,10 @@ class PayrollController extends Controller
             'is_salary'      => 'required|boolean',
             'is_bonus'       => 'required|boolean',
             'is_individual'  => 'nullable|boolean',
-            'employee_search'=> 'nullable|string',
-            'department'     => 'nullable|string',
-            'division'       => 'nullable|string',
-            'office'         => 'nullable|string',
+            'employee_id'    => 'nullable|integer',
+            'department'     => 'nullable|integer',
+            'division'       => 'nullable|integer',
+            'office'         => 'nullable|integer',
             'payrollMonth'   => 'required|date_format:Y-m',
             'bonus_type'     => 'nullable|string',
             'bonus_date'     => 'nullable|date',
@@ -346,15 +349,14 @@ class PayrollController extends Controller
 
         // 2. QUERY EMPLOYEES
         $query = Employee::query();
-        if ($request->boolean('is_individual') && $request->filled('employee_search')) {
+        if ($request->boolean('is_individual') && $request->filled('employee_id')) {
             $query->where(function($q) use ($request) {
-                $q->where('empId', $request->employee_search)
-                    ->orWhere('person_name', 'like', '%' . $request->employee_search . '%');
+                $q->where('person_id', $request->employee_id);
             });
         } else {
-            if ($request->filled('department')) $query->where('department_name', $request->department);
-            if ($request->filled('division')) $query->where('division_name', $request->division);
-            if ($request->filled('office')) $query->where('company_name', $request->office);
+            if ($request->filled('department')) $query->where('department_id', $request->department);
+            if ($request->filled('division')) $query->where('division_id', $request->division);
+            if ($request->filled('office')) $query->where('company_id', $request->office);
         }
 
         $employees = $query->get();
@@ -463,9 +465,10 @@ class PayrollController extends Controller
 
         return Inertia::render('payroll/generate', [
             'payrollData' => $payrollData,
-            'departments' => Employee::distinct()->pluck('department_name')->filter()->values(),
-            'divisions'   => Employee::distinct()->pluck('division_name')->filter()->values(),
-            'offices'     => Employee::distinct()->pluck('company_name')->filter()->values(),
+            'offices'      => Company::getByType('company'),
+            'divisions'    => Division::getDivision(),
+            'departments'  => Department::getDepartment(),
+            'designations' => InfoMaster::getByType('designation'),
         ]);
     }
     /**

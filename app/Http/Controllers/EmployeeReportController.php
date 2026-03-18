@@ -22,11 +22,11 @@ class EmployeeReportController extends Controller
     public function index()
     {
         return Inertia::render('Reports/EmployeeReport', [
-            'offices'    => Company::select('id', 'name as company_name as name')->where('type', 'company')->get(),
-            'finCompany'   => Company::select('id', 'name as company_name as name')-> where('type', 'fin_company')->get(),
-            'divisions'    => Division::select('id', 'division_name as name')->get(),
-            'departments'  => Department::select('id', 'department_name as name ')->get(),
-            'designations' => InfoMaster::select('id', 'name')->where('type', 'desgination')->get(),
+            'offices'      => Company::getByType('company'),
+            'finCompany'   => Company::getByType('fin_company'),
+            'divisions'    => Division::getDivision(),
+            'departments'  => Department::getDepartment(),
+            'designations' => InfoMaster::getByType('designation'),
             'employmentStatuses' => ['Active', 'Probation', 'Resigned', 'Terminated', 'On Leave'],
         ]);
     }
@@ -43,7 +43,7 @@ class EmployeeReportController extends Controller
             'designation' => 'nullable|string',
             'status' => 'nullable|string',
             'gender' => 'nullable|string',
-            'search' => 'nullable|string',
+            'person_id' => 'nullable',
             'joined_from' => 'nullable|date',
             'joined_to' => 'nullable|date|after_or_equal:joined_from',
             'confirmed_from' => 'nullable|date',
@@ -76,15 +76,17 @@ class EmployeeReportController extends Controller
                 ->when($request->gender, function ($q, $gender) {
                     return $q->where('gender', $gender);
                 });
-
-            // 3. Search (Name, ID, Code)
-            $query->when($request->search, function ($q, $search) {
-                return $q->where(function($sub) use ($search) {
-                    $sub->where('employee_id', 'like', "%{$search}%")
-                        ->orWhere('person_name', 'like', "%{$search}%")
-                        ->orWhere('employee_code', 'like', "%{$search}%");
-                });
+            $query->when($request->person_id, function ($q, $person_id) {
+                return $q->where('person_id', $person_id);
             });
+            // 3. Search (Name, ID, Code)
+//            $query->when($request->search, function ($q, $search) {
+//                return $q->where(function($sub) use ($search) {
+//                    $sub->where('employee_id', 'like', "%{$search}%")
+//                        ->orWhere('person_name', 'like', "%{$search}%")
+//                        ->orWhere('employee_code', 'like', "%{$search}%");
+//                });
+//            });
 
             // 4. Date Ranges
             $query->when($request->joined_from, fn($q, $date) => $q->whereDate('joining_date', '>=', $date))

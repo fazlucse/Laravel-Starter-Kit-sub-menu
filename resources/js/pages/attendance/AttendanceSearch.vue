@@ -249,7 +249,6 @@ const reset = () => {
 }
 
 const submit = () => {
-    console.log(filters.value);
   form.employee_name = filters.value.employee_name.trim()
   form.employee_id = filters.value.employee_id.trim()
   form.division_id = filters.value.division_id
@@ -264,9 +263,9 @@ const submit = () => {
     preserveState: true,
     preserveScroll: true,
     replace: true,
-    only: ['employees'],
+    only: ['attendance'],
     onFinish: () => {
-      reset()
+      // reset()
       close()
     },
   })

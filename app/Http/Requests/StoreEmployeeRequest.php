@@ -57,7 +57,7 @@ class StoreEmployeeRequest extends FormRequest
             'joining_date'     => 'required|date',
             'confirmation_date'=> 'nullable|date|after_or_equal:joining_date',
             'probation_end_date'=> 'nullable|date|after_or_equal:joining_date',
-            'effective_date'   => 'nullable|date',
+            'effective_date'   => 'required|date',
             'employment_type'  => 'required|in:Permanent,Contract,Intern,Probation,Freelancer',
             'employee_status'  => 'nullable|in:Active,Inactive,Terminated,Resigned,Retired,On Leave',
             'work_location'    => 'nullable|string|max:100',
@@ -113,6 +113,7 @@ class StoreEmployeeRequest extends FormRequest
             'department_id.required'   => 'Department is required.',
             'designation_id.required'  => 'Designation is required.',
             'basic_salary.required'    => 'Basic salary is required.',
+            'effective_date.required'    => 'Effective date is required.',
         ];
     }
 }

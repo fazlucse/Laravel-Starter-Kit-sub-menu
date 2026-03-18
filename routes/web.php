@@ -49,7 +49,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('people', PersonController::class)
         ->except(['index', 'create', 'update']);
 
-    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::match(['get', 'post'], '/employees', [EmployeeController::class, 'index'])
+        ->name('employees.index');
     Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
     Route::post('/employees.store', [EmployeeController::class, 'store'])->name('employees.store');
     Route::get('/employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
@@ -59,6 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['auth'])->prefix('attendance')->name('attendance.')->group(function () {
         Route::get('/', [AttendanceController::class, 'index'])->name('index');
+        Route::post('/', [AttendanceController::class, 'index'])->name('search.index');
         Route::get('/create', [AttendanceController::class, 'create'])->name('create');
         Route::post('/', [AttendanceController::class, 'store'])->name('store');
         Route::get('/{attendance}/edit', [AttendanceController::class, 'edit'])->name('edit');

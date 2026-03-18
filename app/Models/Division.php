@@ -21,4 +21,10 @@ class Division extends Model
     {
         return $this->hasMany(Employee::class, 'division_id');
     }
+    public static function getDivision()
+    {
+        return self::select('id', 'division_name as name')
+            ->orderBy('division_name')
+            ->get();
+    }
 }

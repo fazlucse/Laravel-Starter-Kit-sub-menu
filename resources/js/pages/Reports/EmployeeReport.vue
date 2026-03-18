@@ -4,6 +4,8 @@ import { useForm } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import EmployeeReportModal from './EmployeeReportModal.vue'
 import FlatpickrInput from '@/components/FlatpickrInput.vue'
+import ProcessingOverlay from '@/components/custom/ProcessingOverlay.vue'
+import PersonAutocomplete from '@/components/PersonAutocomplete.vue'
 import { FileSearch, Users, Briefcase, MapPin, UserCheck, CalendarClock, UserRound, Building2, AlertCircle } from 'lucide-vue-next'
 import axios from 'axios'
 
@@ -28,7 +30,8 @@ const form = useForm({
     designation: '',
     status: '',
     gender: '',
-    search: '',
+    person_id: null,
+    person_name: '',
     joined_from: '',
     joined_to: '',
     confirmed_from: '',
@@ -63,7 +66,7 @@ const submitReport = async () => {
 const hasErrors = computed(() => Object.keys(form.errors).length > 0)
 
 const inputClasses = "w-full h-11 rounded-xl border-2 bg-gray-50 dark:bg-gray-900 dark:text-white text-sm focus:ring-1 outline-none px-4 transition-all"
-const selectClasses = "w-full h-11 rounded-xl border-2 bg-gray-50 dark:bg-gray-900 dark:text-white text-sm focus:ring-1 outline-none px-4 transition-all cursor-pointer"
+const selectClasses = "border p-2 rounded w-full dark:bg-gray-700 dark:text-white dark:border-gray-600"
 const labelClasses = "block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2"
 const errorMsgClasses = "text-[10px] font-bold text-red-500 mt-1 animate-pulse"
 
@@ -74,8 +77,8 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
 <template>
     <AppLayout :breadcrumbs="[ { title: 'Dashboard', href: '/' },{ title: 'Reports', href: '#' }, { title: 'Employee Directory' }]">
         <div class="max-w-[98%] mx-auto py-6">
-
-            <div v-if="hasErrors" class="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3 animate-bounce">
+            <ProcessingOverlay :active="isGenerating" message="Generating Report Data..." />
+            <div v-if="hasErrors" class=" ml-6 mr-6 mb-0 p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3">
                 <AlertCircle class="w-5 h-5 text-red-600 mt-0.5" />
                 <div>
                     <h3 class="text-sm font-black text-red-800 uppercase tracking-tight">Validation Errors Detected</h3>
@@ -85,7 +88,7 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl border-2 border-gray-200 dark:border-gray-700 shadow-xl mb-6">
+            <div class="bg-white dark:bg-gray-800 p-8   dark:border-gray-700 mb-6">
                 <form @submit.prevent="submitReport" class="space-y-6">
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -93,7 +96,7 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
                             <label :class="labelClasses"><MapPin class="w-3 h-3 text-blue-500"/> Office</label>
                             <select v-model="form.office" :class="[selectClasses, getBorderClass('office')]">
                                 <option value="">All Offices</option>
-                                <option v-for="o in offices" :key="o">{{ o }}</option>
+                                <option v-for="o in offices" :key="o.id">{{ o.name }}</option>
                             </select>
                             <p v-if="form.errors.office" :class="errorMsgClasses">{{ form.errors.office }}</p>
                         </div>
@@ -102,7 +105,7 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
                             <label :class="labelClasses"><Building2 class="w-3 h-3 text-blue-500"/> Division</label>
                             <select v-model="form.division" :class="[selectClasses, getBorderClass('division')]">
                                 <option value="">All Divisions</option>
-                                <option v-for="d in divisions" :key="d">{{ d }}</option>
+                                <option v-for="d in divisions" :key="d.id">{{ d.name }}</option>
                             </select>
                             <p v-if="form.errors.division" :class="errorMsgClasses">{{ form.errors.division }}</p>
                         </div>
@@ -111,7 +114,7 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
                             <label :class="labelClasses"><Users class="w-3 h-3 text-blue-500"/> Department</label>
                             <select v-model="form.department" :class="[selectClasses, getBorderClass('department')]">
                                 <option value="">All Depts</option>
-                                <option v-for="d in departments" :key="d">{{ d }}</option>
+                                <option v-for="d in departments" :key="d.id">{{ d.name }}</option>
                             </select>
                             <p v-if="form.errors.department" :class="errorMsgClasses">{{ form.errors.department }}</p>
                         </div>
@@ -120,7 +123,7 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
                             <label :class="labelClasses"><Briefcase class="w-3 h-3 text-blue-500"/> Designation</label>
                             <select v-model="form.designation" :class="[selectClasses, getBorderClass('designation')]">
                                 <option value="">All Designations</option>
-                                <option v-for="d in designations" :key="d">{{ d }}</option>
+                                <option v-for="d in designations" :key="d.id">{{ d.name }}</option>
                             </select>
                             <p v-if="form.errors.designation" :class="errorMsgClasses">{{ form.errors.designation }}</p>
                         </div>
@@ -147,9 +150,16 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
                         </div>
 
                         <div class="lg:col-span-2">
-                            <label :class="labelClasses">Search Employee</label>
-                            <input type="text" v-model="form.search" placeholder="ID or Name..." :class="[inputClasses, getBorderClass('search')]" />
-                            <p v-if="form.errors.search" :class="errorMsgClasses">{{ form.errors.search }}</p>
+                            <PersonAutocomplete
+                                v-model="form.person_id"
+                                @update:name="form.person_name = $event"
+                                label="Search Employee"
+                                endpoint="/api/persons/search"
+                                :error="form.errors.person_id ? form.errors.person_id[0] : null"
+                            />
+<!--                            <label :class="labelClasses">Search Employee</label>-->
+<!--                            <input type="text" v-model="form.search" placeholder="ID or Name..." :class="[inputClasses, getBorderClass('search')]" />-->
+<!--                            <p v-if="form.errors.search" :class="errorMsgClasses">{{ form.errors.search }}</p>-->
                         </div>
                     </div>
 
@@ -193,7 +203,8 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
                             <button
                                 type="submit"
                                 :disabled="isGenerating"
-                                class="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black uppercase tracking-widest text-[11px] flex items-center justify-center gap-3 transition active:scale-95 shadow-lg shadow-blue-500/20 cursor-pointer disabled:opacity-50"
+                                class="w-full md:w-auto min-w-[140px] px-6 py-2 rounded h-10 text-sm font-bold flex items-center justify-center gap-2 transition-all"
+                                :class="isGenerating ? 'bg-blue-400 cursor-not-allowed text-white' : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'"
                             >
                                 <FileSearch v-if="!isGenerating" class="w-5 h-5" />
                                 <span v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>

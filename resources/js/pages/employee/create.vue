@@ -215,6 +215,7 @@
 
                 <div class="input-wrapper">
                   <FlatpickrInput
+                      required
                     v-model="form.effective_date"
                     label="Effective Date"
                     :error="allErrors.effective_date"
@@ -378,7 +379,7 @@
           <!-- SALARY -->
           <FormSection v-if="activeSection === 'salary'" title="Salary Information" icon="dollar-sign">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="input-wrapper"><SelectInput v-model="form.currency" label="Currency" :options="['USD', 'EUR', 'GBP', 'BDT', 'INR']" /></div>
+              <div class="input-wrapper"><SelectInput v-model="form.currency" label="Currency" :options="['BDT', 'USD', 'EUR', 'GBP', 'INR']" /></div>
 
               <div class="input-wrapper">
                 <NumberInput
@@ -660,6 +661,7 @@ const validationRules = {
     { field: 'employment_type', rule: v => !!v },
     { field: 'office_in_time',  rule: v => !!v },
     { field: 'office_out_time', rule: v => !!v },
+    { field: 'effective_date', rule: v => !!v },
   ],
   salary: [{ field: 'basic_salary', rule: v => v >= 0 }],
 }
