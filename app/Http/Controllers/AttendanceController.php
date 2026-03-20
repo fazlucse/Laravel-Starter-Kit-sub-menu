@@ -40,12 +40,11 @@ class AttendanceController extends Controller
         }
     }
 
-    $attendance = $query->orderByDesc('add_time')
+    $attendance = $query->orderByDesc('id')
                         ->paginate($perPage)
-                        ->appends($request->query());
-    if ($request->isMethod('post')) {
-        return redirect()->route('attendance.index', $request->all());
-    }
+                        ->withQueryString();
+
+
     return Inertia::render('attendance/index', [
         'attendance' => $attendance,
         'perPage' => $perPage,

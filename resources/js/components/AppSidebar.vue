@@ -112,6 +112,7 @@ const rawNavItems: any[] = [
             { title: 'Attendance Report', href: '/reports/attendance', icon: ClipboardList, slug: 'reports' },
             { title: 'Movement Report', href: '/reports/movements', icon: ClipboardList, slug: 'reports' },
             { title: 'Leave Report', href: '/reports/leaves', icon: ClipboardList, slug: 'reports' },
+            { title: 'Daily Salary Report', href: '/reports/daily-salary', icon: ClipboardList, slug: 'reports' },
         ],
     },
     {

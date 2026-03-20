@@ -13,12 +13,14 @@ use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\MovementRegisterController;
 use App\Http\Controllers\RecruitmentController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\PayrollOTController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\EmployeeReportController;
 use App\Http\Controllers\MovementReportController;
 use App\Http\Controllers\LeaveReportController;
+use App\Http\Controllers\DailySalaryReportController;
 
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\InfoMasterController;
@@ -59,10 +61,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
 
     Route::middleware(['auth'])->prefix('attendance')->name('attendance.')->group(function () {
-        Route::get('/', [AttendanceController::class, 'index'])->name('index');
-        Route::post('/', [AttendanceController::class, 'index'])->name('search.index');
+        Route::match(['get', 'post'], '/', [AttendanceController::class, 'index'])->name('index');
         Route::get('/create', [AttendanceController::class, 'create'])->name('create');
-        Route::post('/', [AttendanceController::class, 'store'])->name('store');
+        Route::post('/store', [AttendanceController::class, 'store'])->name('store');
         Route::get('/{attendance}/edit', [AttendanceController::class, 'edit'])->name('edit');
         Route::put('/{attendance}', [AttendanceController::class, 'update'])->name('update');
         Route::delete('/{attendance}', [AttendanceController::class, 'destroy'])->name('destroy');
@@ -166,19 +167,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     });
 
+//    Route::middleware('auth')->group(function () {
+//        Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+//        Route::get('/payroll/generate', [PayrollController::class, 'create'])->name('payroll.create');
+//        Route::post('/payroll/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
+//        Route::post('/payroll/export', [PayrollController::class, 'export'])->name('payroll.export');
+//        Route::patch('/payroll/status', [PayrollController::class, 'updateStatus'])->name('payroll.status.update');
+//        Route::get('/payroll/payslip/{id}', [PayrollController::class, 'generatePaySlip'])->name('payroll.payslip');
+//        Route::post('/payroll/store-batch', [PayrollController::class, 'storeBatch'])->name('payroll.store.batch');
+//        Route::get('/payroll/batch/{id}', [PayrollController::class, 'show'])->name('payroll.show');
+//        Route::delete('payroll/delete/{user}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
+//
+//    });
+
     Route::middleware('auth')->group(function () {
-        Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
-        Route::get('/payroll/generate', [PayrollController::class, 'create'])->name('payroll.create');
-        Route::post('/payroll/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
-        Route::post('/payroll/export', [PayrollController::class, 'export'])->name('payroll.export');
-        Route::patch('/payroll/status', [PayrollController::class, 'updateStatus'])->name('payroll.status.update');
-        Route::get('/payroll/payslip/{id}', [PayrollController::class, 'generatePaySlip'])->name('payroll.payslip');
-        Route::post('/payroll/store-batch', [PayrollController::class, 'storeBatch'])->name('payroll.store.batch');
-        Route::get('/payroll/batch/{id}', [PayrollController::class, 'show'])->name('payroll.show');
-        Route::delete('payroll/delete/{user}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
+        Route::get('/payroll', [PayrollOTController::class, 'index'])->name('payroll.index');
+        Route::get('/payroll/generate', [PayrollOTController::class, 'create'])->name('payroll.create');
+        Route::post('/payroll/generate', [PayrollOTController::class, 'generate'])->name('payroll.generate');
+        Route::post('/payroll/export', [PayrollOTController::class, 'export'])->name('payroll.export');
+        Route::patch('/payroll/status', [PayrollOTController::class, 'updateStatus'])->name('payroll.status.update');
+        Route::get('/payroll/payslip/{id}', [PayrollOTController::class, 'generatePaySlip'])->name('payroll.payslip');
+        Route::post('/payroll/store-batch', [PayrollOTController::class, 'storeBatch'])->name('payroll.store.batch');
+        Route::get('/payroll/batch/{id}', [PayrollOTController::class, 'show'])->name('payroll.show');
+        Route::delete('payroll/delete/{user}', [PayrollOTController::class, 'destroy'])->name('payroll.destroy');
 
     });
-
 
     // --- USER MANAGEMENT MODULE ---
     Route::prefix('users')->name('users.')->group(function () {
@@ -230,6 +243,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/movements/generate',  [MovementReportController::class,'generate'])->name('movements.generate');
         Route::get('/leaves', [LeaveReportController::class, 'index'])->name('leaves.report.index');
         Route::post('/leaves/generate', [LeaveReportController::class, 'generate']);
+        Route::get('/daily-salary', [DailySalaryReportController::class, 'index'])->name('daily-salary.report.index');
+        Route::post('/daily-salary/generate', [DailySalaryReportController::class, 'generate']);
     });
 
 });

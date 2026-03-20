@@ -3,7 +3,7 @@
   <button
     @click="open"
     class="p-2 cursor-pointer rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
-    title="Search people"
+    title="Search attendance"
   >
     <svg
       class="w-6 h-6 text-gray-600 dark:text-gray-300"
@@ -125,8 +125,8 @@
           >
             Reset
           </button>
-          <button
-            @click="submit"
+          <button type="submit"
+            @click="attendanceSubmit"
             :disabled="form.processing"
             class="relative px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg transition-all duration-200 flex items-center gap-2 cursor-pointer overflow-hidden"
           >
@@ -144,9 +144,9 @@
         </div>
 
         <!-- ==== ANIMATED RESULTS ==== -->
-        <div v-if="people.length" class="max-h-64 overflow-y-auto space-y-2 border-t pt-3">
+        <div v-if="attendance.length" class="max-h-64 overflow-y-auto space-y-2 border-t pt-3">
           <div
-            v-for="(p, i) in people"
+            v-for="(p, i) in attendance"
             :key="p.id"
             @click="selectPerson(p)"
             class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200"
@@ -205,13 +205,13 @@ const filters = ref({
 })
 
 const page = usePage()
-const people = ref<any[]>([])
+const attendance = ref<any[]>([])
 
-/* ---------- INERTIA PEOPLE SYNC ---------- */
+/* ---------- INERTIA attendance SYNC ---------- */
 watch(
-  () => page.props.people,
+  () => page.props.attendance,
   (val) => {
-    people.value = Array.isArray(val) ? val : []
+      attendance.value = Array.isArray(val) ? val : []
     wasSearched.value = true
   },
   { immediate: true }
@@ -244,31 +244,31 @@ const reset = () => {
   filters.value = { employee_name: '', employee_id: '', division_id: '',department_id:'' ,designation: '' }
   form.reset()
   wasSearched.value = false
-  people.value = []
+    attendance.value = []
   emit('update:modelValue', '')
 }
 
-const submit = () => {
-  form.employee_name = filters.value.employee_name.trim()
-  form.employee_id = filters.value.employee_id.trim()
-  form.division_id = filters.value.division_id
-  form.department_id = filters.value.department_id
-  form.designation = filters.value.designation.trim()
+// Inside AttendanceSearch.vue <script setup>
 
-  Object.entries(props.preserve || {}).forEach(([k, v]) => {
-    ;(form as any)[k] = v
-  })
-
-  form.post(props.action, {
-    preserveState: true,
-    preserveScroll: true,
-    replace: true,
-    only: ['attendance'],
-    onFinish: () => {
-      // reset()
-      close()
-    },
-  })
+const attendanceSubmit = () => {
+    // Sync filters to form fields
+    form.employee_name = filters.value.employee_name.trim()
+    form.employee_id = filters.value.employee_id.trim()
+    form.division_id = filters.value.division_id
+    form.department_id = filters.value.department_id
+    form.designation = filters.value.designation.trim()
+    form.designation = filters.value.designation.trim()
+    const perPageValue = props.preserve?.per_page || 10;
+    // const targetUrl = `${props.action}?page=1&per_page=${perPageValue}`;
+    form.get(props.action, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+        only: ['attendance'],
+        onSuccess: () => {
+            close()
+        },
+    })
 }
 
 const selectPerson = (p: any) => {

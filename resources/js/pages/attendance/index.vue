@@ -92,7 +92,7 @@ function formatDiff(diff: number) {
               />
               <AttendanceSearch
                   v-model="search"
-                  action="attendance"
+                  action="/attendance"
                   :preserve="{ per_page: perPage }"
                   :division-options="divisions"
                   :department-options="departments"

@@ -178,8 +178,8 @@ const handleDrop = (e: DragEvent) => {
     }
 }
 
-const submitIndividual = () => form.post('/attendance')
-const submitExcel = () => excelForm.post('/attendance?type=excel')
+const submitIndividual = () => form.post('/attendance/store')
+const submitExcel = () => excelForm.post('/attendance/store?type=excel')
 // const submitExcel = () => {
 //     excelForm.post('/attendance?type=excel', {
 //         forceFormData: true, // This is key for file uploads
