@@ -111,7 +111,7 @@ class Attendance extends Model
     ];
     public function employee()
         {
-            return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
+            return $this->belongsTo(Employee::class, 'employee_id', 'id');
             // 'employee_id' in attendances maps to 'employee_id' in employees
         }
         public function person()

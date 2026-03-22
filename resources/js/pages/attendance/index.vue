@@ -87,6 +87,8 @@ function formatDiff(diff: number) {
                             title: HELP_DOCS.attendance.title,
                             description: HELP_DOCS.attendance.description,
                             tips:HELP_DOCS.attendance.tips,
+                            excel_format:HELP_DOCS.attendance.excel_format,
+                            images:HELP_DOCS.attendance.images,
                             groups: HELP_DOCS.attendance.full_docs.groups
                           }"
               />

@@ -50,7 +50,7 @@ const logout = () => {
 
 <template>
   <header
-    class="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6"
+    class="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border/70 bg-background  supports-[backdrop-filter]:bg-background px-4 md:px-6"
   >
     <div class="flex items-center gap-3">
       <SidebarTrigger class="-ml-1" />
@@ -112,15 +112,15 @@ const logout = () => {
         <DropdownMenuSeparator />
 
         <!-- Instant navigation items -->
-        <DropdownMenuItem as-child>
-          <button
-            @click="goto('/profile')"
-            class="flex w-full cursor-pointer items-center gap-2.5 px-2 py-1.5 text-sm"
-          >
-            <User class="h-4 w-4" />
-            Profile
-          </button>
-        </DropdownMenuItem>
+<!--        <DropdownMenuItem as-child>-->
+<!--          <button-->
+<!--            @click="goto('/profile')"-->
+<!--            class="flex w-full cursor-pointer items-center gap-2.5 px-2 py-1.5 text-sm"-->
+<!--          >-->
+<!--            <User class="h-4 w-4" />-->
+<!--            Profile-->
+<!--          </button>-->
+<!--        </DropdownMenuItem>-->
 
         <DropdownMenuItem as-child>
           <button

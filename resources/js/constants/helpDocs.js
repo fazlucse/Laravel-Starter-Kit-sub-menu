@@ -1,7 +1,7 @@
 export const HELP_DOCS = {
     users: {
         title: "User Management System: Operations Manual",
-        'description':'',
+        'description': '',
         // Combine them into a "Groups" array
         full_docs: {
             title: "Complete User Guide",
@@ -41,7 +41,8 @@ export const HELP_DOCS = {
                     sections: [
                         {
                             label: "Employee",
-                            content: "Select an employee from the dropdown to automatically pull their Full Name and Official Email from the HR database for new system user creation.",                            icon: "Zap"
+                            content: "Select an employee from the dropdown to automatically pull their Full Name and Official Email from the HR database for new system user creation.",
+                            icon: "Zap"
                         },
                         {
                             label: "User Roles",
@@ -74,12 +75,24 @@ export const HELP_DOCS = {
             "Upload a clear profile photo for identity verification; initials are used if missing.",
             "Double-check gender selection to correctly enable maternity/paternity leave rules.",
             "Regularly update records to maintain system integrity."
-        ],        full_docs: {
+        ], full_docs: {
             title: "People Module: Complete Manual",
             groups: [
                 {
                     group_title: "1. Navigation & List Guidelines",
                     sections: [
+                        {
+                            label: "Person Directory (List View)",
+                            content: "The list displays core staff details: **ID, Full Name, Designation, Phone, and Email** for quick contact and identification.",
+                            icon: "LayoutList",
+                            image: "/docs/person-list.png" // Screenshot of your table
+                        },
+                        {
+                            label: "Register New Person",
+                            content: "Register New Person, click the **'+ Add'** button. This opens the registration form to create a new identity in the system.",
+                            icon: "UserPlus",
+                            image: "/docs/person-form.png"
+                        },
                         {
                             label: "Search Popup",
                             content: "Find staff instantly by Name or ID. Use the 'S.L' column for serial reference.",
@@ -147,7 +160,8 @@ export const HELP_DOCS = {
                         {
                             label: "Employee ID",
                             content: "The unique corporate identifier (e.g., EMP-001). This is separate from the Person ID.",
-                            icon: "ShieldCheck"
+                            icon: "ShieldCheck",
+                            image: "/docs/employee-list.png"
                         },
                         {
                             label: "Status Tracking",
@@ -167,18 +181,26 @@ export const HELP_DOCS = {
                     ]
                 },
                 {
-                    group_title: "2. Registration & Contract Rules (Form)",
+                    group_title: "2. Registration Steps(Form)",
                     sections: [
+
                         {
-                            label: "Person Autocomplete",
-                            content: "Type to find a pre-existing profile. This links personal data to this job contract.",
-                            icon: "Zap"
+                            label: "Personal Info",
+                            content: "Enter the employee's basic details including Gender, Marital Status, Blood Group, and specific Skills. Ensure the 'Person' search matches their basic profile.",
+                            icon: "UserCheck",
+                            image: "/docs/employee-form.png" // The image you uploaded
                         },
                         {
-                            label: "Company Hierarchy",
-                            content: "Assigning Company, Department, and Designation is mandatory for reporting.",
-                            icon: "Building2"
+                            label: "Company & Employment",
+                            content: "Define the Official ID, Designation, Department, and Reporting Manager. Set the Joining Date to trigger attendance tracking.",
+                            icon: "LayoutList",
                         },
+                        {
+                            label: " Salary & Banking",
+                            content: "Configure the Gross Salary breakdown and provide Bank Account or Mobile Banking (e.g., bKash/Nagad) details for automated disbursements.",
+                            icon: "ClipboardPen",
+                        },
+
                         {
                             label: "Salary Logic",
                             content: "Entering a Gross Salary automatically distributes 50% to Basic and 30% to House Rent.",
@@ -211,7 +233,15 @@ export const HELP_DOCS = {
             "Deleting an attendance record is permanent and will directly impact the employee's monthly 'Days Worked' count.",
             "Use the 'Searchable Select' in manual entry to quickly find employees by their Name or Person ID."
         ],
-
+        excel_format: {
+            title: "Required Excel Structure",
+            headers: ["Employee Name", "Employee ID", "Date", "In Time", "Out Time"],
+            rows: [
+                ["Test User", "EMP-101", "2026-03-22", "09:00 AM", "05:00 PM"],
+                ["Test User", "EMP-102", "2026-03-22", "09:15 AM", "06:00 PM"]
+            ],
+            note: "Files must be in .xlsx or .csv format. Ensure 'Date' is YYYY-MM-DD."
+        },
         full_docs: {
             title: "Attendance Module: Operational Manual",
             groups: [
@@ -221,7 +251,8 @@ export const HELP_DOCS = {
                         {
                             label: "Shift Comparison",
                             content: "Displays both 'Office In/Out' (the requirement) and 'Emp In/Out' (the reality) side-by-side.",
-                            icon: "CalendarDays"
+                            icon: "CalendarDays",
+                            image: "/docs/attendance-list.png"
                         },
                         {
                             label: "Deviation Logic",
@@ -244,9 +275,10 @@ export const HELP_DOCS = {
                     group_title: "2. Data Ingestion & Entry (Form)",
                     sections: [
                         {
-                            label: "Individual Entry",
-                            content: "Used for single-day corrections. Requires selecting an employee and specifying exact punch times.",
-                            icon: "MousePointer2"
+                            label: "Individual Attendance Entry",
+                            content: "Select an employee, choose the date, and set punch times manually to fix biometric errors or log outdoor duties.",
+                            icon: "MousePointer2",
+                            image: "/docs/attendance-form.png"
                         },
                         {
                             label: "Bulk Excel Upload",
@@ -535,20 +567,17 @@ export const HELP_DOCS = {
                     group_title: "2. Trip Documentation (Form)",
                     sections: [
                         {
-                            label: "The 'Start' Phase",
-                            content: "Requires 'From' and 'To' locations and the 'Purpose'. This stamps the start time automatically.",
-                            icon: "Clock"
+                            label: "Location & Purpose",
+                            content: "Select your 'From' and 'To' locations (e.g., Office to Factory) and choose the purpose of your visit.",
+                            icon: "MapPin",
+                            image: "/docs/movement-form.png" // The image you uploaded
                         },
                         {
-                            label: "The 'Finish' Phase",
-                            content: "Unlocked once a trip is active. Requires Visit Category (Customer/Dev), Transport Mode, and Final Bill.",
-                            icon: "ClipboardPen"
+                            label: "Start & End Tracking",
+                            content: "Click 'Start Movement' to begin tracking. Once your duty is finished, return to this module to 'End' the session. Requires Visit Category (Customer/Dev), Transport Mode, and Final Bill.",
+                            icon: "Zap",
                         },
-                        {
-                            label: "Location Intelligence",
-                            content: "Choose between registered Factories, Sub-factories, or enter a custom 'New Name' for outside visits.",
-                            icon: "Building2"
-                        },
+
                         {
                             label: "Conveyance Billing",
                             content: "Input the 'Actual Conveyance Bill'. This amount is what the manager will review for approval.",
