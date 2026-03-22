@@ -158,7 +158,15 @@ function formatDiff(diff: number) {
               <td class="px-4 py-2">
                 <Avatar :src="a.employee?.photo" :name="a.employee?.person_name || 'Unknown'" class="w-10 h-10" />
               </td>
-                <td class="px-4 py-2 text-sm">{{ a.status }}</td>
+                <td class="px-4 py-2 text-sm"><span :class="[
+        'px-2 py-1 rounded-md font-bold uppercase tracking-tighter border',
+        a.is_leave == 1 ? 'bg-orange-50 text-orange-700 border-orange-200' :
+        a.is_holiday == 1 ? 'bg-purple-50 text-purple-700 border-purple-200' :
+        a.is_offday == 1 ? 'bg-gray-50 text-gray-600 border-gray-200' :
+        'bg-green-50 text-green-700 border-green-200'
+    ]">
+        {{ a.is_leave == 1 ? 'Leave' : (a.is_holiday == 1 ? 'Holiday' : (a.is_offday == 1 ? 'Offday' : 'Present')) }}
+    </span></td>
               <td class="px-4 py-2 text-sm">{{ a.employee?.person_id }}</td>
               <td class="px-4 py-2 text-sm">{{ a.employee?.employee_id }}</td>
               <td class="px-4 py-2 text-sm">{{ a.employee?.person_name }}</td>
