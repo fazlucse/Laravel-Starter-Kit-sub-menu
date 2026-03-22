@@ -139,7 +139,8 @@ class AttendanceController extends Controller
             ],
             [
                 'contact_id'  => $employee->person_id??0,
-                'employee_id'  => $employee->employee_id??'',
+                'employee_id'  => $employee->id??0,
+                'employee_code'  => $employee->employee_id??'',
                 'emp_name'  => $employee->person_name??'',
                 'designation'  => $employee->designation_id??0,
                 'designation_name'  => $employee->designation_name??'',

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import {useExport} from "../../composables/useExport";
 import {
     X, Printer, Search, Mail, Phone, CalendarDays, FileDown,
     Users2, Image as ImageIcon, Droplet, Clock, ShieldCheck, UserCog,
     MapPin, Briefcase, GraduationCap, dark, UserCheck, Wallet
 } from 'lucide-vue-next'
+
 
 const props = defineProps<{
     show: boolean,
@@ -14,6 +16,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['close'])
 const searchQuery = ref('')
+const { print, isProcessing } = useExport();
+const isPrinting = ref(false)
 
 const filteredResults = computed(() => {
     if (!searchQuery.value) return props.reportData;
@@ -82,17 +86,18 @@ const exportCSV = () => {
     document.body.removeChild(link);
 };
 
-const printReport = () => {
-    // 1. Manually find the scroll container and reset it
-    const scrollContainer = document.querySelector('.overflow-auto');
-    if (scrollContainer) {
-        scrollContainer.scrollTop = 0;
-    }
+const handlePrint = async () =>  {
+    // Define the Header for every printed page (Company Name & Date Range)
+    const headerHtml = `
+        <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
+            <h1 style="font-size: 20px; font-weight: 900; margin: 0;">OFFICIAL SALARY & OT REPORT</h1>
+            <p style="font-size: 12px; margin: 5px 0;">Period: ${props.filters.date_from} to ${props.filters.date_to}</p>
+        </div>
+    `;
 
-    // 2. Delay slightly to allow the browser to recalculate layout
-    setTimeout(() => {
-        window.print();
-    }, 100);
+    isPrinting.value = true
+    await print('employee_report', '','','landscape')
+    isPrinting.value = false
 };
 </script>
 
@@ -115,13 +120,16 @@ const printReport = () => {
                 </div>
 
                 <div class="flex gap-2">
-                    <button @click="printReport" class="px-6 py-2 bg-blue-600 rounded-lg text-[10px] font-black uppercase tracking-widest text-white hover:bg-blue-500 cursor-pointer shadow-lg shadow-blue-600/20 transition-all">Print</button>
+                    <button @click="exportCSV" class="px-5 py-2.5 bg-emerald-700 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-600 transition active:scale-95 shadow-lg cursor-pointer">
+                        <Download class="w-4 h-4" /> CSV Export
+                    </button>
+                    <button @click="handlePrint" class="px-6 py-2 bg-blue-600 rounded-lg text-[10px] font-black uppercase tracking-widest text-white hover:bg-blue-500 cursor-pointer shadow-lg shadow-blue-600/20 transition-all">Print</button>
                     <button @click="emit('close')" class="px-6 py-2 bg-gray-700 rounded-lg text-[10px] font-black uppercase tracking-widest text-white hover:bg-gray-600 cursor-pointer transition-all"><X class="w-4 h-4" /></button>
                 </div>
             </div>
         </div>
 
-        <div class="flex-1 overflow-auto bg-gray-50 dark:bg-gray-950 print:p-0 relative">
+        <div id="employee_report" class="flex-1 overflow-auto bg-gray-50 dark:bg-gray-950 print:p-0 relative">
             <div class="max-w-full bg-white dark:bg-gray-900  border-2 border-gray-200 dark:border-gray-800  min-w-[2800px]">
 
                 <table class="w-full text-left text-[11px] border-collapse ">

@@ -23,6 +23,7 @@ class Attendance extends Model
         'operational_office_name',
         'contact_id',
         'employee_id',
+        'employee_code',
         'emp_name',
         'designation',
         'designation_name',
@@ -110,12 +111,12 @@ class Attendance extends Model
     ];
     public function employee()
         {
-            return $this->belongsTo(Employee::class, 'employee_id', 'employee_id'); 
+            return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
             // 'employee_id' in attendances maps to 'employee_id' in employees
         }
         public function person()
         {
-            return $this->belongsTo(Person::class, 'contact_id', 'id'); 
+            return $this->belongsTo(Person::class, 'contact_id', 'id');
             // 'contact_id' in attendances maps to 'id' in persons
         }
 }

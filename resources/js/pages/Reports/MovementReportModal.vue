@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { X, Printer, Search, FileDown, MapPin, Navigation, Clock, Wallet } from 'lucide-vue-next'
+import {useExport} from "../../composables/useExport";
 
 const props = defineProps<{ show: boolean, reportData: any[], filters: any }>()
 const emit = defineEmits(['close'])
 const searchQuery = ref('')
-
+const { print, isProcessing } = useExport();
+const isPrinting = ref(false)
 /**
  * Filter logic: Searches across Employee Name and Destination fields
  */
@@ -68,10 +70,18 @@ const exportCSV = () => {
     document.body.removeChild(link);
 };
 
-const printReport = () => {
-    const scrollContainer = document.querySelector('.overflow-auto');
-    if (scrollContainer) scrollContainer.scrollTop = 0;
-    setTimeout(() => window.print(), 100);
+const handlePrint = async () =>  {
+    // Define the Header for every printed page (Company Name & Date Range)
+    const headerHtml = `
+        <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
+            <h1 style="font-size: 20px; font-weight: 900; margin: 0;">OFFICIAL SALARY & OT REPORT</h1>
+            <p style="font-size: 12px; margin: 5px 0;">Period: ${props.filters.date_from} to ${props.filters.date_to}</p>
+        </div>
+    `;
+
+    isPrinting.value = true
+    await print('movement_report', '','','landscape')
+    isPrinting.value = false
 };
 </script>
 
@@ -103,14 +113,14 @@ const printReport = () => {
                 <button @click="exportCSV" class="px-6 py-2 bg-emerald-600 rounded-lg text-[10px] font-black uppercase flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition-colors">
                     <FileDown class="w-4 h-4" /> CSV
                 </button>
-                <button @click="printReport" class="px-6 py-2 bg-blue-600 rounded-lg text-[10px] font-black uppercase flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-colors">
+                <button @click="handlePrint" class="px-6 py-2 bg-blue-600 rounded-lg text-[10px] font-black uppercase flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-colors">
                     <Printer class="w-4 h-4" /> Print
                 </button>
                 <button @click="emit('close')" class="px-4 py-2 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"><X class="w-4 h-4" /></button>
             </div>
         </div>
 
-        <div class="flex-1 overflow-auto  print:p-0">
+        <div id="movement_report" class="flex-1 overflow-auto  print:p-0">
             <div class="min-w-[1200px] print:min-w-full  border-2 border-slate-100  shadow-sm">
                 <table class="w-full text-[11px] border-collapse bg-white">
                     <thead class="sticky top-0 z-50 bg-slate-100 uppercase font-black text-slate-600 shadow-md">

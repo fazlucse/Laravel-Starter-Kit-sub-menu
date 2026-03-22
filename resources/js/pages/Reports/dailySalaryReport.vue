@@ -122,8 +122,9 @@ const submitReport = async () => {
                                 v-model="form.employee_id"
                                 :initial-name="form.person_name"
                                 @update:name="form.person_name = $event"
-                                label="Specific Employee (Optional)"
+                                label="Employee"
                                 endpoint="/api/persons/search"
+                                required
                                 :error="form.errors.employee_id"
                             />
                         </div>

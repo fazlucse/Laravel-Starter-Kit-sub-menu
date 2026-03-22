@@ -15,7 +15,8 @@ return new class extends Migration
             $table->unsignedBigInteger('operational_office')->nullable();
             $table->string('operational_office_name', 255)->nullable();
             $table->unsignedBigInteger('contact_id')->nullable();
-            $table->string('employee_id', 50)->nullable();
+            $table->unsignedBigInteger('employee_id')->nullable();
+            $table->string('employee_code', 50)->nullable();
             $table->string('emp_name', 255)->nullable();
             $table->unsignedBigInteger('designation')->nullable();
             $table->string('designation_name', 200)->nullable();

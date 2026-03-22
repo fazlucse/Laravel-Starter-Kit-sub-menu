@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { X, Search, FileDown, Users2 } from 'lucide-vue-next'
+import {useExport} from "../../composables/useExport";
 
 const props = defineProps<{
     show: boolean,
@@ -11,7 +12,8 @@ const props = defineProps<{
 const emit = defineEmits(['close'])
 const searchQuery = ref('')
 const searchInput = ref<HTMLInputElement>()
-
+const { print, isProcessing } = useExport();
+const isPrinting = ref(false)
 // Filter rows based on search input
 const filteredResults = computed(() => {
     if (!searchQuery.value) return props.reportData
@@ -71,11 +73,19 @@ const exportCSV = () => {
 }
 
 // Print report
-const printReport = () => {
-    const container = document.querySelector('.overflow-auto')
-    if (container) container.scrollTop = 0
-    setTimeout(() => window.print(), 100)
-}
+const handlePrint = async () =>  {
+    // Define the Header for every printed page (Company Name & Date Range)
+    const headerHtml = `
+        <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
+            <h1 style="font-size: 20px; font-weight: 900; margin: 0;">OFFICIAL SALARY & OT REPORT</h1>
+            <p style="font-size: 12px; margin: 5px 0;">Period: ${props.filters.date_from} to ${props.filters.date_to}</p>
+        </div>
+    `;
+
+    isPrinting.value = true
+    await print('leave_report', '','','landscape')
+    isPrinting.value = false
+};
 
 // Focus search input
 const focusSearch = () => {
@@ -110,7 +120,7 @@ const focusSearch = () => {
                     </button>
                 </div>
 
-                <button @click="printReport" class="bg-green-600 px-4 py-1 rounded text-white text-xs font-bold cursor-pointer">Print</button>
+                <button @click="handlePrint" class="bg-green-600 px-4 py-1 rounded text-white text-xs font-bold cursor-pointer">Print</button>
                 <button @click="emit('close')" class="bg-red-600 px-3 py-1 rounded text-white text-xs font-bold cursor-pointer">
                     <X class="w-4 h-4 inline"/>
                 </button>
@@ -119,7 +129,7 @@ const focusSearch = () => {
 
         <!-- Print Header -->
 
-        <div class="flex-1 overflow-auto bg-gray-50 p-4 flex flex-col items-center">
+        <div id="leave_report" class="flex-1 overflow-auto bg-gray-50 p-4 flex flex-col items-center">
 
             <!-- Centered report header -->
             <div class="print-header mb-2 text-center font-black text-xl">

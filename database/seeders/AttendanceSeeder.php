@@ -64,7 +64,8 @@ class AttendanceSeeder extends Seeder
                 // Create attendance record
                 Attendance::create([
                     'contact_id'       => $employee->person_id,
-                    'employee_id'      => $employee->employee_id,
+                    'employee_id'      => $employee->id,
+                    'employee_code'      => $employee->employee_id,
                     'emp_name'         => $employee->person_name,
                     'designation'      => $employee->designation_id ?? null,
                     'designation_name' => $employee->designation_name,

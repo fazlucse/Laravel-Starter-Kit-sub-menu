@@ -169,7 +169,7 @@ export function useExport(options: UseExportOptions = {}) {
   //   };
 
 // Set headerHtml = null as default
-    const print = async (contentId: string, headerHtml: string | null = null, title = 'Document') => {
+    const print = async (contentId: string, headerHtml: string | null = null, title = 'Document',orientation: 'portrait' | 'landscape' = 'portrait') => {
         const printWindow = window.open('', 'PrintWindow', 'width=1200,height=900');
         if (!printWindow) return;
 
@@ -187,7 +187,10 @@ export function useExport(options: UseExportOptions = {}) {
         const printStyles = `
     <style>
         ${styles}
-        @page { size: A4 portrait; margin: 15mm 10mm; }
+        @page {
+        size: A4 ${orientation};
+        margin: ${orientation === 'landscape' ? '10mm' : '15mm 10mm'};
+    }
         body { margin: 0; padding: 0; background: white !important; -webkit-print-color-adjust: exact !important; }
 
         .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }

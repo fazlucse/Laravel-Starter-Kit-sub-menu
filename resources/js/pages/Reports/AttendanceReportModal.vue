@@ -4,6 +4,7 @@ import {
     X, Printer, Search, Building2,
     Clock, UserCheck, CalendarDays, FileDown
 } from 'lucide-vue-next'
+import {useExport} from "../../composables/useExport";
 
 const props = defineProps<{
     show: boolean
@@ -13,7 +14,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['close'])
 const searchQuery = ref('')
-
+const { print, isProcessing } = useExport();
+const isPrinting = ref(false)
 // Filter logic for the internal search bar
 const filteredResults = computed(() => {
     if (!searchQuery.value) return props.reportData;
@@ -135,17 +137,18 @@ const exportCSV = () => {
     link.click();
     document.body.removeChild(link);
 };
-const printReport = () => {
-    // 1. Manually find the scroll container and reset it
-    const scrollContainer = document.querySelector('.overflow-auto');
-    if (scrollContainer) {
-        scrollContainer.scrollTop = 0;
-    }
+const handlePrint = async () =>  {
+    // Define the Header for every printed page (Company Name & Date Range)
+    const headerHtml = `
+        <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
+            <h1 style="font-size: 20px; font-weight: 900; margin: 0;">OFFICIAL SALARY & OT REPORT</h1>
+            <p style="font-size: 12px; margin: 5px 0;">Period: ${props.filters.date_from} to ${props.filters.date_to}</p>
+        </div>
+    `;
 
-    // 2. Delay slightly to allow the browser to recalculate layout
-    setTimeout(() => {
-        window.print();
-    }, 100);
+    isPrinting.value = true
+    await print('attendance_report', '','','landscape')
+    isPrinting.value = false
 };
 </script>
 
@@ -170,7 +173,7 @@ const printReport = () => {
                 </div>
 
                 <div class="flex gap-2">
-                    <button @click="printReport" class="px-5 py-2 bg-blue-600 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-500 transition cursor-pointer text-white">
+                    <button @click="handlePrint" class="px-5 py-2 bg-blue-600 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-500 transition cursor-pointer text-white">
                         <Printer class="w-4 h-4" /> Print
                     </button>
                     <button @click="emit('close')" class="px-5 py-2 bg-gray-700 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-gray-600 transition cursor-pointer text-white">
@@ -180,7 +183,7 @@ const printReport = () => {
             </div>
         </div>
 
-        <div class="flex-1 attendance_price overflow-auto bg-gray-50 dark:bg-gray-950 print:p-0 relative">
+        <div id="attendance_report" class="flex-1 attendance_price overflow-auto bg-gray-50 dark:bg-gray-950 print:p-0 relative">
             <div class="max-w-full bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-xl print:border-none print:shadow-none">
                 <table class="w-full text-left text-[11px] border-collapse">
                     <thead class="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900 shadow-sm border-b-2 border-gray-300 dark:border-gray-700">
