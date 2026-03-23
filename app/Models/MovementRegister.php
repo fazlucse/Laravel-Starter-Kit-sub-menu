@@ -39,6 +39,7 @@ class MovementRegister extends Model
         'transport_mode'      => 'array',
         'purpose' => 'array',
         'customer_obj' => 'array',
+        'status' => 'integer',
     ];
 
     // Relationships
