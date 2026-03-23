@@ -28,6 +28,7 @@ class EmployeeSeeder extends Seeder
                     'employee_code'     => 'EMP-' . str_pad($person->id, 5, '0', STR_PAD_LEFT),
                     'employee_id'       => 'ID-' . $person->id,
                     'joining_date'      => Carbon::now()->subMonths(rand(1, 60))->format('Y-m-d'),
+                    'effective_date'    => Carbon::now()->subMonths(rand(1, 60))->format('Y-m-d'),
                     'employment_type'   => 'Permanent',
                     'official_email'    => $person->email,
                     'official_phone'    => $person->phone,
