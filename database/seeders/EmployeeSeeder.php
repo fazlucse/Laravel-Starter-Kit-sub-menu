@@ -34,8 +34,8 @@ class EmployeeSeeder extends Seeder
                     'office_in_time'    => '09:00:00',
                     'office_out_time'   => '18:00:00',
                     'employee_status'   => 'Active',
-                    'is_tax_dedction'   => '0',
-
+                    'is_tax_deduction'   => 0,
+                    'is_salary_stop'    => 0,
                     'gross_salary'      => $gross = rand(30000, 150000),
                     'basic_salary'      => $gross * 0.5,
                     'house_rent_allowance' => $gross * 0.3,
@@ -43,6 +43,7 @@ class EmployeeSeeder extends Seeder
                     'transport_allowance' => $gross * 0.1,
                     'total_salary'      => $gross,
                     'currency'          => 'BDT',
+                    'late_time'         => 15,
                     'gender'            => in_array($person->gender, ['Male', 'Female']) ? $person->gender : 'Male',
                     'blood_group'       => 'B+',
                     'created_at'        => now(),
