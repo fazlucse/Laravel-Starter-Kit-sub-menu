@@ -75,8 +75,8 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="[ { title: 'Dashboard', href: '/' },{ title: 'Reports', href: '#' }, { title: 'Employee Directory' }]">
-        <div class="max-w-[98%] mx-auto py-6">
+    <AppLayout :breadcrumbs="[ { title: 'Dashboard', href: '/' },{ title: 'Reports', href: '#' }, { title: 'Employee' }]">
+        <div class="w-[96%] sm:w-full max-w-[98%] mx-auto py-6">
             <ProcessingOverlay :active="isGenerating" message="Generating Report Data..." />
             <div v-if="hasErrors" class=" ml-6 mr-6 mb-0 p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3">
                 <AlertCircle class="w-5 h-5 text-red-600 mt-0.5" />
@@ -88,7 +88,7 @@ const getBorderClass = (field: string) => form.errors[field] ? 'border-red-500 f
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 p-8   dark:border-gray-700 mb-6">
+            <div class="bg-white dark:bg-gray-800 p-4   dark:border-gray-700 mb-6">
                 <form @submit.prevent="submitReport" class="space-y-6">
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

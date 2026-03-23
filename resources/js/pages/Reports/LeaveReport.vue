@@ -64,7 +64,7 @@ const generateReport = async () => {
      { title: 'Reports', href: '#' },
      { title: 'Leave Report' }
 ]">
-        <div class="bg-white dark:bg-gray-800 p-4 sm:p-8 border border-sidebar-border/70 relative">
+        <div class="bg-white dark:bg-gray-800 p-2 sm:p-8 border border-sidebar-border/70 relative">
 
             <div v-if="processing" class="absolute inset-0 bg-white/50 dark:bg-gray-800/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
                 <div class="flex flex-col items-center gap-2">
@@ -90,7 +90,7 @@ const generateReport = async () => {
                 </div>
             </div>
 
-            <div class="max-w-5xl mx-auto p-2 sm:p-4">
+            <div class="max-w-5xl mx-auto p-1 sm:p-4">
                 <h2 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">Leave Report</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-4">

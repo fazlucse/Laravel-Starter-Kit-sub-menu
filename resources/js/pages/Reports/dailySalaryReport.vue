@@ -65,7 +65,7 @@ const submitReport = async () => {
 
 <template>
     <AppLayout :breadcrumbs="[{ title: 'Dashboard', href: '/' }, { title: 'Reports', href: '#' }, { title: 'Daily Salary & OT' }]">
-        <div class="max-w-[98%] mx-auto py-6">
+        <div class="w-[96%] sm:w-full max-w-[98%] mx-auto py-6">
             <ProcessingOverlay :active="isGenerating" message="Calculating Daily Salary & OT..." />
 
             <div v-if="hasErrors" class="mx-6 mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl flex items-start gap-3">
@@ -85,7 +85,7 @@ const submitReport = async () => {
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 p-8 border border-gray-200 dark:border-gray-700 shadow-sm rounded-xl mb-6">
+            <div class="bg-white dark:bg-gray-800 p-4  rounded-xl mb-6">
                 <div class="flex items-center gap-3 mb-8 border-b pb-4">
                     <FileBarChart class="w-6 h-6 text-blue-600" />
                     <h1 class="text-lg font-black uppercase tracking-tighter">Daily Salary & OT Report Generator</h1>
@@ -143,7 +143,7 @@ const submitReport = async () => {
                             <button
                                 type="submit"
                                 :disabled="isGenerating"
-                                class="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition active:scale-95 shadow-lg shadow-blue-500/30 cursor-pointer disabled:opacity-50"
+                                class="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition active:scale-95  cursor-pointer disabled:opacity-50"
                             >
                                 <FileSearch v-if="!isGenerating" class="w-5 h-5" />
                                 <span v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>

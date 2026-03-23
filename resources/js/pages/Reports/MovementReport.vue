@@ -54,7 +54,7 @@ const selectClasses = "border p-2 rounded w-full dark:bg-gray-700 dark:text-whit
 
 <template>
     <AppLayout :breadcrumbs="[ { title: 'Dashboard', href: '/' },{ title: 'Reports', href: '#' }, { title: 'Movement Register' }]">
-        <div class="max-w-[95%] mx-auto py-0">
+        <div class="w-[96%] sm:w-full max-w-[98%] mx-auto py-5">
             <ProcessingOverlay :active="isGenerating" message="Generating Report Data..." />
 
             <div v-if="Object.keys(form.errors).length > 0" class="ml-8 mt-8 p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3 ">
@@ -65,7 +65,7 @@ const selectClasses = "border p-2 rounded w-full dark:bg-gray-700 dark:text-whit
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 p-8  dark:border-gray-700 ">
+            <div class="bg-white dark:bg-gray-800 p-4  dark:border-gray-700 ">
                 <form @submit.prevent="submitReport" class="space-y-8 no-print">
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">

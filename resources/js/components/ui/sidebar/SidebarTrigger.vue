@@ -2,26 +2,26 @@
 import type { HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { PanelLeft } from 'lucide-vue-next'
+import { Menu } from 'lucide-vue-next' // Changed to Menu for 3 dashes
 import { useSidebar } from './utils'
 
 const props = defineProps<{
-  class?: HTMLAttributes['class']
+    class?: HTMLAttributes['class']
 }>()
 
 const { toggleSidebar } = useSidebar()
 </script>
 
 <template>
-  <Button
-    data-sidebar="trigger"
-    data-slot="sidebar-trigger"
-    variant="ghost"
-    size="icon"
-    :class="cn('h-7 w-7', props.class)"
-    @click="toggleSidebar"
-  >
-    <PanelLeft />
-    <span class="sr-only">Toggle Sidebar</span>
-  </Button>
+    <Button
+        data-sidebar="trigger"
+        data-slot="sidebar-trigger"
+        variant="ghost"
+        size="icon"
+        :class="cn('h-8 w-8 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors', props.class)"
+        @click="toggleSidebar"
+    >
+        <Menu class="w-5 h-5 text-gray-700 dark:text-gray-300 stroke-[2.5]" />
+        <span class="sr-only">Toggle Sidebar</span>
+    </Button>
 </template>

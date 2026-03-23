@@ -107,6 +107,7 @@ class MovementRegisterController extends Controller
         $movement->created_by_name = Auth::user()?->name;
         $movement->employee_id = Auth::user()?->employee_id;
         $movement->entry_from = 'web';
+        $movement->status = 0;
         $movement->save();
         return redirect()->route('movement-registers.create')->with('success', 'Movement started successfully');
     }

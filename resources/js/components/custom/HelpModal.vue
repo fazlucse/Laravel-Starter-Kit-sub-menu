@@ -78,7 +78,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleEsc))
                     </div>
 
                     <div class="flex flex-1 overflow-hidden flex-col md:flex-row">
-                        <div class="w-full md:w-64 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/50 p-5 overflow-y-auto custom-scrollbar">
+                        <div class=" hidden md:block w-full md:w-64 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/50 p-5 overflow-y-auto custom-scrollbar">
                             <div class="space-y-6">
                                 <div v-if="doc.description">
                                     <h4 @click="scrollToSection('description')" class="cursor-pointer text-[10px] font-black uppercase tracking-widest text-blue-600 mb-2">Overview</h4>

@@ -53,7 +53,7 @@ const logout = () => {
     class="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border/70 bg-background  supports-[backdrop-filter]:bg-background px-4 md:px-6"
   >
     <div class="flex items-center gap-3">
-      <SidebarTrigger class="-ml-1" />
+      <SidebarTrigger class="ml-0 md:-ml-5 cursor-pointer" />
       <Breadcrumbs v-if="breadcrumbs?.length" :breadcrumbs="breadcrumbs" />
     </div>
  <!-- <div class="flex items-center gap-3">
