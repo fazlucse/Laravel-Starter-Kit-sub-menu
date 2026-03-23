@@ -7,8 +7,8 @@
             { title: 'Create Attendance', href: '#' },
         ]"
     >
-        <div class="bg-white dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
-            <div class="max-w-4xl mx-auto">
+        <div class="bg-white dark:bg-gray-900 py-2 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
 
                 <FormSection title="Attendance Type">
                     <div class="flex gap-6 mt-2">

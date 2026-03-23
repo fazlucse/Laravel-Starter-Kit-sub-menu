@@ -29,7 +29,7 @@
 
                         <Link
                             :href="`/info-masters/create?type=${currentType}`"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded flex items-center gap-2 transition-all  shadow-blue-500/20"
                         >
                             <Plus class="w-4 h-4" />
                             <span class="text-sm font-black uppercase tracking-tighter">Add New</span>

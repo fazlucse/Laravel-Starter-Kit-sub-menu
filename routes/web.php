@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\EmployeeController;
@@ -30,9 +31,7 @@ Route::get('/', function () {
 })->name('home');
 Route::get('/ping', fn() => 'OK');
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return inertia('Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/menus', [MenuController::class, 'index'])->name('menus.index');
     Route::get('/menus/create', [MenuController::class, 'create'])->name('menus.create');
 

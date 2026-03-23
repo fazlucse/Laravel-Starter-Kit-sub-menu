@@ -10,6 +10,7 @@ return new class extends Migration {
             $table->id();
             $table->string('module');                    // e.g., "Person"
             $table->string('action');                    // e.g., "deleted"
+            $table->string('level')->default('info');
             $table->unsignedBigInteger('record_id')->nullable()->default(0);    // ID of deleted record
             $table->text('comments')->nullable();        // Reason
             $table->unsignedBigInteger('user_id')->default(0);       // Who did it

@@ -143,11 +143,11 @@ const submitReport = async () => {
                             <button
                                 type="submit"
                                 :disabled="isGenerating"
-                                class="w-full h-12 bg-gray-900 hover:bg-black text-white rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 transition active:scale-95 shadow-xl disabled:opacity-50 cursor-pointer"
+                                class="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition active:scale-95 shadow-lg shadow-blue-500/30 cursor-pointer disabled:opacity-50"
                             >
                                 <FileSearch v-if="!isGenerating" class="w-5 h-5" />
                                 <span v-else class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                {{ isGenerating ? 'Processing...' : 'Run Analysis' }}
+                                {{ isGenerating ? 'Processing...' : 'Show Report' }}
                             </button>
                         </div>
                     </div>

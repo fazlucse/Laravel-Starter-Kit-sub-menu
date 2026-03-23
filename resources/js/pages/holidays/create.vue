@@ -3,10 +3,10 @@
         title="Create Holiday"
         :breadcrumbs="[{ title: 'Dashboard', href: '/' }, { title: 'Holidays', href: '/holidays' }, { title: 'New Entry', href: '#' }]"
     >
-        <div class="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-            <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 transition-all">
+        <div class="py-3 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="bg-white dark:bg-gray-800  rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 transition-all">
 
-                <div class="bg-white dark:bg-gray-800 rounded-t-xl shadow-lg p-6 mb-0 border-b border-gray-100 dark:border-gray-700">
+                <div class="bg-white dark:bg-gray-800 rounded-t-xl  p-6 mb-0 border-b border-gray-100 dark:border-gray-700">
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center">
                         {{ mode === 'create' ? 'Holiday Configuration' : 'Update Holiday' }}
                     </h1>
@@ -48,7 +48,7 @@
                                     <select
                                         v-model="form.holiday_type"
                                         :class="{'border-red-500 focus:ring-red-500': form.errors.holiday_type}"
-                                        class="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all py-2.5 dark:text-white"
+                                        class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                                     >
                                         <option value="">Select Category</option>
                                         <option v-for="t in holidayTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
@@ -99,7 +99,7 @@
                                     rows="2"
                                     :class="{'border-red-500 focus:ring-red-500': form.errors.total_person_ids}"
                                     placeholder="e.g. 101, 205, 310"
-                                    class="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 py-3 dark:text-white shadow-sm transition-all"
+                                    class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                                 ></textarea>
                                 <p v-if="form.errors.total_person_ids" class="text-red-500 text-[10px] mt-1 font-bold">{{ form.errors.total_person_ids }}</p>
                             </div>
@@ -107,7 +107,7 @@
                             <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
                                 <div class="space-y-1">
                                     <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Office</label>
-                                    <select v-model="form.operational_office" class="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 dark:text-white py-3 transition-all">
+                                    <select v-model="form.operational_office" class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                                         <option :value="null">All Locations (Global)</option>
                                         <option v-for="o in offices" :key="o.id" :value="o.id">{{ o.name }}</option>
                                     </select>
@@ -115,7 +115,7 @@
                                 </div>
                                 <div class="space-y-1">
                                     <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Division</label>
-                                    <select v-model="form.division" class="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 dark:text-white py-3 transition-all">
+                                    <select v-model="form.division" class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                                         <option :value="null">All Divisions</option>
                                         <option v-for="d in divisions" :key="d.id" :value="d.id">{{ d.name }}</option>
                                     </select>
@@ -123,7 +123,7 @@
                                 </div>
                                 <div class="space-y-1">
                                     <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Department</label>
-                                    <select v-model="form.department" class="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 dark:text-white py-3 transition-all">
+                                    <select v-model="form.department" class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                                         <option :value="null">All Departments</option>
                                         <option v-for="dp in departments" :key="dp.id" :value="dp.id">{{ dp.name }}</option>
                                     </select>
@@ -143,7 +143,7 @@
                                     v-model="form.remarks"
                                     rows="3"
                                     :class="{'border-red-500': form.errors.remarks}"
-                                    class="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 dark:text-white shadow-sm transition-all"
+                                    class="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                                     placeholder="Enter any additional details here..."
                                 ></textarea>
                                 <p v-if="form.errors.remarks" class="text-red-500 text-[10px] mt-1 font-bold">{{ form.errors.remarks }}</p>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md dark:hover:shadow-lg transition-shadow duration-200"
+    class="bg-white dark:bg-gray-800  shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md dark:hover:shadow-lg transition-shadow duration-200"
   >
     <div class="flex items-center gap-3 mb-6">
       <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
