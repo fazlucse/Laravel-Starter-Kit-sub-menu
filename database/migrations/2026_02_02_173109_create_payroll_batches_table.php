@@ -27,7 +27,6 @@ return new class extends Migration {
             $table->timestamps();
             // indexing
             $table->index('id');
-            $table->index('com_id');
         });
     }
 
