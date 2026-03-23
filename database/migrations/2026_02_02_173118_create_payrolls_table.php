@@ -16,8 +16,8 @@ return new class extends Migration
                     $blueprint->foreignId('batch_id')->constrained('payroll_batches')->onDelete('cascade');
 
                     // Financial & HR Refs
-                    $blueprint->unsignedBigInteger('fin_com_id')->index();
-                    $blueprint->unsignedBigInteger('hr_ref')->index();
+                    $blueprint->unsignedBigInteger('fin_com_id')->default(0)->index();
+                    $blueprint->unsignedBigInteger('hr_ref')->default(0)->index();
                     $blueprint->date('month')->index();
 
                     // Earnings (Calculated)
