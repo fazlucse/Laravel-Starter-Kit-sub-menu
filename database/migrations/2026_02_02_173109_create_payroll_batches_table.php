@@ -9,18 +9,18 @@ return new class extends Migration {
         Schema::create('payroll_batches', function (Blueprint $table) {
             $table->id();
             $table->date('payroll_month')->index();
-            $table->unsignedBigInteger('com_id')->index();
+            $table->unsignedBigInteger('com_id')->nullable()->default(0)->index();
             $table->string('com_name')->nullable();
             $table->string('status')->default('draft'); // draft, posted, approved
-            $table->boolean('is_locked')->default(false);
+            $table->boolean('is_locked')->nullable()->default(false);
             // Staff Count
-            $table->integer('total_staff')->default(0);
+            $table->integer('total_staff')->nullable()->default(0);
             // Financial Summaries
-            $table->double('total_gross_amount', 15, 2)->default(0);  // Total before deductions
-            $table->double('total_payable_amount', 15, 2)->default(0); // Amount company is liable for
-            $table->double('total_net_disbursement', 15, 2)->default(0); // Actual take-home pay
+            $table->double('total_gross_amount', 15, 2)->nullable()->default(0);  // Total before deductions
+            $table->double('total_payable_amount', 15, 2)->nullable()->default(0); // Amount company is liable for
+            $table->double('total_net_disbursement', 15, 2)->nullable()->default(0); // Actual take-home pay
             // Tracking & Dates
-            $table->unsignedBigInteger('prepared_by');
+            $table->unsignedBigInteger('prepared_by')->nullable()->default(0);
             $table->timestamp('prepared_date')->nullable();
             $table->unsignedBigInteger('approved_by')->nullable();
             $table->timestamp('approved_date')->nullable();
