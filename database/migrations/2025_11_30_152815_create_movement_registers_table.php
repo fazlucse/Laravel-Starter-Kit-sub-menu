@@ -100,7 +100,6 @@ return new class extends Migration
             $table->timestamps();
             // indexing
             $table->index('id');
-            $table->index('employee_id');
             $table->index('created_by');
         });
     }
