@@ -19,17 +19,17 @@ return new class extends Migration
             $table->unsignedBigInteger('company_id')->nullable();
             $table->string('company_name', 150)->nullable();
             $table->string('fin_com_name', 150)->nullable();
-            $table->unsignedBigInteger('fin_com_id')->default(0);
+            $table->unsignedBigInteger('fin_com_id')->nullable()->default(0);
             // Division
             $table->unsignedBigInteger('division_id')->nullable();
             $table->string('division_name', 150)->nullable();
 
             // Department
-            $table->unsignedBigInteger('department_id');
+            $table->unsignedBigInteger('department_id')->nullable()->default(0);
             $table->string('department_name', 100);
 
             // Designation
-            $table->unsignedBigInteger('designation_id');
+            $table->unsignedBigInteger('designation_id')->nullable()->default(0);
             $table->string('designation_name', 100);
             $table->string('employee_code', 20)->nullable();
             $table->string('employee_id', 20)->unique();
@@ -52,13 +52,13 @@ return new class extends Migration
             // Salary Components
             $table->decimal('gross_salary', 15, 2)->default(0)->comment('Sum of all fixed components');
             $table->decimal('basic_salary', 15, 2)->default(0);
-            $table->decimal('house_rent_allowance', 15, 2)->default(0);
-            $table->decimal('medical_allowance', 15, 2)->default(0);
-            $table->decimal('transport_allowance', 15, 2)->default(0);
-            $table->decimal('other_allowances', 15, 2)->default(0);
-            $table->decimal('overtime_rate', 15, 2)->default(0);
-            $table->decimal('total_salary', 15, 2)->default(0)->comment('Gross salary + overtime');
-            $table->string('currency', 10)->default('BDT');
+            $table->decimal('house_rent_allowance', 15, 2)->nullable()->default(0);
+            $table->decimal('medical_allowance', 15, 2)->nullable()->default(0);
+            $table->decimal('transport_allowance', 15, 2)->nullable()->default(0);
+            $table->decimal('other_allowances', 15, 2)->nullable()->default(0);
+            $table->decimal('overtime_rate', 15, 2)->nullable()->default(0);
+            $table->decimal('total_salary', 15, 2)->nullable()->default(0)->comment('Gross salary + overtime');
+            $table->string('currency', 10)->nullable()->default('BDT');;
 
             // Banking & Tax
             $table->string('bank_name', 255)->nullable();
@@ -68,8 +68,8 @@ return new class extends Migration
             $table->enum('tax_status', ['Resident','Non-Resident'])->nullable();
             $table->string('social_security_no', 50)->nullable();
             $table->string('passport_number', 20)->nullable();
-            $table->integer('is_tax_dedction')->default(0);
-             $table->integer('is_salary_stop')->default(0);
+            $table->integer('is_tax_dedction')->nullable()->default(0);
+             $table->integer('is_salary_stop')->nullable()->default(0);
             // Emergency & Personal Info
             $table->string('emergency_contact_name', 100)->nullable();
             $table->string('emergency_contact_phone', 20)->nullable();
