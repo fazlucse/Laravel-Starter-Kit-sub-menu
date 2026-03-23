@@ -34,6 +34,7 @@ class EmployeeSeeder extends Seeder
                     'office_in_time'    => '09:00:00',
                     'office_out_time'   => '18:00:00',
                     'employee_status'   => 'Active',
+                    'is_tax_dedction'   => '0',
 
                     'gross_salary'      => $gross = rand(30000, 150000),
                     'basic_salary'      => $gross * 0.5,
