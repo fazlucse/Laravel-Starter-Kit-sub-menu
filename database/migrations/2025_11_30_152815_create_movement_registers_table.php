@@ -98,9 +98,6 @@ return new class extends Migration
             $table->text('rejection_reason')->nullable();
             // Laravel timestamps
             $table->timestamps();
-            // indexing
-            $table->index('id');
-            $table->index('created_by');
         });
     }
 
